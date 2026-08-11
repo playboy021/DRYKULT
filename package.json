@@ -6,7 +6,9 @@
     "dev": "next dev -p 3210",
     "build": "next build",
     "start": "next start -p 3210",
-    "assets": "node scripts/gen-assets.mjs"
+    "assets": "node scripts/gen-assets.mjs foto",
+    "assets:hd": "node scripts/gen-assets.mjs hd",
+    "video": "node scripts/gen-video.mjs"
   },
   "dependencies": {
     "framer-motion": "^12.42.2",
