@@ -1,0 +1,171 @@
+/* ============================================================
+   MEGAZ — osnova
+   Ceo layout je u rem, a html font-size prati viewport.
+   Zato dizajn ostaje PROPORCIONALAN na svakom ekranu:
+   ne prelamamo layout na svakom breakpoint-u, nego ga skaliramo.
+   ============================================================ */
+
+:root {
+  --bg: #05070d; /* crna sa plavim tonom — baza, iz logotipa */
+  --bg-2: #0a0f1a; /* loader ploča, paneli */
+  --blue: #2e7be8; /* MEGAZ plava — okviri, glow, akcenti */
+  --blue-2: #4fa8ff; /* svetlija — PUNI CTA (7:1 sa tamnim tekstom) */
+  --water: #8fd8ff; /* highlight kapljica */
+  --ink: #f2f6ff; /* tekst */
+  --muted: #8a94a6; /* sporedni tekst — 6.2:1 na bg, prolazi */
+  --line: rgba(242, 246, 255, 0.1); /* hairline, traka loadera */
+  --edge: #143055; /* heks pattern iz logotipa */
+
+  /* --f-display / --f-body postavlja next/font u _app.js (self-hosted).
+     Sistemski fallback stoji za slučaj da font ne stigne. */
+  --font-display: var(--f-display), 'Archivo', system-ui, sans-serif;
+  --font-body: var(--f-body), system-ui, -apple-system, sans-serif;
+
+  /* Krive iz reference — po redovima sporije i mekše, po rečima brže */
+  --ease-lines: cubic-bezier(0.215, 0.61, 0.355, 1);
+  --ease-words: cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+/* rem-mreža: html font-size je procenat širine ekrana.
+   Iznad 1920px JS skalira naviše (vidi lib/remScale.js) —
+   CSS ovde pokriva sve DO 1920. */
+html {
+  font-size: 16px;
+}
+@media (max-width: 1920px) {
+  html {
+    font-size: 0.833333vw;
+  }
+}
+@media (max-width: 1440px) {
+  html {
+    font-size: 1.111111vw;
+  }
+}
+@media (max-width: 1024px) {
+  html {
+    font-size: 1.5625vw;
+  }
+}
+@media (max-width: 640px) {
+  html {
+    font-size: 4.444444vw;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+body {
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+/* Lenis traži da telo NE bude ograničeno visinom */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+img,
+video,
+canvas {
+  display: block;
+  max-width: 100%;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+::selection {
+  background: var(--blue);
+  color: var(--ink);
+}
+
+/* Fokus mora da se vidi — tastatura je i dalje način da se koristi sajt */
+:focus-visible {
+  outline: 0.125rem solid var(--blue-2);
+  outline-offset: 0.25rem;
+  border-radius: 0.125rem;
+}
+
+/* ---- Otkrivanje teksta ---------------------------------------------------
+   Po REDOVIMA: svaki red je maska sa overflow:hidden, unutrašnji span
+   dolazi odozdo. Po REČIMA: kraći put i brži stagger.
+   Oba se puštaju jednom (IntersectionObserver skida klasu i gotovo). */
+
+.rvLine {
+  display: block;
+  overflow: hidden;
+}
+.rvLine > span {
+  display: block;
+  transform: translateY(100%);
+  opacity: 0;
+  transition:
+    transform 900ms var(--ease-lines),
+    opacity 900ms var(--ease-lines);
+  transition-delay: var(--d, 0ms);
+}
+.rvOn .rvLine > span {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.rvWord {
+  display: inline-block;
+  transform: translateY(1.5rem);
+  opacity: 0;
+  transition:
+    transform 700ms var(--ease-words),
+    opacity 700ms var(--ease-words);
+  transition-delay: var(--d, 0ms);
+}
+.rvOn .rvWord {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* ZAKON 4.6 — ko je tražio manje animacija, dobija manje animacija.
+   Ne "malo brže", nego stvarno bez pokreta. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .rvLine > span,
+  .rvWord {
+    transform: none;
+    opacity: 1;
+  }
+}
