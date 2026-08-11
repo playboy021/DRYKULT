@@ -1,0 +1,45 @@
+.main {
+  position: relative;
+}
+
+.next {
+  min-height: 70svh;
+  padding: 8rem 4rem;
+  max-width: 46rem;
+  border-top: 0.0625rem solid var(--line);
+}
+
+.nextKicker {
+  font-size: 0.8125rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--blue);
+  margin: 0 0 1.25rem;
+}
+
+.nextTitle {
+  font-family: var(--font-display);
+  font-variation-settings: 'wdth' 125;
+  font-weight: 600;
+  font-size: 3.5rem;
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  margin: 0 0 1.5rem;
+}
+
+.nextBody {
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  color: var(--muted);
+  margin: 0;
+}
+
+@media (max-width: 640px) {
+  .next {
+    padding: 5rem 1.5rem;
+  }
+  .nextTitle {
+    font-size: 2.5rem;
+  }
+}

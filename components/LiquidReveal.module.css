@@ -1,0 +1,29 @@
+.host {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.base,
+.canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Platno mora da propusti kursor do .host-a, inače pointermove ne stiže */
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Gradijent ka dnu i levo — da tekst hero-a ima na čemu da stoji.
+   Ide IZNAD platna, inače bi otkriveni deo "iskočio" iz kadra. */
+.grade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(to top, var(--bg) 0%, rgba(5, 7, 13, 0.72) 22%, rgba(5, 7, 13, 0) 58%),
+    linear-gradient(to right, rgba(5, 7, 13, 0.82) 0%, rgba(5, 7, 13, 0.25) 38%, rgba(5, 7, 13, 0) 68%);
+}

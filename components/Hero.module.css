@@ -1,0 +1,212 @@
+.hero {
+  position: relative;
+  width: 100%;
+  height: 100svh;
+  min-height: 34rem;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* Omotač sadržaja NE SME da hvata pointer — ispod njega je platno koje
+   farba suvu haubu. Sve interaktivno unutra vraća pointer-events na auto. */
+.content {
+  position: relative;
+  z-index: 2;
+  pointer-events: none;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 0 4rem 4.5rem;
+  max-width: 62rem;
+}
+
+.kicker {
+  font-size: 0.8125rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 1.5rem;
+}
+
+.mark {
+  color: var(--water);
+  font-weight: 600;
+}
+
+.dot {
+  margin: 0 0.625rem;
+  color: var(--blue);
+}
+
+.title {
+  font-family: var(--font-display);
+  /* Archivo je varijabilni font — 'wdth' 125 je ono "Expanded" iz izbora.
+     Bez ove linije dobija se obična, uska Archivo. */
+  font-variation-settings: 'wdth' 125;
+  font-weight: 600;
+  font-size: 5.5rem;
+  line-height: 0.96;
+  letter-spacing: -0.025em;
+  text-transform: uppercase;
+  margin: 0 0 1.75rem;
+  color: var(--ink);
+}
+
+/* Poslednji red je "poenta" — dobija plavu da oko zna gde da stane */
+.title .rvLine:last-child > span {
+  color: var(--blue-2);
+}
+
+.sub {
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  color: var(--muted);
+  max-width: 34rem;
+  margin: 0 0 2.5rem;
+}
+
+.ctas {
+  display: flex;
+  gap: 0.875rem;
+  margin-bottom: 2.75rem;
+}
+
+.ctas > span > span {
+  display: flex !important;
+  gap: 0.875rem;
+}
+
+.cta {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 1.75rem;
+  height: 3.25rem;
+  border-radius: 0.1875rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  /* --hover je opruga iz useSpringHover (0 → 1), ne CSS tranzicija */
+  transform: translateY(calc(var(--hover, 0) * -0.1875rem));
+}
+
+.solid {
+  /* --blue-2 sa tamnim tekstom = 6.97:1. Bela na --blue bila bi 4.14:1
+     i pala bi ispod praga — zato puni CTA ide na svetliju plavu. */
+  background: var(--blue-2);
+  color: var(--bg);
+  box-shadow: 0 0 0 rgba(79, 168, 255, 0), 0 0.5rem 1.5rem rgba(79, 168, 255, calc(var(--hover, 0) * 0.32));
+}
+
+.ghost {
+  color: var(--ink);
+  box-shadow: inset 0 0 0 0.0625rem rgba(242, 246, 255, calc(0.22 + var(--hover, 0) * 0.5));
+  background: rgba(242, 246, 255, calc(var(--hover, 0) * 0.06));
+}
+
+.trust {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+
+.markets {
+  color: var(--ink);
+  letter-spacing: 0.18em;
+  font-weight: 600;
+}
+
+.sep {
+  width: 1.5rem;
+  height: 0.0625rem;
+  background: var(--line);
+  flex: none;
+}
+
+.watermark {
+  position: absolute;
+  left: 50%;
+  bottom: -1.5rem;
+  transform: translateX(-50%);
+  z-index: 1;
+  font-family: var(--font-display);
+  font-variation-settings: 'wdth' 125;
+  font-weight: 700;
+  font-size: 16rem;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  color: rgba(242, 246, 255, 0.045);
+  pointer-events: none;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.hint {
+  position: absolute;
+  right: 4rem;
+  bottom: 4.5rem;
+  z-index: 2;
+  font-size: 0.75rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+@media (max-width: 1024px) {
+  .title {
+    font-size: 4.25rem;
+  }
+  .watermark {
+    font-size: 12rem;
+  }
+  .content {
+    padding: 0 3rem 3.5rem;
+  }
+  .hint {
+    right: 3rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .content {
+    padding: 0 1.5rem 2.5rem;
+    max-width: none;
+  }
+  .title {
+    font-size: 3.25rem;
+    line-height: 1;
+  }
+  .sub {
+    font-size: 1rem;
+    margin-bottom: 2rem;
+  }
+  .ctas {
+    flex-direction: column;
+    align-items: stretch;
+    margin-bottom: 2rem;
+  }
+  .ctas > span > span {
+    flex-direction: column;
+  }
+  .cta {
+    width: 100%;
+  }
+  .watermark {
+    font-size: 6rem;
+    bottom: -0.5rem;
+  }
+  .hint {
+    display: none;
+  }
+  .trust {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+}
