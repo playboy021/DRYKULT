@@ -15,26 +15,45 @@ import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const SRC = path.join(ROOT, 'assets-src', 'm5-towel.jpg');
 const OUT = path.join(ROOT, 'public', 'megaz');
 
-// Izvor je 941x1672 (9:16). Za pejzažni hero uzimamo pojas sa celim autom;
-// object-fit:cover na sajtu doseca ostatak po potrebi.
-const CROP_WIDE = { x: 0, y: 580, w: 941, h: 620 };
+// Dva izvora, dva kadra — biraju se argumentom: `npm run assets -- foto`.
+//
+// `hd`   kadar iz snimka IMG_0371, 1080x1920. Veća rezolucija (uvećanje 1.33x
+//        umesto 1.53x), ali peškir zauzima skoro pola kadra pa OSTAJE MANJE
+//        tamnog laka na kome reveal uopšte radi.
+// `foto` originalna fotka, 941x1672. Mekša na velikim ekranima, ali kadar je
+//        ceo auto iz tri četvrtine — mnogo više površine za brisanje.
+//
+// crop:     izrez iz izvora za pejzažni hero (object-fit:cover doseca ostatak)
+// car:      silueta auta u NORMALIZOVANIM koordinatama izlaza; kapljice smeju
+//           samo unutra. Pejzažni i portretni izrez je smeštaju različito.
+// towelBox: gruba kutija oko peškira, da ključevanje plave ne pokupi nebo.
+const PROFILES = {
+  hd: {
+    src: 'm5-towel-hd.jpg',
+    crop: { x: 0, y: 720, w: 1080, h: 800 },
+    car: { cx: 0.45, cy: 0.55, rx: 0.62, ry: 0.6 },
+    towelBox: { x: 20, y: 820, w: 980, h: 800 },
+  },
+  foto: {
+    src: 'm5-towel.jpg',
+    crop: { x: 0, y: 580, w: 941, h: 620 },
+    car: { cx: 0.48, cy: 0.52, rx: 0.44, ry: 0.48 },
+    towelBox: { x: 385, y: 800, w: 350, h: 215 },
+  },
+};
+
+// Podrazumevano `foto`. Izmereno na izlazu: `hd` daje oštriju sliku, ali peškir
+// tamo zauzima ~65% kadra pa reveal-u ostaje samo tanak rub laka — a reveal je
+// ceo smisao hero-a. Oštrina koja ubija mehaniku nije dobitak.
+const PROFILE_NAME = process.argv[2] === 'hd' ? 'hd' : 'foto';
+const P = PROFILES[PROFILE_NAME];
 
 const TARGETS = [
   { name: 'hi', w: 1440, h: 949, q: 88 },
   { name: 'md', w: 1024, h: 675, q: 84 },
 ];
-
-// Peškir na fotki — gruba kutija u koordinatama izvora, da ključevanje plave
-// ne pokupi nebo (i ono je plavkasto, samo svetlije).
-const TOWEL_BOX = { x: 385, y: 800, w: 350, h: 215 };
-
-// Silueta auta u normalizovanim koordinatama IZLAZA — po jedna za svaki izrez,
-// jer pejzažni pojas i pun portret smeštaju auto na različita mesta u kadru.
-const CAR_WIDE = { cx: 0.48, cy: 0.52, rx: 0.44, ry: 0.48 };
-const CAR_TALL = { cx: 0.478, cy: 0.54, rx: 0.44, ry: 0.185 };
 
 // --- alat -------------------------------------------------------------------
 
@@ -305,7 +324,7 @@ function drawDroplets(ctx, w, h, baseData, seed, mask) {
 // Plavi peškir na mat crnom autu je najlakši mogući ključ: kanal B jasno
 // nadvisuje R. Ograničeno na kutiju da ne pokupi nebo.
 async function cutTowel(img) {
-  const { x, y, w, h } = TOWEL_BOX;
+  const { x, y, w, h } = P.towelBox;
   const c = createCanvas(w, h);
   const ctx = c.getContext('2d');
   ctx.drawImage(img, x, y, w, h, 0, 0, w, h);
@@ -333,8 +352,8 @@ async function cutTowel(img) {
 
 async function main() {
   await mkdir(OUT, { recursive: true });
-  const img = await loadImage(SRC);
-  console.log(`izvor: ${img.width}x${img.height}`);
+  const img = await loadImage(path.join(ROOT, 'assets-src', P.src));
+  console.log(`profil: ${PROFILE_NAME}  izvor: ${P.src}  ${img.width}x${img.height}`);
 
   const report = [];
   const save = async (file, buf) => {
@@ -346,7 +365,7 @@ async function main() {
     // Jedna zajednička baza, pa se GRANA — tako mokro i suvo dele
     // identičnu geometriju, zrno i vinjetu.
     const mkBase = () => {
-      const { canvas, ctx } = drawCrop(img, CROP_WIDE, t.w, t.h);
+      const { canvas, ctx } = drawCrop(img, P.crop, t.w, t.h);
       const baseData = baseGrade(ctx, t.w, t.h, 20260811);
       return { canvas, ctx, baseData };
     };
@@ -358,30 +377,18 @@ async function main() {
     const wet = mkBase();
     gradeWet(wet.ctx, t.w, t.h);
     softenWet(wet.canvas, wet.ctx, t.w, t.h); // film vode pre kapi, ne posle
-    drawDroplets(wet.ctx, t.w, t.h, wet.baseData, 77123, CAR_WIDE);
+    drawDroplets(wet.ctx, t.w, t.h, wet.baseData, 77123, P.car);
     await save(`hero-wet-${t.name}.jpg`, await wet.canvas.encode('jpeg', t.q));
   }
 
-  // LOW tier: portret 9:16 — izvor je već tačno taj odnos, pa samo smanjujemo.
-  const lowW = 720;
-  const lowH = 1280;
-  const low = drawCrop(img, { x: 0, y: 0, w: img.width, h: img.height }, lowW, lowH);
-  const lowBase = baseGrade(low.ctx, lowW, lowH, 20260811);
-  gradeWet(low.ctx, lowW, lowH);
-  softenWet(low.canvas, low.ctx, lowW, lowH);
-  drawDroplets(low.ctx, lowW, lowH, lowBase, 77123, CAR_TALL);
-  await save('hero-poster-low.jpg', await low.canvas.encode('jpeg', 82));
-
-  // Suvi portret — treba i za završni kadar low-tier videa.
-  const lowDry = drawCrop(img, { x: 0, y: 0, w: img.width, h: img.height }, lowW, lowH);
-  baseGrade(lowDry.ctx, lowW, lowH, 20260811);
-  gradeDry(lowDry.ctx, lowW, lowH);
-  await save('hero-dry-low.jpg', await lowDry.canvas.encode('jpeg', 82));
+  // LOW tier više ne ide odavde. Otkad je film pravi snimak, poster MORA biti
+  // njegov prvi kadar — inače video na startu vidno preskoči sa postera na
+  // svoj prvi frejm. Poster pravi scripts/gen-video.mjs.
 
   const towel = await cutTowel(img);
   await save('towel-hi.png', await towel.encode('png'));
 
-  const tm = createCanvas(Math.round(TOWEL_BOX.w * 0.6), Math.round(TOWEL_BOX.h * 0.6));
+  const tm = createCanvas(Math.round(P.towelBox.w * 0.6), Math.round(P.towelBox.h * 0.6));
   tm.getContext('2d').drawImage(towel, 0, 0, tm.width, tm.height);
   await save('towel-md.png', await tm.encode('png'));
 
