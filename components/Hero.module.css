@@ -53,8 +53,10 @@
   color: var(--ink);
 }
 
-/* Poslednji red je "poenta" — dobija plavu da oko zna gde da stane */
-.title .rvLine:last-child > span {
+/* Poslednji red je "poenta" — dobija plavu da oko zna gde da stane.
+   :global() je OBAVEZAN: rvLine dolazi iz globals.css, a CSS modul bi mu
+   ovde heširao ime i selektor ne bi pogadjao ništa (naslov je ostajao beo). */
+.title :global(.rvLine):last-child > span {
   color: var(--blue-2);
 }
 
@@ -128,24 +130,6 @@
   flex: none;
 }
 
-.watermark {
-  position: absolute;
-  left: 50%;
-  bottom: -1.5rem;
-  transform: translateX(-50%);
-  z-index: 1;
-  font-family: var(--font-display);
-  font-variation-settings: 'wdth' 125;
-  font-weight: 700;
-  font-size: 16rem;
-  line-height: 1;
-  letter-spacing: 0.02em;
-  color: rgba(242, 246, 255, 0.045);
-  pointer-events: none;
-  white-space: nowrap;
-  user-select: none;
-}
-
 .hint {
   position: absolute;
   right: 4rem;
@@ -162,9 +146,6 @@
 @media (max-width: 1024px) {
   .title {
     font-size: 4.25rem;
-  }
-  .watermark {
-    font-size: 12rem;
   }
   .content {
     padding: 0 3rem 3.5rem;
@@ -197,10 +178,6 @@
   }
   .cta {
     width: 100%;
-  }
-  .watermark {
-    font-size: 6rem;
-    bottom: -0.5rem;
   }
   .hint {
     display: none;

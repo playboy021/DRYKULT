@@ -78,11 +78,6 @@ export default function Hero({ tier, ready }) {
         </RevealBlock>
       </div>
 
-      {/* Vodeni žig — dekoracija, čitač ekrana ga preskače */}
-      <div className={styles.watermark} aria-hidden="true">
-        MEGAZ
-      </div>
-
       {tier !== LOW && (
         <div className={styles.hint} aria-hidden="true">
           pomeri kursor preko auta
