@@ -138,6 +138,21 @@ a {
   opacity: 1;
 }
 
+/* Otkrivanje BEZ maske. Potrebno svuda gde element ima sjaj ili senku van
+   svojih granica (3D dugme) — .rvLine ima overflow:hidden i odsekao bi ih. */
+.rvFade {
+  transform: translateY(1.25rem);
+  opacity: 0;
+  transition:
+    transform 800ms var(--ease-words),
+    opacity 800ms var(--ease-words);
+  transition-delay: var(--d, 0ms);
+}
+.rvFade.rvOn {
+  transform: none;
+  opacity: 1;
+}
+
 .rvWord {
   display: inline-block;
   transform: translateY(1.5rem);
@@ -164,7 +179,8 @@ a {
     scroll-behavior: auto !important;
   }
   .rvLine > span,
-  .rvWord {
+  .rvWord,
+  .rvFade {
     transform: none;
     opacity: 1;
   }

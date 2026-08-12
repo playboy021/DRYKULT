@@ -72,6 +72,40 @@ function mulberry32(a) {
 const clamp255 = (v) => (v < 0 ? 0 : v > 255 ? 255 : v);
 const lum = (r, g, b) => (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
 
+// Koliko je piksel "unutar auta" (1 = centar, 0 = van), sa mekim rubom.
+// Grade se množi ovim faktorom da OKOLINA ostane piksel-identična u oba sloja.
+// To je bitnije nego što zvuči: kad se nebo, trava i zid ne mrdaju, oko čita
+// promenu kao "auto se osušio". Kad se menja ceo kadar, čita "druga slika".
+function maskFactor(mask, x, y, w, h) {
+  const dx = (x / w - mask.cx) / mask.rx;
+  const dy = (y / h - mask.cy) / mask.ry;
+  const inside = 1 - Math.min(1, Math.hypot(dx, dy));
+  return Math.min(1, inside * 3);
+}
+
+// Prag tamnoće. Elipsa sama nije dovoljna: zid hale stoji IZA auta i pada u
+// istu elipsu, pa bi se i on menjao između mokrog i suvog. Lak je taman,
+// zid/beton/nebo su svetli — luminansa ih razdvaja tamo gde geometrija ne može.
+function darkGate(L) {
+  return 1 - Math.min(1, Math.max(0, (L - 0.22) / 0.22));
+}
+
+// Kombinovana maska kao alfa-kanal, za operacije koje rade preko canvas-a
+// (blur) umesto piksel po piksel.
+function surfaceMask(w, h, mask, baseData) {
+  const m = createCanvas(w, h);
+  const c = m.getContext('2d');
+  const id = c.createImageData(w, h);
+  const a = id.data;
+  const b = baseData.data;
+  for (let i = 0, p = 0; i < a.length; i += 4, p++) {
+    const k = maskFactor(mask, p % w, (p / w) | 0, w, h) * darkGate(lum(b[i], b[i + 1], b[i + 2]));
+    a[i + 3] = Math.round(255 * k);
+  }
+  c.putImageData(id, 0, 0);
+  return m;
+}
+
 // Nacrta iseceni pojas izvora na platno ciljne veličine.
 function drawCrop(img, crop, w, h) {
   const c = createCanvas(w, h);
@@ -132,76 +166,136 @@ function baseGrade(ctx, w, h, seed) {
   return id; // vraćamo da mokra grana može da čita luminansu baze
 }
 
-// SUVI sloj: ono što se otkriva pod kursorom. Čistije, sjajnije, hladnije.
-function gradeDry(ctx, w, h) {
+// SUVI sloj: ono što se otkriva pod kursorom.
+//
+// Prva verzija je menjala samo sjaj i razlika se jedva videla. Sad se mokro
+// i suvo razdvajaju po ČETIRI ose istovremeno — ton, kontrast, zasićenje i
+// oštrina. Jedna osa se ne primeti, četiri udare odjednom.
+// Ovde: crna DOLE, kontrast gore, toplo sunce zadržano, zasićenje gore.
+function gradeDry(ctx, w, h, mask) {
   const id = ctx.getImageData(0, 0, w, h);
   const d = id.data;
-  for (let i = 0; i < d.length; i += 4) {
-    let r = d[i];
-    let g = d[i + 1];
-    let b = d[i + 2];
+  for (let i = 0, p = 0; i < d.length; i += 4, p++) {
+    const or = d[i];
+    const og = d[i + 1];
+    const ob = d[i + 2];
+    const k = maskFactor(mask, p % w, (p / w) | 0, w, h) * darkGate(lum(or, og, ob));
+    if (k <= 0.002) continue; // zid, beton, nebo — ne diraju se
 
-    // Sjaj: gornji tonovi se guraju naviše (lak "peče"), donji ostaju duboki.
+    let r = or;
+    let g = og;
+    let b = ob;
+
+    // S-kriva oko 118 sa spuštanjem crne. Mokri sloj radi tačno suprotno
+    // (diže crnu u mleko), pa se razlika duplira.
+    r = (r - 118) * 1.26 + 118 - 7;
+    g = (g - 118) * 1.26 + 118 - 7;
+    b = (b - 118) * 1.24 + 118 - 5;
+
+    // Sunce sa zida hale je toplo. Suvi lak to zadržava, mokri gubi pod vodom.
     const L = lum(r, g, b);
-    const gloss = Math.pow(Math.max(0, L - 0.5) / 0.5, 1.6) * 40;
-    r += gloss;
-    g += gloss + 2;
-    b += gloss + 8;
+    const hi = Math.pow(Math.max(0, L - 0.42) / 0.58, 1.5);
+    r += hi * 32;
+    g += hi * 23;
+    b += hi * 9;
 
-    // Zasićenje malo naviše — suva čista boja je punija od mokre
     const avg = (r + g + b) / 3;
-    r = avg + (r - avg) * 1.12;
-    g = avg + (g - avg) * 1.12;
-    b = avg + (b - avg) * 1.16;
+    r = avg + (r - avg) * 1.3;
+    g = avg + (g - avg) * 1.28;
+    b = avg + (b - avg) * 1.26;
 
-    d[i] = clamp255(r);
-    d[i + 1] = clamp255(g);
-    d[i + 2] = clamp255(b);
+    d[i] = clamp255(or + (r - or) * k);
+    d[i + 1] = clamp255(og + (g - og) * k);
+    d[i + 2] = clamp255(ob + (b - ob) * k);
   }
   ctx.putImageData(id, 0, 0);
+}
+
+// Britkost (unsharp mask) — samo na suvom sloju.
+// Ovo je četvrta osa razdvajanja: mokro je zamućeno (softenWet), suvo je
+// izoštreno. Oko tu razliku čita kao "čisto", iako ne ume da je imenuje.
+function clarity(canvas, ctx, w, h, mask, amount = 0.6) {
+  const blur = createCanvas(w, h);
+  const bctx = blur.getContext('2d');
+  bctx.filter = `blur(${Math.max(1.4, w / 480).toFixed(2)}px)`;
+  bctx.drawImage(canvas, 0, 0);
+  bctx.filter = 'none';
+
+  const base = ctx.getImageData(0, 0, w, h);
+  const soft = bctx.getImageData(0, 0, w, h);
+  const a = base.data;
+  const s = soft.data;
+  for (let i = 0, p = 0; i < a.length; i += 4, p++) {
+    const k = maskFactor(mask, p % w, (p / w) | 0, w, h) * darkGate(lum(a[i], a[i + 1], a[i + 2]));
+    if (k <= 0.002) continue;
+    const amt = amount * k;
+    a[i] = clamp255(a[i] + (a[i] - s[i]) * amt);
+    a[i + 1] = clamp255(a[i + 1] + (a[i + 1] - s[i + 1]) * amt);
+    a[i + 2] = clamp255(a[i + 2] + (a[i + 2] - s[i + 2]) * amt);
+  }
+  ctx.putImageData(base, 0, 0);
 }
 
 // Film vode spljošti odsjaje — mokra površina je MEKŠA, ne oštrija.
 // Ovo prodaje "mokro" jače nego ijedna pojedinačna kap: blagi blur preko
 // oštre slike, pa se meša nazad na ~55%. Bez ovoga kapi izgledaju nalepljeno.
-function softenWet(canvas, ctx, w, h) {
+function softenWet(canvas, ctx, w, h, mask, baseData) {
   const blur = createCanvas(w, h);
   const bctx = blur.getContext('2d');
-  bctx.filter = `blur(${Math.max(0.8, w / 1400).toFixed(2)}px)`;
+  bctx.filter = `blur(${Math.max(1.1, w / 1000).toFixed(2)}px)`;
   bctx.drawImage(canvas, 0, 0);
   bctx.filter = 'none';
 
-  // 0.35, ne 0.55: jače mešanje pravi tamni oreol tamo gde silueta auta
-  // seče svetli beton, pa auto izgleda kao loše izrezan kolaž.
+  // Zamućenje se obrezuje na lak — voda je na autu, ne na zidu i nebu.
+  bctx.globalCompositeOperation = 'destination-in';
+  bctx.drawImage(surfaceMask(w, h, mask, baseData), 0, 0);
+  bctx.globalCompositeOperation = 'source-over';
+
   ctx.save();
-  ctx.globalAlpha = 0.35;
+  ctx.globalAlpha = 0.45;
   ctx.drawImage(blur, 0, 0);
   ctx.restore();
 }
 
-// MOKRI sloj: osnovni, uvek vidljiv. Tamnije, mutnije, isprano.
-function gradeWet(ctx, w, h) {
+// MOKRI sloj: osnovni, uvek vidljiv.
+//
+// Ključna promena u odnosu na prvu verziju: crna se DIŽE, ne spušta.
+// Zvuči naopako za mokru površinu, ali mlečna izmaglica je najčitljiviji
+// znak "nije čisto", i tačno je suprotna od onoga što radi suvi sloj —
+// pa se razlika između njih duplira umesto da se poništi.
+function gradeWet(ctx, w, h, mask) {
   const id = ctx.getImageData(0, 0, w, h);
   const d = id.data;
-  for (let i = 0; i < d.length; i += 4) {
-    let r = d[i];
-    let g = d[i + 1];
-    let b = d[i + 2];
+  for (let i = 0, p = 0; i < d.length; i += 4, p++) {
+    const or = d[i];
+    const og = d[i + 1];
+    const ob = d[i + 2];
+    const k = maskFactor(mask, p % w, (p / w) | 0, w, h) * darkGate(lum(or, og, ob));
+    if (k <= 0.002) continue; // zid, beton, nebo — ne diraju se
 
-    // Mokra tamna površina upija svetlo — sve ide dole i ka plavom.
-    r *= 0.82;
-    g *= 0.85;
-    b *= 0.94;
+    let r = or;
+    let g = og;
+    let b = ob;
 
-    // Isprano zasićenje — film vode "razmaže" boju
+    // Spljošten kontrast + podignuta crna = mleko preko laka
+    r = r * 0.7 + 24;
+    g = g * 0.72 + 26;
+    b = b * 0.78 + 34;
+
+    // Hladan ton — film vode odbija nebo, gubi se toplo sunce sa zida
+    b += 9;
+    r -= 6;
+
+    // Jako isprano zasićenje. Suvi sloj ide na 1.30, ovaj na 0.60 —
+    // to je faktor preko dva između susednih piksela na ivici četke.
     const avg = (r + g + b) / 3;
-    r = avg + (r - avg) * 0.88;
-    g = avg + (g - avg) * 0.88;
-    b = avg + (b - avg) * 0.92;
+    r = avg + (r - avg) * 0.6;
+    g = avg + (g - avg) * 0.6;
+    b = avg + (b - avg) * 0.68;
 
-    d[i] = clamp255(r);
-    d[i + 1] = clamp255(g);
-    d[i + 2] = clamp255(b);
+    d[i] = clamp255(or + (r - or) * k);
+    d[i + 1] = clamp255(og + (g - og) * k);
+    d[i + 2] = clamp255(ob + (b - ob) * k);
   }
   ctx.putImageData(id, 0, 0);
 }
@@ -323,8 +417,8 @@ function drawDroplets(ctx, w, h, baseData, seed, mask) {
 // --- peškir kao PNG isečak --------------------------------------------------
 // Plavi peškir na mat crnom autu je najlakši mogući ključ: kanal B jasno
 // nadvisuje R. Ograničeno na kutiju da ne pokupi nebo.
-async function cutTowel(img) {
-  const { x, y, w, h } = P.towelBox;
+async function cutTowel(img, box) {
+  const { x, y, w, h } = box;
   const c = createCanvas(w, h);
   const ctx = c.getContext('2d');
   ctx.drawImage(img, x, y, w, h, 0, 0, w, h);
@@ -371,12 +465,13 @@ async function main() {
     };
 
     const dry = mkBase();
-    gradeDry(dry.ctx, t.w, t.h);
+    gradeDry(dry.ctx, t.w, t.h, P.car);
+    clarity(dry.canvas, dry.ctx, t.w, t.h, P.car, 0.6);
     await save(`hero-dry-${t.name}.jpg`, await dry.canvas.encode('jpeg', t.q));
 
     const wet = mkBase();
-    gradeWet(wet.ctx, t.w, t.h);
-    softenWet(wet.canvas, wet.ctx, t.w, t.h); // film vode pre kapi, ne posle
+    gradeWet(wet.ctx, t.w, t.h, P.car);
+    softenWet(wet.canvas, wet.ctx, t.w, t.h, P.car, wet.baseData); // film pre kapi
     drawDroplets(wet.ctx, t.w, t.h, wet.baseData, 77123, P.car);
     await save(`hero-wet-${t.name}.jpg`, await wet.canvas.encode('jpeg', t.q));
   }
@@ -385,7 +480,14 @@ async function main() {
   // njegov prvi kadar — inače video na startu vidno preskoči sa postera na
   // svoj prvi frejm. Poster pravi scripts/gen-video.mjs.
 
-  const towel = await cutTowel(img);
+  // Peškir za CELOEKRANSKI prelaz uvek dolazi iz HD kadra, bez obzira na profil.
+  // Isečak iz `foto` izvora je 350px širok — razvučen preko 1920px ekrana bi se
+  // raspao u kašu. Ovaj je ~980px i podnese to.
+  const hdImg = await loadImage(path.join(ROOT, 'assets-src', PROFILES.hd.src));
+  const sweep = await cutTowel(hdImg, PROFILES.hd.towelBox);
+  await save('towel-sweep.png', await sweep.encode('png'));
+
+  const towel = await cutTowel(img, P.towelBox);
   await save('towel-hi.png', await towel.encode('png'));
 
   const tm = createCanvas(Math.round(P.towelBox.w * 0.6), Math.round(P.towelBox.h * 0.6));

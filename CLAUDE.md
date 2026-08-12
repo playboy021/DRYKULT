@@ -162,6 +162,28 @@ Ovaj se pušta jednom i nikad se ne traži pozicija. Izmereno na staroj sintetic
 1166 KB na 795 KB. Spuštanje na 24fps skoro ne pomaže (865 KB) — kod snimka iz ruke
 crf je poluga, ne frame rate.
 
+### Razdvajanje mokro/suvo ide po ČETIRI ose
+
+Prva verzija je menjala samo sjaj i razlika se jedva videla. Jedna osa se ne
+primeti; četiri udare odjednom:
+
+| | mokro | suvo |
+|---|---|---|
+| crna | **diže se** (mleko, +24) | spušta se (−7) |
+| kontrast | spljošten (×0.70) | S-kriva ×1.26 |
+| zasićenje | ×0.60 | ×1.30 |
+| oštrina | blur, meša se 45% | unsharp `clarity()` 0.6 |
+
+Plus hladan ton na mokrom i zadržano toplo sunce na suvom.
+
+**Sve to važi SAMO unutar siluete auta.** Okolina — nebo, trava, ograda, zid,
+beton — mora ostati piksel-identična u oba sloja. Kad se pozadina ne mrda, oko
+čita „auto se osušio". Kad se menja ceo kadar, čita „druga slika" i iluzija pukne.
+
+Maska je dvostruka, kao i za kapljice: `maskFactor()` (elipsa siluete) puta
+`darkGate()` (prag luminanse). Elipsa sama nije dovoljna jer zid hale stoji IZA
+auta i pada u istu elipsu — luminansa ih razdvaja tamo gde geometrija ne može.
+
 ### Izbor hero kadra — oštrina protiv površine
 
 `gen-assets.mjs` ima dva profila: `npm run assets` (podrazumevano) i `npm run assets:hd`.
@@ -177,6 +199,60 @@ rub laka** — a reveal je ceo smisao hero-a. Zato je podrazumevano `foto`. Ošt
 mehaniku nije dobitak. `hd` kadar je odličan za sekciju „proizvod" kad dođe na red.
 
 ---
+
+### MOKRI PRELAZ — klik na „Poruči"
+
+`components/WetTransition.js`. Tri faze, ukupno 2050ms:
+
+| faza | vreme | šta se dešava |
+|---|---|---|
+| SPRAY | 0–450ms | kapljice niču od tačke klika ka ivicama, iza njih `backdrop-filter` |
+| WIPE | 450–1750ms | peškir prelazi zdesna nalevo, iza njega je čisto |
+| SETTLE | 1750–2050 | ostatak izbledi |
+
+**Trik koji ovo drži jednostavnim:** skok na `#poruci` se dešava POD VODOM.
+Kad kapljice i zamagljenje prekriju ekran (na 4% putanje peškira), skrol se
+prebaci trenutno. Peškir posle ne otkriva novu stranicu — on briše veo sa nje.
+Vizuelno je isto, a nema dupliranja sekcije, dva DOM stabla ni sinhronizacije.
+
+Otkrivanje ide preko `clip-path: inset(0 X% 0 0)` na velu i canvas-u sa
+kapljicama — kompozitor to radi besplatno.
+
+**Zamka koja bi oborila ceo prelaz:** `stopScroll()` postavlja
+`html{overflow:hidden}`, a tada element nije skrolabilan pa **ni programski
+`scrollTo` ne prolazi**. Zato `jumpTo()` nakratko otključa skrol, skoči, pa
+zaključa nazad. Traje jedan frejm i dešava se pod vodom. Uz to Lenis treba
+`{ immediate: true, force: true }` — bez `force` ignoriše scrollTo dok je stopiran.
+
+**Brava se otpušta tačno jednom** (`locked` zastavica). Bez toga se `startScroll`
+pozove i na kraju animacije i u cleanup-u, pa drugi poziv otpusti tuđu bravu.
+
+Naučeno iz offline simulacije (renderovanje kadrova u Node-u istom matematikom,
+jer se panel pregleda nije mogao otvoriti):
+- **Kapljice moraju biti sitne i prigušene.** Sa `r` do 26px i obrubom 0.42
+  izgledale su kao sapunica koja lebdi ispred ekrana. Sada `r` do ~11px,
+  eksponent 3 u raspodeli (mnogo perli, malo krupnih), obrub 0.26.
+- **Peškir na visini 1.22×H pokrivao je 84% širine** i čitao se kao plava
+  zavesa. Sada 1.05×H uz nagib od −8°. Pravougaonik paralelan sa ivicom ekrana
+  uvek izgleda kao UI element, ne kao stvar.
+- Kontaktna senka ispred vodeće ivice je obavezna — bez nje peškir lebdi.
+
+**Zvuk:** swoosh se SINTETIŠE preko Web Audio (filtrirani šum sa kovertom),
+ne učitava se fajl. Klik je korisnički gest, pa je to jedini trenutak kad
+browser sme da pusti zvuk — ZAKON 4.5, skrol se ne računa, klik da.
+
+### LiquidButton
+
+`components/LiquidButton.js`. Tri sloja iluzije dubine, svaki radi drugi posao:
+`rotateX/rotateY` prati kursor (ploča se naginje), specular mrlja prati kursor
+(svetlo klizi), slojevita senka se skuplja pri pritisku (dugme utone, ne samo
+posvetli). Sve preko CSS promenljivih koje pomera opruga na rAF-u — pri brzom
+prelasku kursora se ne resetuje kao tranzicija.
+
+Gasi se na `pointer: coarse` i `prefers-reduced-motion`.
+
+**Ne sme unutar `RevealBlock`** — `.rvLine` ima `overflow:hidden` i odsekao bi
+sjaj i senku. Za to postoji `RevealFade` (otkrivanje bez maske).
 
 ## Zamke okruženja (koštale su vremena)
 
@@ -222,6 +298,23 @@ Pravi rez je **self-host sa `pyftsubset`**: Archivo se koristi za par desetina z
 Cena: build korak i obaveza da se subset osveži kad se doda novi znak u naslov.
 
 ---
+
+## Plaćanje — šta NIJE povezano
+
+`components/OrderSection.js` je **samo UI**. Forma ne šalje nigde ništa.
+
+**Broj kartice namerno NEMA svoj `<input>`.** Čim bi ga imao, podaci kartice
+prolaze kroz naš DOM i naš server — to je PCI prekršaj u trenutku kad se poveže
+uživo, bez obzira koliko kod izgleda uredno. Umesto polja stoji `.payMount`,
+mesto gde provajder (Stripe Elements ili sličan) montira svoja hostovana polja.
+Ta polja su u tuđem iframe-u i mi im nikad ne vidimo sadržaj.
+
+Za pravu naplatu treba: nalog kod provajdera, ključevi u env varijablama
+(nikad u repo-u — ovaj je javan), server ruta koja pravi PaymentIntent, i
+webhook za potvrdu. Kripto ide preko zasebnog provajdera, isti princip.
+
+**`CENA_RSD` u `OrderSection.js` je placeholder (2490).** Stoji na javnom
+sajtu dok se ne zameni pravom cenom.
 
 ## Otvorena pitanja
 

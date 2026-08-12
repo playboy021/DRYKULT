@@ -1,0 +1,356 @@
+.wrap {
+  position: relative;
+  background: var(--bg);
+  border-top: 0.0625rem solid var(--line);
+  padding: 6rem 4rem 7rem;
+}
+
+.inner {
+  display: grid;
+  grid-template-columns: minmax(0, 22rem) minmax(0, 34rem);
+  gap: 4rem;
+  align-items: start;
+  justify-content: center;
+  max-width: 66rem;
+  margin: 0 auto;
+}
+
+/* --- levo: video hook ------------------------------------------------------ */
+
+.media {
+  position: relative;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  background: var(--bg-2);
+  /* Lepi se dok forma skroluje — proizvod ostaje u kadru dok se popunjava. */
+  position: sticky;
+  top: 4rem;
+  box-shadow: 0 1.5rem 3rem rgba(0, 0, 0, 0.5);
+}
+
+.video {
+  width: 100%;
+  aspect-ratio: 540 / 960;
+  object-fit: cover;
+}
+
+.mediaGrade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(to top, rgba(5, 7, 13, 0.85) 0%, rgba(5, 7, 13, 0) 42%);
+}
+
+.mediaTag {
+  position: absolute;
+  left: 1.25rem;
+  bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.mediaDot {
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: 50%;
+  background: var(--water);
+  box-shadow: 0 0 0.75rem var(--water);
+}
+
+/* --- desno: prodaja -------------------------------------------------------- */
+
+.kicker {
+  font-size: 0.8125rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--blue);
+  margin: 0 0 1rem;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-variation-settings: 'wdth' 125;
+  font-weight: 600;
+  font-size: 3.25rem;
+  line-height: 0.98;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  margin: 0 0 1.25rem;
+}
+
+.title :global(.rvLine):last-child > span {
+  color: var(--blue-2);
+}
+
+.lede {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--muted);
+  margin: 0 0 2.5rem;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.legend {
+  font-size: 0.75rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 0;
+  margin-bottom: 0.875rem;
+}
+
+.qty,
+.pay {
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.qtyRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.qtyBtn {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.25rem;
+  font-size: 1.25rem;
+  line-height: 1;
+  color: var(--ink);
+  background: rgba(242, 246, 255, 0.05);
+  box-shadow: inset 0 0 0 0.0625rem var(--line);
+  transition: background 160ms ease;
+}
+.qtyBtn:hover {
+  background: rgba(242, 246, 255, 0.11);
+}
+
+.qtyVal {
+  min-width: 2rem;
+  text-align: center;
+  font-size: 1.125rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.qtyHint {
+  margin-left: 0.5rem;
+  font-size: 0.8125rem;
+  color: var(--water);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.wide {
+  grid-column: 1 / -1;
+}
+
+.labelText {
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.input {
+  height: 3rem;
+  padding: 0 0.875rem;
+  border: 0;
+  border-radius: 0.25rem;
+  font: inherit;
+  font-size: 0.9375rem;
+  color: var(--ink);
+  background: rgba(242, 246, 255, 0.04);
+  box-shadow: inset 0 0 0 0.0625rem var(--line);
+  transition:
+    box-shadow 180ms ease,
+    background 180ms ease;
+}
+
+.input:hover {
+  background: rgba(242, 246, 255, 0.07);
+}
+
+.input:focus {
+  outline: 0;
+  background: rgba(242, 246, 255, 0.08);
+  box-shadow: inset 0 0 0 0.0938rem var(--blue-2);
+}
+
+/* --- plaćanje -------------------------------------------------------------- */
+
+.payRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.payOpt {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 1rem;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  background: rgba(242, 246, 255, 0.03);
+  box-shadow: inset 0 0 0 0.0625rem var(--line);
+  transition:
+    box-shadow 180ms ease,
+    background 180ms ease;
+}
+
+.payOpt:hover {
+  background: rgba(242, 246, 255, 0.06);
+}
+
+.payOn {
+  background: rgba(79, 168, 255, 0.09);
+  box-shadow: inset 0 0 0 0.0938rem var(--blue-2);
+}
+
+/* Radio se sakriva vizuelno ali OSTAJE u tabu i pod čitačem ekrana —
+   display:none bi ga izbacio iz oba. */
+.payInput {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.payInput:focus-visible + .payNaziv {
+  outline: 0.125rem solid var(--blue-2);
+  outline-offset: 0.25rem;
+}
+
+.payNaziv {
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.payOpis {
+  font-size: 0.75rem;
+  color: var(--muted);
+  letter-spacing: 0.06em;
+}
+
+.payMount {
+  margin-top: 0.875rem;
+  padding: 1rem 1.125rem;
+  border-radius: 0.375rem;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--muted);
+  background: rgba(5, 7, 13, 0.6);
+  box-shadow: inset 0 0 0 0.0625rem var(--line);
+}
+
+/* --- zbir ------------------------------------------------------------------ */
+
+.total {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  padding-top: 1.5rem;
+  border-top: 0.0625rem solid var(--line);
+}
+
+.totalRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9375rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.totalSum {
+  padding-top: 0.625rem;
+  border-top: 0.0625rem solid var(--line);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.submit {
+  width: 100%;
+  height: 3.75rem;
+  font-size: 1rem;
+}
+
+.note {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--muted);
+  text-align: center;
+}
+
+/* --- responzivno ----------------------------------------------------------- */
+
+@media (max-width: 1024px) {
+  .wrap {
+    padding: 5rem 3rem 6rem;
+  }
+  .inner {
+    grid-template-columns: minmax(0, 18rem) minmax(0, 30rem);
+    gap: 2.5rem;
+  }
+  .title {
+    font-size: 2.75rem;
+  }
+}
+
+@media (max-width: 860px) {
+  .inner {
+    grid-template-columns: minmax(0, 34rem);
+  }
+  .media {
+    position: relative;
+    top: 0;
+    max-width: 20rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .wrap {
+    padding: 4rem 1.5rem 5rem;
+  }
+  .title {
+    font-size: 2.5rem;
+  }
+  .grid {
+    grid-template-columns: 1fr;
+  }
+  .media {
+    max-width: none;
+  }
+  .qtyHint {
+    margin-left: 0;
+    flex-basis: 100%;
+  }
+  .qtyRow {
+    flex-wrap: wrap;
+  }
+}
