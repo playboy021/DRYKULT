@@ -170,13 +170,23 @@ export default function WetTransition({ active, origin, targetId, tier, onDone }
     const dctx = drops.getContext('2d');
     const tctx = towelC.getContext('2d');
 
+    // backdrop-filter preko celog ekrana je na telefonu najskuplja stavka
+    // u ovoj animaciji — GPU ga preračunava svaki frejm. Na LOW tieru ide
+    // upola slabije zamućenje; utisak mokrog stakla drže kapljice, ne blur.
+    veil.style.setProperty('--maxblur', tier === LOW ? '0.4rem' : '0.75rem');
+
     const sprite = makeDropSprite(96);
 
     // Kapi se rađaju u TALASU od tačke klika: kašnjenje svake je srazmerno
     // udaljenosti. Bez toga se ekran popuni odjednom i nema osećaja izvora.
     // Više i SITNIJIH kapi. Krupne su izgledale kao sapunica koja lebdi
     // ispred ekrana; voda na staklu je gusta i sitna, sa par većih slivova.
-    const count = tier === LOW ? 220 : tier === MID ? 500 : 950;
+    //
+    // LOW ide na 380, ne na proporcionalnih ~250. Telefonski ekran ima manje
+    // površine, pa ista gustina po pikselu deluje prazno — na malom kadru se
+    // svaka kap gleda izbliza. Trošak je zanemarljiv: kapi su keširani
+    // sprite-ovi, skupo je zamućenje, a njega smo već prepolovili za LOW.
+    const count = tier === LOW ? 380 : tier === MID ? 500 : 950;
     const ox = (origin?.x ?? window.innerWidth / 2) * dpr;
     const oy = (origin?.y ?? window.innerHeight / 2) * dpr;
     const maxDist = Math.hypot(Math.max(ox, W - ox), Math.max(oy, H - oy));
@@ -240,13 +250,25 @@ export default function WetTransition({ active, origin, targetId, tier, onDone }
           jumpTo();
         }
 
-        // Peškir ide od desne ivice (110%) do van levog ruba (-30%)
-        const cx = W * (1.1 - 1.4 * e);
         // 1.05, ne 1.22: na 1.22 je peškir pokrivao 84% širine ekrana i
         // čitao se kao plava zavesa, ne kao krpa. Nagib dopunjava visinu
         // koju smo izgubili, pa rez preko pune visine i dalje ima pokriće.
         const th = H * 1.05;
-        const tw = towelReady ? th * (towel.width / towel.height) : th * 1.2;
+        const aspect = towelReady ? towel.width / towel.height : 1.2;
+
+        // Širina se OGRANIČAVA na 1.3 širine ekrana. Bez ovog ograničenja
+        // je na portretu (telefon) ispadala 1.23 * H, što je na 400x800
+        // ekranu 1033px preko 400px — peškir 2.6 puta širi od ekrana, pa se
+        // tokom celog prelaza vidi samo plava površina bez ijedne ivice.
+        // Na uskom ekranu se malo izduži; u pokretu, sa talasanjem tkanine,
+        // to niko ne meri — a razlika između "krpa briše" i "plavo polje" je ogromna.
+        const tw = Math.min(th * aspect, W * 1.3);
+
+        // Putanja se računa IZ širine peškira, ne iz fiksnih procenata:
+        // ulazi tačno iza desne ivice i izlazi tačno iza leve, koliko god
+        // da je širok. Sa fiksnim -0.3W je na telefonu ostajala trećina
+        // peškira zaglavljena u kadru na kraju animacije.
+        const cx = W + tw / 2 - e * (W + tw);
 
         // Veo i kapi se sklanjaju sa DESNE strane peškira — tamo je obrisano.
         const cut = Math.max(0, Math.min(100, (cx / W) * 100));
