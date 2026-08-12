@@ -237,6 +237,24 @@ jer se panel pregleda nije mogao otvoriti):
   uvek izgleda kao UI element, ne kao stvar.
 - Kontaktna senka ispred vodeće ivice je obavezna — bez nje peškir lebdi.
 
+**Portret (telefon) traži dva ograničenja, inače prelaz tamo ne radi ništa:**
+
+1. **Širina peškira se ograničava na `1.3 × W`.** Dimenzionisanje po visini
+   (`th × 1.23`) na 390×844 daje **1086px preko ekrana od 390px** — peškir je
+   2.8 puta širi od ekrana, pa se tokom celog prelaza vidi samo plava površina
+   bez ijedne ivice. Nema šta da se pročita kao „briše". Sa ograničenjem: 507px.
+   Na uskom ekranu se malo izduži, ali u pokretu sa talasanjem to niko ne meri.
+2. **Putanja se računa iz širine peškira** (`W + tw/2 → −tw/2`), ne iz fiksnih
+   procenata. Sa starim `−0.3W` je na telefonu ostajala trećina peškira
+   zaglavljena u kadru na kraju animacije.
+
+Prelaz **nikad nije bio isključen na telefonu** — nema tier-kapije, samo se broj
+kapljica smanjuje. Ako izgleda da ga nema, kriva je jedna od gornje dve stvari.
+
+`backdrop-filter` je najskuplja stavka na telefonu (GPU ga preračunava svaki
+frejm), pa LOW dobija `--maxblur: 0.4rem` umesto 0.75rem. Utisak mokrog stakla
+drže kapljice, ne zamućenje.
+
 **Zvuk:** swoosh se SINTETIŠE preko Web Audio (filtrirani šum sa kovertom),
 ne učitava se fajl. Klik je korisnički gest, pa je to jedini trenutak kad
 browser sme da pusti zvuk — ZAKON 4.5, skrol se ne računa, klik da.

@@ -11,10 +11,11 @@
    pa se skok na #poruci desi neprimetno — ispod zamućenja. */
 .veil {
   --veil: 0;
+  --maxblur: 0.75rem; /* WetTransition.js ga spušta na 0.4rem za LOW tier */
   position: absolute;
   inset: 0;
-  backdrop-filter: blur(calc(var(--veil) * 0.75rem)) saturate(calc(1 - var(--veil) * 0.45));
-  -webkit-backdrop-filter: blur(calc(var(--veil) * 0.75rem)) saturate(calc(1 - var(--veil) * 0.45));
+  backdrop-filter: blur(calc(var(--veil) * var(--maxblur))) saturate(calc(1 - var(--veil) * 0.45));
+  -webkit-backdrop-filter: blur(calc(var(--veil) * var(--maxblur))) saturate(calc(1 - var(--veil) * 0.45));
   background: linear-gradient(
     180deg,
     rgba(10, 22, 42, calc(var(--veil) * 0.34)) 0%,
