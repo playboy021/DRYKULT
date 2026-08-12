@@ -136,6 +136,24 @@ export default function LiquidReveal({ wet, dry, tier, className, children }) {
       ctx.drawImage(cover, 0, 0);
       ctx.globalCompositeOperation = 'source-over';
 
+      // 4) svetli prsten na aktivnoj četki — voda koju peškir gura ispred sebe.
+      // Bez ovoga prelaz mokro/suvo je statična granica; ovako ima smer i
+      // brzinu, pa se čita kao POTEZ a ne kao maska koja se pomera.
+      // Gasi se kroz 20 frejmova mirovanja, da ne ostane svetla mrlja.
+      const edge = Math.max(0, 1 - idle / 20);
+      if (edge > 0.01) {
+        const rg = ctx.createRadialGradient(px, py, radius * 0.7, px, py, radius * 1.04);
+        rg.addColorStop(0, 'rgba(143,216,255,0)');
+        rg.addColorStop(0.55, `rgba(186,232,255,${(0.17 * edge).toFixed(3)})`);
+        rg.addColorStop(1, 'rgba(143,216,255,0)');
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.fillStyle = rg;
+        ctx.beginPath();
+        ctx.arc(px, py, radius * 1.04, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalCompositeOperation = 'source-over';
+      }
+
       if (idle > IDLE_FRAMES) {
         // Trag je već skoro nevidljiv — obriši ga tvrdo i ugasi petlju.
         // Bez ovoga rAF radi zauvek i troši bateriju na prazno platno.

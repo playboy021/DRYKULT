@@ -60,7 +60,7 @@ export function RevealWords({ text, as: Tag = 'p', className, ready = true, stag
   );
 }
 
-// Za sve ostalo — jedan blok koji uđe kao celina.
+// Za sve ostalo — jedan blok koji uđe kao celina, iza maske.
 export function RevealBlock({ children, className, ready = true, delay = 0 }) {
   const ref = useRef(null);
   useRevealOnce(ref, ready);
@@ -69,6 +69,18 @@ export function RevealBlock({ children, className, ready = true, delay = 0 }) {
       <span className="rvLine">
         <span style={{ '--d': `${delay}ms` }}>{children}</span>
       </span>
+    </div>
+  );
+}
+
+// Isto, ali BEZ maske. Za sadržaj kome sjaj i senka izlaze van granica —
+// .rvLine ima overflow:hidden i odsekao bi ih (3D dugme).
+export function RevealFade({ children, className = '', ready = true, delay = 0 }) {
+  const ref = useRef(null);
+  useRevealOnce(ref, ready);
+  return (
+    <div ref={ref} className={`rvFade ${className}`} style={{ '--d': `${delay}ms` }}>
+      {children}
     </div>
   );
 }

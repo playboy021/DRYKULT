@@ -1,31 +1,14 @@
 import LiquidReveal from './LiquidReveal';
 import HeroVideo from './HeroVideo';
-import { RevealLines, RevealWords, RevealBlock } from './Reveal';
-import { useSpringHover } from '../lib/useSpringHover';
+import LiquidButton from './LiquidButton';
+import { RevealLines, RevealWords, RevealBlock, RevealFade } from './Reveal';
 import { heroAssets, headlineLines, LOW } from '../lib/device';
 import styles from './Hero.module.css';
 
 const SUB =
   'Jedan potez pokupi vodu koju običan peškir samo razmaže — bez vrtloga u laku i bez vlakana koja ostaju iza.';
 
-function Cta({ variant, children, onClick, href }) {
-  const ref = useSpringHover(1);
-  const cls = `${styles.cta} ${variant === 'solid' ? styles.solid : styles.ghost}`;
-  if (href) {
-    return (
-      <a ref={ref} className={cls} href={href} onClick={onClick}>
-        {children}
-      </a>
-    );
-  }
-  return (
-    <button ref={ref} type="button" className={cls} onClick={onClick}>
-      {children}
-    </button>
-  );
-}
-
-export default function Hero({ tier, ready }) {
+export default function Hero({ tier, ready, onOrder }) {
   const a = heroAssets(tier);
   const lines = headlineLines(tier);
 
@@ -62,14 +45,22 @@ export default function Hero({ tier, ready }) {
 
         <RevealWords text={SUB} className={styles.sub} ready={ready} stagger={35} delay={820} />
 
-        <RevealBlock className={styles.ctas} ready={ready} delay={1080}>
-          <Cta variant="solid" href="#poruci">
+        <RevealFade className={styles.ctas} ready={ready} delay={1080}>
+          <LiquidButton
+            variant="solid"
+            href="#poruci"
+            onClick={(e) => {
+              e.preventDefault();
+              // Pozicija klika je izvor iz kog kapljice niču u prelazu.
+              onOrder?.({ x: e.clientX, y: e.clientY });
+            }}
+          >
             Poruči
-          </Cta>
-          <Cta variant="ghost" href="#demo" onClick={toDemo}>
+          </LiquidButton>
+          <LiquidButton variant="ghost" href="#demo" onClick={toDemo}>
             Vidi na delu
-          </Cta>
-        </RevealBlock>
+          </LiquidButton>
+        </RevealFade>
 
         <RevealBlock className={styles.trust} ready={ready} delay={1240}>
           <span className={styles.markets}>RS · BA · ME</span>
