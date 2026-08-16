@@ -1,11 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import LiquidButton from './LiquidButton';
 import { RevealLines, RevealWords } from './Reveal';
+import { STRANE, HROM } from '../lib/faction';
 import styles from './OrderSection.module.css';
 
-// !!! POSTAVI PRAVU CENU !!!
-// Placeholder — stoji na javnom sajtu dok se ne zameni.
-const CENA_RSD = 2490;
+const CENA_RSD = 3000;
 const DOSTAVA_RSD = 390;
 const PRAG_BESPLATNE_DOSTAVE = 2;
 
@@ -20,45 +19,18 @@ const POLJA = [
 
 const format = (n) => n.toLocaleString('sr-RS');
 
-export default function OrderSection() {
-  const videoRef = useRef(null);
+export default function OrderSection({ strana }) {
   const [kolicina, setKolicina] = useState(1);
   const [placanje, setPlacanje] = useState('kartica');
   const [poslato, setPoslato] = useState(false);
 
+  // Pre izbora strane prikazujemo HROM — ali samo kao sliku, dok tekst
+  // ostaje neutralan. Nijedna frakcija ne sme da izgleda kao podrazumevana.
+  const f = STRANE[strana || HROM];
+
   const roba = CENA_RSD * kolicina;
   const dostava = kolicina >= PRAG_BESPLATNE_DOSTAVE ? 0 : DOSTAVA_RSD;
   const ukupno = roba + dostava;
-
-  useEffect(() => {
-    const v = videoRef.current;
-    if (!v) return;
-
-    // ZAKON 4.4 — src u JS-u, ne u JSX-u. U markup-u stoji samo poster,
-    // pa telefon ne počne da vuče fajl pre nego što ovo odluči.
-    v.src = '/megaz/order-hook.mp4';
-
-    const io = new IntersectionObserver(
-      (entries) => {
-        for (const e of entries) {
-          if (e.isIntersecting) v.play().catch(() => {});
-          else v.pause();
-        }
-      },
-      { threshold: 0.25 }
-    );
-    io.observe(v);
-
-    const onVis = () => {
-      if (document.hidden) v.pause();
-    };
-    document.addEventListener('visibilitychange', onVis);
-
-    return () => {
-      io.disconnect();
-      document.removeEventListener('visibilitychange', onVis);
-    };
-  }, []);
 
   const posalji = (e) => {
     e.preventDefault();
@@ -69,38 +41,29 @@ export default function OrderSection() {
   return (
     <section id="poruci" className={styles.wrap}>
       <div className={styles.inner}>
-        {/* Levo: drugi hook. Ruke brišu retrovizor, pa ostane čisto staklo.
-            Poenta je da posle prelaza korisnik JOŠ JEDNOM vidi proizvod
-            na delu, pre nego što ga forma pita za podatke. */}
+        {/* Levo: proizvod izabrane strane. Ranije je ovde stajao snimak
+            brisanja, ali on prikazuje PLAV peškir starog brenda — na
+            DRYKULT sajtu bi to bio tuđi proizvod. Vraća se čim se snimi
+            materijal sa pravim peškirom. */}
         <div className={styles.media}>
-          <video
-            ref={videoRef}
-            className={styles.video}
-            poster="/megaz/order-hook-poster.jpg"
-            muted
-            loop
-            playsInline
-            preload="metadata"
-            aria-label="MEGAZ peškir briše retrovizor i ostavlja čisto staklo"
+          <img
+            className={styles.foto}
+            src={`/drykult/${f.peskir}-hi.png`}
+            alt={`DRYKULT peškir — strana ${f.ime}`}
+            draggable={false}
           />
-          <div className={styles.mediaGrade} aria-hidden="true" />
           <div className={styles.mediaTag}>
             <span className={styles.mediaDot} aria-hidden="true" />
-            bez tragova, iz prve
+            {f.ime} · {f.boja}
           </div>
         </div>
 
         {/* Desno: prodaja */}
         <div className={styles.panel}>
           <p className={styles.kicker}>Poruči</p>
-          <RevealLines
-            lines={['MEGAZ', 'peškir']}
-            as="h2"
-            className={styles.title}
-            stagger={110}
-          />
+          <RevealLines lines={['Uzmi', 'svoju stranu']} as="h2" className={styles.title} stagger={110} />
           <RevealWords
-            text="Dostupno u Srbiji, Bosni i Hercegovini i Crnoj Gori. Slanje istog radnog dana za porudžbine do 14h."
+            text="90 × 70 cm, 850 GSM, twisted-loop. Srbija, Bosna i Hercegovina, Crna Gora. Slanje istog radnog dana za porudžbine do 14h."
             className={styles.lede}
           />
 
@@ -192,7 +155,7 @@ export default function OrderSection() {
             <div className={styles.total}>
               <div className={styles.totalRow}>
                 <span>
-                  Peškir × {kolicina}
+                  {f.ime} × {kolicina}
                 </span>
                 <span>{format(roba)} RSD</span>
               </div>

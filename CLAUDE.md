@@ -1,9 +1,15 @@
-# MEGAZ — scroll-driven sajt
+# DRYKULT — scroll-driven sajt
 
-Premium microfiber peškir za auto-detailing. IG `@megaz_official`. Tržišta: RS, BA, ME.
-Poruka brenda: „broj 1 u kvalitetu Microfiber Peškira na našem tržištu".
+Premium microfiber peškir za sušenje automobila. 90 × 70 cm, 850 GSM, twisted-loop.
+Tržišta: RS, BA, ME. Cena **3000 RSD**. Krećemo od nule — nema kupaca ni recenzija.
 
-Stanje: **hero izgrađen, vizuelno NIJE proveren u browseru** (razlog dole u „Otvorena pitanja").
+Nije prodavnica nego **kult oko sušenja**: kupci su članovi, i biraju stranu.
+
+Prethodni brend je bio MEGAZ; saradnja je raskinuta, mašina je ostala. Ako negde
+naiđeš na plav peškir ili `public/megaz/`, to je zaostatak koji ne sme na sajt.
+
+Stanje: **hero i sekcija za poručivanje izgrađeni, vizuelno NIJE provereno u browseru**
+(razlog dole u „Zamke okruženja").
 
 ---
 
@@ -11,12 +17,11 @@ Stanje: **hero izgrađen, vizuelno NIJE proveren u browseru** (razlog dole u „
 
 ```bash
 npm run dev          # port 3210
-npm run assets       # hero par iz fotke (podrazumevano)
-npm run assets:hd    # hero par iz kadra snimka — vidi "Izbor hero kadra"
-npm run video        # LOW tier film iz pravog snimka (traži ffmpeg u PATH)
+node scripts/gen-drykult.mjs   # izrezuje peškire sa bele pozadine
+node scripts/gen-plate.mjs     # hero podloga, obe frakcije iz jedne slike
 ```
 
-Preview konfiguracija je u `D:\projekti\.claude\launch.json` pod imenom `megaz-dev`.
+Preview konfiguracija je u `D:\projekti\.claude\launch.json` pod imenom `drykult-dev`.
 
 ---
 
@@ -25,21 +30,52 @@ Preview konfiguracija je u `D:\projekti\.claude\launch.json` pod imenom `megaz-d
 ### Paleta
 
 ```css
---bg:     #05070D   /* crna sa plavim tonom, iz logotipa */
---bg-2:   #0A0F1A   /* loader ploča, paneli */
---blue:   #2E7BE8   /* MEGAZ plava — okviri, glow, akcenti */
---blue-2: #4FA8FF   /* svetlija — PUNI CTA */
---water:  #8FD8FF   /* highlight kapljica */
---ink:    #F2F6FF   /* tekst */
---muted:  #8A94A6   /* sporedni tekst */
---line:   rgba(242,246,255,.10)
---edge:   #143055   /* heks pattern iz logotipa */
+--bg:      #07080A   /* neutralna crna — peškir je crn, boja dolazi samo od neona */
+--bg-2:    #0E1013
+--ink:     #F4F6F8   /* 18.49:1 */
+--muted:   #8A9099   /*  6.23:1 */
+--line:    rgba(244,246,248,.09)
+
+/* frakcija — postavlja lib/faction.js preko data-side na <html> */
+--f-core   --f-bright   --f-deep   --f-rgb
 ```
 
-**Pravilo kontrasta (izmereno, ne procenjeno):** beo tekst na `--blue` daje 4.14:1 i pada
-ispod praga. Zato puni CTA ide `--blue-2` sa tamnim tekstom `--bg` → **6.97:1**.
-`--blue` ostaje samo za obrise, glow i pattern gde čitljivost nije u pitanju.
-`--muted` na `--bg` je 6.2:1 — prolazi.
+| frakcija | core | hue | bright | tamni tekst na core |
+|---|---|---|---|---|
+| **HROM** (koralna) | `#FF6E80` | 353° | `#FFB3BE` | **7.44:1** ✓ |
+| **MAMBA** (neon zelena) | `#8CEF2E` | 91° | `#C3F98D` | **13.83:1** ✓ |
+
+**Kako su dobijene:** uzorkovanjem pravih piksela sa studijskih fotki po regionima
+(opšiv / natpis / pliš), pa je iz njih uzet **hue**, ne sirova vrednost. Sirovi pikseli
+su blizu bele (`#F5FB9A`, `#FAADAC`) jer su fotke studijske — na crnoj podlozi bi čitali
+kao „belo sa nijansom", ne kao neon.
+
+**Zelena je pomerena sa izmerenih 68° na 91°.** Na 68° je fizički tačna ali na ekranu
+čita kao **limun-žuta**, a ne kao zelena. 91° je kompromis: dovoljno zeleno da se
+prepozna, dovoljno blizu materijalu da veza sa proizvodom u ruci ne pukne.
+Pink je ostao na izmerenih 353° — koralno-crven, **ne magenta**.
+
+Nesimetrija je namerna i neizbežna: MAMBA je 13.83:1, HROM 7.44:1. Limun-zelena je
+fizički mnogo svetlija od koralne. Ravnoteža se drži kompozicijom, ne bojom.
+
+**Pre izbora strane tokeni su neutralno beli.** Nijedna frakcija ne sme da bude
+podrazumevana jer bi tiho gurala posetioca ka sebi.
+
+### Tipografija
+
+Logo je ugaoni italik, motorsport ton. Naslovi sajta zato idu u **Archivo**
+(širok i uspravan) — kontrast, ne takmičenje. Nikad naslov u sličnom kosom fontu.
+
+### Naslov hero-a
+
+```
+Suvo je pravilo.
+Trag je greška.
+Izaberi stranu.     ← posle izbora postaje „Ti si MAMBA." u boji frakcije
+```
+
+Treći red radi i bez kursora (tap bira stranu), pa za razliku od MEGAZ naslova
+ne mora da bude tier-svestan.
 
 ### Tipografija
 
@@ -200,6 +236,69 @@ mehaniku nije dobitak. `hd` kadar je odličan za sekciju „proizvod" kad dođe 
 
 ---
 
+### IZABERI STRANU — glavna mehanika
+
+`components/SideChooser.js`. Hero je podeljen na dve frakcije, a podela mora da
+izgleda kao granica **NA jednoj površini**, ne kao spoj dve fotke.
+
+Zato obe polovine nose **istu** generisanu haubu, samo drugom bojom svetla:
+`background-size: 200% 100%` uz `background-position: left` / `right` znači da leva
+polovina prikazuje levu stranu iste slike, a desna desnu. Spoj se poklapa u piksel.
+
+To je i razlog zašto je podloga **jednom generisana pa dvaput prebojena**
+(`scripts/gen-plate.mjs`), umesto dva puta generisana. Dva odvojena generisanja daju
+dve različite haube i mokra ivica između njih izgleda kao kolaž.
+
+Ivica je **dva sinusa različitih frekvencija**. Jedan sinus izgleda mehanički kao
+talas iz udžbenika; dva daju nepravilnost vode.
+
+Po tieru:
+- `high` — ivica prati kursor, obe strane žive, kontra-strana tone u crno
+- `mid` — ivica stoji na sredini i sama se talasa, bira se klikom (praćenje kursora
+  bi tu trošilo rAF bez koristi jer je izbor ionako klik)
+- `low` — nema kursora ni ivice: dve pune ploče jedna ispod druge, bira se tapom
+
+`.content` mora imati `pointer-events: none`, inače naslov preko sredine kadra blokira
+i praćenje ivice i klik na stranu. Dugmad ga vraćaju na `auto`.
+
+**Tokeni se postavljaju na `<html>`, ne na neki div** — da ih naslede i fixed slojevi
+(loader, mokri prelaz) koji žive van glavnog stabla.
+
+**CSS promenljive se ne mogu tranzicionirati** bez `@property` registracije. Prelivanje
+u boju frakcije zato ide na samim elementima (`color`, `box-shadow`), ne na `:root`.
+`transition: --f-core` je tiho mrtav kod — izgleda kao da radi, a ne radi ništa.
+
+### Izrezivanje peškira sa bele pozadine
+
+`scripts/gen-drykult.mjs`. Peškir je crn, pozadina bela — ključuje se po luminansi.
+Neonski delovi su svetli ali **zasićeni**, pa ih drugi uslov spasava od brisanja.
+
+Ključna stvar nije prag nego **dekontaminacija ruba**: pikseli na ivici su mešavina
+crne tkanine i bele pozadine. Ako im se samo spusti alfa, boja im ostane siva i na
+crnoj podlozi stoji beo oreol oko celog peškira. Zato se odmešavaju od bele:
+
+```
+original = (mešavina − bela × (1 − a)) / a
+```
+
+To je obrnuta operacija od kompozitovanja preko bele i jedina koja oreol stvarno skida
+umesto da ga sakrije. `_provera-*.jpg` su kontrolne slike na crnoj podlozi.
+
+### Prebojavanje podloge po frakciji
+
+`scripts/gen-plate.mjs`. Hue se menja samo tamo gde je piksel **stvarno obojen**, i to
+uz **dva praga — po zasićenju i po svetlini**.
+
+Prag samo po zasićenju nije dovoljan: JPEG šum u crnini ima nisko ali nenulto zasićenje,
+pa je bio tretiran kao neon — i kad se digla svetlina za koralnu, cela tamna površina
+je postala bordo.
+
+Koralnoj treba `lift` svetline (0.14) jer je `#FF6E80` na HSL svetlini **71%**; bez toga
+hue 353 sa svetlinom iz izvora daje krvavo crvenu, ne koralnu.
+
+**Hue se ne sme usrednjiti linearno** — prosek 350° i 10° linearno daje 180° (cijan),
+a tačan odgovor je 0° (crveno). Ide vektorski prosek.
+
 ### MOKRI PRELAZ — klik na „Poruči"
 
 `components/WetTransition.js`. Tri faze, ukupno 2050ms:
@@ -331,8 +430,16 @@ Za pravu naplatu treba: nalog kod provajdera, ključevi u env varijablama
 (nikad u repo-u — ovaj je javan), server ruta koja pravi PaymentIntent, i
 webhook za potvrdu. Kripto ide preko zasebnog provajdera, isti princip.
 
-**`CENA_RSD` u `OrderSection.js` je placeholder (2490).** Stoji na javnom
-sajtu dok se ne zameni pravom cenom.
+**`CENA_RSD` je 3000** — potvrđena cena, više nije placeholder.
+
+## Pravilo poštenja
+
+**Ne izmišljaj brojke.** Ne prepisuj konkurentske „100.000 prodatih" ni „3.532 recenzije",
+nema lažnih countdown-ova, nema recenzija kojih nema. Krećemo od nule i to se ne krije.
+
+Razlozi su praktični: lažno oglašavanje je pravni rizik čim se prodaje preko granice;
+tržište RS/BA/ME je malo i to se sazna; i **ne treba nam** — dokaz koji posetilac sam
+napravi na ekranu je jači od tuđih 3.532 recenzije, jer ga proverava sam, u tom trenutku.
 
 ## Otvorena pitanja
 
@@ -343,48 +450,57 @@ sajtu dok se ne zameni pravom cenom.
    **Ostaje da se potvrdi:** liquid reveal u pokretu, loader 000→100, otkrivanje
    naslova, opružni hover, 1440px i 375px.
 
-2. **Izvorna fotka je i dalje WhatsApp kopija — 941×1672.** Snimci su rešili rezoluciju
-   za film, ali ne i za hero: nijedan kadar nema kompoziciju celog auta iz tri četvrtine,
-   a to je jedini kadar sa dovoljno laka za reveal. **Treba original te fotke sa telefona**,
-   poslat kao dokument (Drive ili WhatsApp „kao dokument"), nikad kroz običan WhatsApp.
-   Kad stigne: zameniti `assets-src/m5-towel.jpg`, pokrenuti `npm run assets`, pa podići
-   `TARGETS` na 1920. Crop je normalizovan — ništa drugo u kodu se ne menja.
+2. **Sav materijal sa autom je iz starog brenda — peškir je PLAV.** Zato su
+   `Hero.js` i liquid reveal sekcija skinuti sa stranice, a `order-hook.mp4`
+   zamenjen fotografijom proizvoda. Kod (`LiquidReveal.js`, `HeroVideo.js`,
+   `gen-assets.mjs`, `gen-video.mjs`) je netaknut i čeka DRYKULT snimke.
+   **Treba presnimiti:** peškir na autu u obe boje, i mokro/suvo par za reveal.
 
-5. **Neiskorišćen materijal** (van repo-a, sirovi .MOV):
-   - `IMG_0366` / `IMG_0367` — tekstura izbliza, pliš i twisted-loop strana
-   - `IMG_0369` — brisanje retrovizora
-   - `IMG_0363` — peškir razvučen, pokazuje veličinu
-   - `IMG_0374` / `IMG_0375` — gepek, krov
-   - `m5-towel-hd.jpg` — kadar iz IMG_0371, čitljiv logo, za sekciju „proizvod"
+3. **Nedostaje fotka plišanog naličja razvučenog.** Bez nje ideja „okreni peškir"
+   (crna strana ↔ plišano naličje) ima samo jednu stranu.
 
-3. **3D peškir (Three.js) nije napravljen.** Razlog: peškir je već u kadru na fotki,
-   pa bi lebdeći 3D peškir dao dva peškira. `heroAssets()` ipak vraća `towel` putanje
-   (`towel-hi.png` / `towel-md.png`, izvučene ključevanjem plavog kanala iz fotke),
-   pa je sloj spreman ako se odluči za drugačiji kadar bez peškira na haubi.
+4. **Crnu stranu ne treba izmišljati** — vidi se na studijskim fotkama kao gusta
+   kratka ravna dlaka (velur), za razliku od kovrdžave twisted-loop petlje na
+   naličju. Za mikroskop se mogu iseći pravi makroi iz originala 1792×2304;
+   najdublji nivo (presek vlakna) je ionako ilustracija, ne fotografija, i mora
+   biti jasno stilizovan da se ne čita kao fotografija.
 
-4. `reactStrictMode: true` je uključen. Dragon-site ga je morao ugasiti zbog sudara
+5. **Nisu napravljene sekcije:** mikroskop na skrol, test tragova (klizač obično
+   protiv DRYKULT), ritual, okretanje peškira, numerisani komadi.
+
+6. `reactStrictMode: true` je uključen. Dragon-site ga je morao ugasiti zbog sudara
    GSAP ScrollTrigger `pin:true` sa dvostrukim pokretanjem efekata. Kad se ovde uvede
-   pinovanje, očekuj isti sudar.
+   pinovanje (mikroskop), očekuj isti sudar.
 
 ---
 
 ## Struktura
 
 ```
-lib/device.js        tri tiera + heroAssets() + headlineLines()
+lib/faction.js       dve strane: boje, zvuk, localStorage, data-side
+lib/device.js        tri tiera
 lib/spring.js        rAF integrator, konfiguracije enter/hover/panel/follow
 lib/scrollLock.js    stopScroll/startScroll sa brojanjem brava
 lib/remScale.js      skaliranje rem-mreže iznad 1920px
-lib/useSpringHover.js  hover na opruzi, gasi se na dodir
 
-components/SmoothScroll.js   Lenis, ručna rAF petlja, scrollRestoration manual
+components/SideChooser.js    HERO — izaberi stranu
+components/SideSwitch.js     diskretan prekidač strane
+components/WetTransition.js  mokri prelaz na klik, u boji frakcije
+components/LiquidButton.js   3D dugme na oprugama
+components/OrderSection.js   prodaja (naplata NIJE povezana)
 components/Loader.js         000→100, ready zastavica
-components/LiquidReveal.js   srce hero-a
-components/HeroVideo.js      LOW tier
-components/Reveal.js         otkrivanje po redovima / rečima / bloku
-components/Hero.js           sadržaj
+components/SmoothScroll.js   Lenis, ručna rAF petlja
+components/Reveal.js         otkrivanje po redovima / rečima / bloku / fade
 
-scripts/gen-assets.mjs   fotka → mokro/suvo par po tieru + towel cutout
-scripts/gen-video.mjs    → hero-low.mp4
-assets-src/m5-towel.jpg  izvorna fotka (WhatsApp kopija, vidi Otvorena pitanja)
+components/LiquidReveal.js   NE KORISTI SE — čeka DRYKULT snimke
+components/HeroVideo.js      NE KORISTI SE — čeka DRYKULT snimke
+
+scripts/gen-drykult.mjs  studijske fotke → izresci peškira po tieru
+scripts/gen-plate.mjs    jedna hauba → podloga obe frakcije
+scripts/gen-assets.mjs   NASLEĐE: mokro/suvo par (stari brend)
+scripts/gen-video.mjs    NASLEĐE: web verzije snimaka (stari brend)
+
+assets-src/drykult/      studijske fotke + izvorna podloga
+public/drykult/          izresci i podloge koji idu na sajt
+public/megaz/            NASLEĐE — plav peškir, ne sme na sajt
 ```

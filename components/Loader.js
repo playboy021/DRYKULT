@@ -4,7 +4,7 @@ import styles from './Loader.module.css';
 
 const DURATION = 1300; // koliko brojač putuje 000 → 100 kad je sve već tu
 const HARD_CAP = 4000; // ZAKON 4.7 — posle ovoga ide dalje bez obzira na sve
-const KEY = 'megaz:loaded';
+const KEY = 'drykult:loaded';
 
 const easeInOutCubic = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 const pad3 = (n) => String(Math.round(n)).padStart(3, '0');
@@ -109,7 +109,7 @@ export default function Loader({ assets = [], onDone }) {
   return (
     <div className={`${styles.wrap} ${leaving ? styles.leaving : ''}`} aria-hidden={leaving}>
       <div className={styles.inner}>
-        <div className={styles.brand}>MEGAZ</div>
+        <div className={styles.brand}>DRYKULT</div>
         <div className={styles.count}>{pad3(pct)}</div>
       </div>
       <div className={styles.track}>
