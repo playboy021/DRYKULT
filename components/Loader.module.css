@@ -31,6 +31,7 @@
   font-size: 1.125rem;
   letter-spacing: 0.28em;
   color: var(--muted);
+  white-space: nowrap;
 }
 
 .count {
@@ -51,9 +52,11 @@
   margin: 0 2.5rem 2.5rem;
 }
 
+/* Traka nosi boju frakcije ako je zapamćena iz ranije posete — sajt te
+   prepozna pre nego što išta klikneš. Prvi put je neutralno bela. */
 .bar {
   height: 100%;
-  background: var(--blue-2);
+  background: var(--f-core);
   transform-origin: left center;
   transform: scaleX(0);
 }

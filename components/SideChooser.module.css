@@ -1,0 +1,278 @@
+.hero {
+  position: relative;
+  width: 100%;
+  min-height: 100svh;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--bg);
+}
+
+/* --- podloga ---------------------------------------------------------------
+   Obe polovine nose ISTU generisanu haubu, samo drugom bojom svetla.
+   background-size:200% + position left/right znači da leva polovina prikazuje
+   levu stranu iste slike, a desna desnu — spoj se poklapa i kadar se čita kao
+   jedna neprekidna površina, a ne kao dve zalepljene fotke. */
+.plate {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50%;
+  background-repeat: no-repeat;
+  background-size: 200% 100%;
+  z-index: 0;
+}
+.pl {
+  left: 0;
+  background-position: left center;
+  background-image: url('/drykult/plate-pink-hi.jpg');
+}
+.pr {
+  right: 0;
+  background-position: right center;
+  background-image: url('/drykult/plate-mamba-hi.jpg');
+}
+
+.cv {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* --- dve strane ------------------------------------------------------------ */
+
+.halves {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+}
+
+.half {
+  position: relative;
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 0 1.5rem 3rem;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  /* --w postavlja rAF petlja: koliko ta strana dominira (0..1) */
+  transition: opacity 500ms ease;
+}
+
+.half:focus-visible {
+  outline: 0.125rem solid var(--ink);
+  outline-offset: -0.75rem;
+}
+
+.towel {
+  width: auto;
+  height: 34svh;
+  max-width: 82%;
+  object-fit: contain;
+  filter: brightness(calc(0.44 + var(--w, 0.5) * 0.7)) drop-shadow(0 1.5rem 2.5rem rgba(0, 0, 0, 0.8));
+  transform: translateY(calc((1 - var(--w, 0.5)) * 0.75rem));
+  transition:
+    filter 90ms linear,
+    transform 260ms ease;
+}
+
+.ime {
+  font-family: var(--font-display);
+  font-variation-settings: 'wdth' 125;
+  font-weight: 700;
+  font-size: 2rem;
+  line-height: 1;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  opacity: calc(0.32 + var(--w, 0.5) * 0.68);
+  transition: opacity 90ms linear;
+}
+
+.podnaslov {
+  font-size: 0.6875rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+  opacity: calc(0.18 + var(--w, 0.5) * 0.82);
+}
+
+/* Posle izbora: odbačena strana se povlači, izabrana ostaje puna. */
+.odbacena {
+  opacity: 0.16;
+  pointer-events: none;
+}
+.aktivna .towel {
+  filter: brightness(1.06) drop-shadow(0 1.5rem 3rem rgba(var(--f-rgb), 0.28));
+}
+
+/* --- sadržaj ---------------------------------------------------------------
+   Stoji IZNAD polovina, pa mu se mora oduzeti hvatanje pokazivača —
+   inače tekst preko sredine kadra blokira i praćenje ivice i klik na stranu.
+   Dugmad i linkovi ga vraćaju na auto. */
+.content {
+  position: relative;
+  z-index: 3;
+  pointer-events: none;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 6rem 2rem 0;
+  gap: 0;
+}
+
+.kicker {
+  font-size: 0.8125rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 1.5rem;
+}
+
+.mark {
+  color: var(--f-bright);
+  font-weight: 600;
+  transition: color 700ms ease;
+}
+
+.dot {
+  margin: 0 0.625rem;
+  color: var(--f-core);
+  transition: color 700ms ease;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-variation-settings: 'wdth' 125;
+  font-weight: 600;
+  font-size: 4.5rem;
+  line-height: 0.98;
+  letter-spacing: -0.025em;
+  text-transform: uppercase;
+  margin: 0 0 1.5rem;
+  color: var(--ink);
+  /* Senka je jedini način da veliki tekst preživi preko fotografije
+     bez punog zatamnjenja kadra iza njega. */
+  text-shadow: 0 0.25rem 2.5rem rgba(0, 0, 0, 0.85);
+}
+
+/* Treći red je poenta — nosi boju frakcije. Pre izbora je neutralno belo,
+   posle izbora se prelije u izabranu. */
+.title :global(.rvLine):last-child > span {
+  color: var(--f-core);
+  transition: color 700ms ease;
+}
+
+.sub {
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  color: var(--muted);
+  max-width: 36rem;
+  margin: 0 0 2.25rem;
+  text-shadow: 0 0.125rem 1rem rgba(0, 0, 0, 0.9);
+}
+
+.ctas {
+  display: flex;
+  gap: 0.875rem;
+  margin-bottom: 2rem;
+}
+
+.trust {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  font-size: 0.8125rem;
+  color: var(--muted);
+  text-shadow: 0 0.125rem 0.75rem rgba(0, 0, 0, 0.9);
+}
+
+.markets {
+  color: var(--ink);
+  letter-spacing: 0.18em;
+  font-weight: 600;
+}
+
+.sep {
+  width: 1.5rem;
+  height: 0.0625rem;
+  background: var(--line);
+  flex: none;
+}
+
+/* --- LOW tier: dve ploče jedna ispod druge --------------------------------
+   Bez kursora nema mokre ivice ni dominacije — bira se tapom, pa obe ploče
+   moraju biti ravnopravne i dovoljno velike da se prst ne promaši. */
+.stack .halves {
+  flex-direction: column;
+}
+.stack .plate {
+  width: 100%;
+  height: 50%;
+  background-size: 100% 200%;
+}
+.stack .pl {
+  top: 0;
+  bottom: auto;
+  background-position: center top;
+}
+.stack .pr {
+  top: auto;
+  bottom: 0;
+  background-position: center bottom;
+}
+.stack .half {
+  justify-content: center;
+  padding: 1.5rem;
+}
+.stack .towel {
+  height: 22svh;
+}
+.stack .content {
+  justify-content: flex-start;
+  padding-top: 4rem;
+  pointer-events: none;
+}
+
+@media (max-width: 1024px) {
+  .title {
+    font-size: 3.25rem;
+  }
+  .towel {
+    height: 28svh;
+  }
+}
+
+@media (max-width: 640px) {
+  .content {
+    padding: 3.5rem 1.25rem 0;
+  }
+  .title {
+    font-size: 2.5rem;
+  }
+  .sub {
+    font-size: 0.9375rem;
+    margin-bottom: 1.75rem;
+  }
+  .ime {
+    font-size: 1.5rem;
+  }
+  .ctas {
+    width: 100%;
+    max-width: 20rem;
+  }
+  .trust {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+}

@@ -1,29 +1,50 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import Head from 'next/head';
 import Loader from '../components/Loader';
-import Hero from '../components/Hero';
+import SideChooser from '../components/SideChooser';
+import SideSwitch from '../components/SideSwitch';
 import WetTransition from '../components/WetTransition';
 import OrderSection from '../components/OrderSection';
-import { detectTier, heroAssets } from '../lib/device';
+import { RevealLines, RevealWords } from '../components/Reveal';
+import { detectTier, LOW } from '../lib/device';
+import { ucitajStranu, upisiStranu, primeniStranu, STRANE } from '../lib/faction';
 import styles from '../styles/Home.module.css';
 
 export default function Home() {
   // Tier se čita tek na klijentu — na serveru nema ni ekrana ni mreže.
-  // Dok je null ne crtamo hero, pa nema neslaganja između SSR-a i hidracije
-  // (a i ne bismo hteli da skinemo desktop slike pa ih zamenimo mobilnim).
+  // Dok je null ne crtamo hero, pa nema neslaganja SSR-a i hidracije.
   const [tier, setTier] = useState(null);
   const [ready, setReady] = useState(false);
-  const [prelaz, setPrelaz] = useState(null); // {x, y} tačka klika, ili null
+  const [strana, setStrana] = useState(null);
+  const [prelaz, setPrelaz] = useState(null);
 
   useEffect(() => {
     setTier(detectTier());
+    // Zapamćena strana se primenjuje ODMAH, pre loadera — da traka loadera
+    // već bude u boji frakcije i sajt te prepozna pre prvog klika.
+    const s = ucitajStranu();
+    if (s) {
+      setStrana(s);
+      primeniStranu(s);
+    }
   }, []);
 
-  // Loader čeka BAŠ ono što hero prvo pokaže — ni manje ni više.
+  const izaberi = useCallback((id) => {
+    setStrana(id);
+    upisiStranu(id);
+    primeniStranu(id);
+  }, []);
+
+  // Loader čeka podloge hero-a — obe, jer se obe vide pre izbora.
   const preload = useMemo(() => {
     if (!tier) return [];
-    const a = heroAssets(tier);
-    return a.mode === 'video' ? [a.poster] : [a.wet, a.dry];
+    const r = tier === LOW ? 'low' : tier === 'mid' ? 'md' : 'hi';
+    return [
+      `/drykult/plate-pink-${r}.jpg`,
+      `/drykult/plate-mamba-${r}.jpg`,
+      '/drykult/pink-md.png',
+      '/drykult/mamba-md.png',
+    ];
   }, [tier]);
 
   const zavrsiPrelaz = useCallback(() => setPrelaz(null), []);
@@ -31,37 +52,57 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>MEGAZ — Premium Microfiber peškir za auto</title>
+        <title>DRYKULT — premium microfiber peškir za auto</title>
         <meta
           name="description"
-          content="MEGAZ premium microfiber peškir. Jedan prelaz, bez tragova i bez ogrebotina. Dostupno u Srbiji, BiH i Crnoj Gori."
+          content="DRYKULT premium microfiber peškir za sušenje automobila. 90×70 cm, 850 GSM, twisted-loop. Dve strane: HROM i MAMBA. Srbija, BiH, Crna Gora."
         />
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+        <meta name="theme-color" content="#07080A" />
       </Head>
 
       {tier && <Loader assets={preload} onDone={() => setReady(true)} />}
 
       <main className={styles.main}>
-        {tier && <Hero tier={tier} ready={ready} onOrder={setPrelaz} />}
+        {tier && (
+          <SideChooser
+            tier={tier}
+            ready={ready}
+            izabrana={strana}
+            onIzbor={izaberi}
+            onPoruci={setPrelaz}
+          />
+        )}
 
-        {/* Privremeno odredište za "Vidi na delu" — sledeća sekcija po MAŠINI. */}
-        <section id="demo" className={styles.next}>
-          <p className={styles.nextKicker}>Sledeće</p>
-          <h2 className={styles.nextTitle}>Šta je ovo</h2>
-          <p className={styles.nextBody}>
-            Ovde ide sekcija „šta je ovo" — dve-tri rečenice, pa proizvod. Hero je zaključan, ostalo se gradi
-            sekciju po sekciju.
-          </p>
+        <section id="sta-je" className={styles.next}>
+          <p className={styles.nextKicker}>Šta je DRYKULT</p>
+          <RevealLines
+            lines={['Nije krpa.', 'Pravilo je.']}
+            as="h2"
+            className={styles.nextTitle}
+            stagger={110}
+          />
+          <RevealWords
+            className={styles.nextBody}
+            text="Peškir od 850 grama po kvadratu, 90 sa 70 centimetara, sa dve strane tkanine. Twisted-loop strana kupi vodu iz prve, plišana polira ono što ostane. Jedan prelaz preko panela i nema ni kapi ni traga."
+          />
+          <RevealWords
+            className={styles.nextBody}
+            text="Nema countdown-a, nema izmišljenih recenzija. Dokaz je gore — obrisao si ga sam."
+          />
         </section>
 
-        <OrderSection />
+        <OrderSection strana={strana} />
       </main>
+
+      <SideSwitch izabrana={strana} onIzbor={izaberi} />
 
       <WetTransition
         active={!!prelaz}
         origin={prelaz}
         targetId="poruci"
         tier={tier}
+        side={strana}
         onDone={zavrsiPrelaz}
       />
     </>

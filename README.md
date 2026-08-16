@@ -1,62 +1,69 @@
-# MEGAZ
+# DRYKULT
 
-Scroll-driven sajt za **MEGAZ** — premium microfiber peškir za auto-detailing.
-Tržišta: Srbija, BiH, Crna Gora. Instagram: [@megaz_official](https://instagram.com/megaz_official)
+Scroll-driven sajt za **DRYKULT** — premium microfiber peškir za sušenje automobila.
+90 × 70 cm · 850 GSM · twisted-loop. Srbija, Bosna i Hercegovina, Crna Gora.
 
-Next.js (Pages Router) · GSAP · Lenis · Canvas 2D
+Next.js (Pages Router) · Lenis · Canvas 2D · Web Audio
 
 ---
 
-## Ideja hero-a
+## Ideja
 
-Peškir ne treba da se objašnjava — treba da se pokaže. Osnovni sloj je **mokra hauba**,
-a kursor po tragu farba **suvu**. Interakcija *jeste* demonstracija proizvoda: korisnik u
-prve tri sekunde oseti šta peškir radi, bez ijedne reči marketinga.
+Nije prodavnica nego **kult oko sušenja**. Kupci nisu kupci — oni su članovi,
+i prvo što urade je da **izaberu stranu**.
 
-Na telefonu, gde kursora nema, isto se prikazuje kao pre-renderovan film koji se sam izvrti.
+Hero je podeljen na dve frakcije: **HROM** (koralna) i **MAMBA** (neon zelena).
+Pozicija kursora odlučuje ko dominira, a podela nije prava linija nego mokra ivica
+koja se talasa. Kad posetilac izabere, ceo sajt se zaključava u tu frakciju —
+paleta, sjaj, boja spreja u prelazu, čak i ton zvuka.
+
+Konkurencija peškir za sušenje prodaje **tekstom**. Mi ga prodajemo tako što
+posetilac sam obriše ekran.
 
 ## Pokretanje
 
 ```bash
 npm install
-npm run dev          # http://localhost:3210
+npm run dev
 ```
 
-Regeneracija asseta iz izvorne fotke i snimaka:
+Regeneracija asseta iz studijskih fotki:
 
 ```bash
-npm run assets                # hero par (mokro/suvo) po tieru
-node scripts/gen-video.mjs    # film za mobilni tier (traži ffmpeg u PATH)
+node scripts/gen-drykult.mjs   # izresci peškira sa bele pozadine
+node scripts/gen-plate.mjs     # hero podloga, obe frakcije iz jedne slike
 ```
 
 ## Tri tiera
 
 Sajt sam bira kvalitet iz signala browsera, bez merenja — pa nema kašnjenja pri startu.
 
-| Tier | Kada | Šta se renderuje | Težina |
-|---|---|---|---|
-| `high` | 8+ jezgara, 8+ GB RAM | liquid reveal, pun 1440×949 | 564 KB |
-| `mid` | 4+ jezgara | liquid reveal, 1024×675 | 269 KB |
-| `low` | telefon, `reduced-motion`, `saveData`, 2G/3G | film koji se sam izvrti | 576 KB |
+| Tier | Kada | Podela hero-a |
+|---|---|---|
+| `high` | 8+ jezgara, 8+ GB RAM | mokra ivica prati kursor, obe strane žive |
+| `mid` | 4+ jezgara | ivica stoji na sredini i sama se talasa, bira se klikom |
+| `low` | telefon, `reduced-motion`, `saveData` | dve ploče jedna ispod druge, bira se tapom |
 
 ## Struktura
 
 ```
-lib/device.js          tri tiera, izbor asseta, tier-svestan naslov
-lib/spring.js          rAF integrator (opruge), bez biblioteke
-lib/scrollLock.js      brava skrola sa brojanjem
-lib/remScale.js        rem-mreža iznad 1920px
-components/LiquidReveal.js   srce hero-a
-components/Loader.js         brojač 000→100 vezan za stvarno učitavanje
-components/HeroVideo.js      mobilni tier
-scripts/gen-assets.mjs       fotka → mokro/suvo par
-scripts/gen-video.mjs        snimak → film za mobilni
+lib/faction.js               dve strane: boje, zvuk, pamćenje izbora
+lib/device.js                tri tiera
+components/SideChooser.js    hero — izaberi stranu
+components/WetTransition.js  mokri prelaz na klik, u boji frakcije
+components/LiquidButton.js   3D dugme na oprugama
+components/OrderSection.js   prodaja
+scripts/gen-drykult.mjs      studijske fotke → izresci peškira
+scripts/gen-plate.mjs        jedna hauba → podloga obe frakcije
 ```
 
 ## Napomene
 
-Sirovi telefonski snimci (`.MOV`, 15–80 MB komad) **nisu** u repo-u — drže se van njega,
-a u git ulaze samo izvedeni asseti iz `public/megaz/`.
+**Naplata nije povezana.** `OrderSection` je samo UI — forma ne šalje nigde ništa,
+a broj kartice namerno nema svoj `<input>`. Detalji u [CLAUDE.md](CLAUDE.md).
 
-Detaljna dokumentacija — paleta, pravila, recepti, izmerene veličine i zamke okruženja
+**Ne izmišljamo brojke.** Nema lažnih countdown-ova ni recenzija kojih nema.
+Krećemo od nule i to se ne krije.
+
+Puna dokumentacija — paleta sa izmerenim kontrastom, pravila, recepti i zamke
 koje su koštale vremena — je u [CLAUDE.md](CLAUDE.md).

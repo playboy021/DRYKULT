@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { stopScroll, startScroll } from '../lib/scrollLock';
 import { LOW, MID } from '../lib/device';
+import { STRANE } from '../lib/faction';
 import styles from './WetTransition.module.css';
 
 // MOKRI PRELAZ — klik na "Poruči" pretvara ceo ekran u mokro staklo,
@@ -27,7 +28,7 @@ const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
 // Jedna kap se crta JEDNOM u sprite, pa se posle samo drawImage-uje.
 // Sa 500 kapi po frejmu, tri gradijenta svaka bila bi 1500 fill-ova —
 // drawImage keširanog sprite-a je red veličine jeftiniji.
-function makeDropSprite(size) {
+function makeDropSprite(size, rgb) {
   const c = document.createElement('canvas');
   c.width = size;
   c.height = size;
@@ -43,11 +44,12 @@ function makeDropSprite(size) {
   x.fillStyle = sh;
   x.fillRect(0, 0, size, size);
 
+  // Obod nosi boju frakcije — kap je i dalje voda, ali osvetljena njenim neonom.
   const body = x.createRadialGradient(r, r, 0, r, r, r * 0.92);
-  body.addColorStop(0, 'rgba(143,216,255,0.03)');
-  body.addColorStop(0.66, 'rgba(143,216,255,0.06)');
-  body.addColorStop(0.9, 'rgba(196,238,255,0.26)');
-  body.addColorStop(1, 'rgba(143,216,255,0)');
+  body.addColorStop(0, `rgba(${rgb},0.04)`);
+  body.addColorStop(0.66, `rgba(${rgb},0.08)`);
+  body.addColorStop(0.9, `rgba(${rgb},0.34)`);
+  body.addColorStop(1, `rgba(${rgb},0)`);
   x.fillStyle = body;
   x.beginPath();
   x.arc(r, r, r * 0.92, 0, Math.PI * 2);
@@ -68,7 +70,7 @@ function makeDropSprite(size) {
 // prevlačenje tkanine, a ne košta nijedan bajt mreže.
 // Klik je korisnički gest, pa je ovo jedini trenutak kad browser sme da pusti
 // zvuk (ZAKON 4.5 — skrol se ne računa, klik da).
-function playSwoosh() {
+function playSwoosh(ton) {
   try {
     const Ctx = window.AudioContext || window.webkitAudioContext;
     if (!Ctx) return;
@@ -84,9 +86,10 @@ function playSwoosh() {
     const bp = ac.createBiquadFilter();
     bp.type = 'bandpass';
     bp.Q.value = 0.8;
-    // Prelaz frekvencije naniže = utisak da nešto prolazi pored uha
-    bp.frequency.setValueAtTime(2600, ac.currentTime);
-    bp.frequency.exponentialRampToValueAtTime(420, ac.currentTime + dur);
+    // Prelaz frekvencije naniže = utisak da nešto prolazi pored uha.
+    // Opseg dolazi iz frakcije: HROM viši i staklast, MAMBA niži i oštriji.
+    bp.frequency.setValueAtTime(ton.od, ac.currentTime);
+    bp.frequency.exponentialRampToValueAtTime(ton.do, ac.currentTime + dur);
 
     const gain = ac.createGain();
     gain.gain.setValueAtTime(0.0001, ac.currentTime);
@@ -102,7 +105,7 @@ function playSwoosh() {
   }
 }
 
-export default function WetTransition({ active, origin, targetId, tier, onDone }) {
+export default function WetTransition({ active, origin, targetId, tier, side, onDone }) {
   const hostRef = useRef(null);
   const dropsRef = useRef(null);
   const towelRef = useRef(null);
@@ -155,8 +158,13 @@ export default function WetTransition({ active, origin, targetId, tier, onDone }
       return;
     }
 
+    // Pre izbora strane sprej je neutralno beo — nijedna frakcija se ne gura.
+    const f = side ? STRANE[side] : null;
+    const rgb = f ? f.rgb : '226,238,246';
+    const ton = f ? f.zvuk : { od: 2600, do: 420 };
+
     lock();
-    playSwoosh();
+    playSwoosh(ton);
 
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const W = Math.round(window.innerWidth * dpr);
@@ -175,7 +183,7 @@ export default function WetTransition({ active, origin, targetId, tier, onDone }
     // upola slabije zamućenje; utisak mokrog stakla drže kapljice, ne blur.
     veil.style.setProperty('--maxblur', tier === LOW ? '0.4rem' : '0.75rem');
 
-    const sprite = makeDropSprite(96);
+    const sprite = makeDropSprite(96, rgb);
 
     // Kapi se rađaju u TALASU od tačke klika: kašnjenje svake je srazmerno
     // udaljenosti. Bez toga se ekran popuni odjednom i nema osećaja izvora.
@@ -318,9 +326,9 @@ export default function WetTransition({ active, origin, targetId, tier, onDone }
 
           // Bow-wave: voda koju peškir gura ispred sebe (levo od njega)
           const bw = tctx.createLinearGradient(shx - H * 0.16, 0, shx - H * 0.02, 0);
-          bw.addColorStop(0, 'rgba(143,216,255,0)');
-          bw.addColorStop(0.65, 'rgba(196,238,255,0.24)');
-          bw.addColorStop(1, 'rgba(143,216,255,0)');
+          bw.addColorStop(0, `rgba(${rgb},0)`);
+          bw.addColorStop(0.65, `rgba(${rgb},0.3)`);
+          bw.addColorStop(1, `rgba(${rgb},0)`);
           tctx.fillStyle = bw;
           tctx.fillRect(shx - H * 0.16, 0, H * 0.16, H);
         }
@@ -345,7 +353,7 @@ export default function WetTransition({ active, origin, targetId, tier, onDone }
       towel.onload = null;
       unlock(); // no-op ako je animacija već završila i otpustila bravu
     };
-  }, [active, origin, targetId, tier, onDone]);
+  }, [active, origin, targetId, tier, side, onDone]);
 
   if (!active) return null;
 
