@@ -2,52 +2,87 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import Head from 'next/head';
 import Loader from '../components/Loader';
 import SideChooser from '../components/SideChooser';
-import SideSwitch from '../components/SideSwitch';
+import FactionView from '../components/FactionView';
+import ShatterTransition from '../components/ShatterTransition';
 import WetTransition from '../components/WetTransition';
-import OrderSection from '../components/OrderSection';
-import { RevealLines, RevealWords } from '../components/Reveal';
 import { detectTier, LOW } from '../lib/device';
-import { ucitajStranu, upisiStranu, primeniStranu, STRANE } from '../lib/faction';
+import {
+  ucitajStranu,
+  upisiStranu,
+  obrisiStranu,
+  primeniStranu,
+  peskirSlika,
+  podlogaSlika,
+  HROM,
+  MAMBA,
+} from '../lib/faction';
 import styles from '../styles/Home.module.css';
 
+// Tri faze, i samo jedna je na ekranu u datom trenutku:
+//   biranje  — podeljen hero, dve strane
+//   lom      — ekran puca, iza njega se pojavljuje proizvod
+//   prodaja  — samo izabrana strana, sa povratkom na izbor
+const BIRANJE = 'biranje';
+const LOM = 'lom';
+const PRODAJA = 'prodaja';
+
 export default function Home() {
-  // Tier se čita tek na klijentu — na serveru nema ni ekrana ni mreže.
-  // Dok je null ne crtamo hero, pa nema neslaganja SSR-a i hidracije.
   const [tier, setTier] = useState(null);
   const [ready, setReady] = useState(false);
+  const [faza, setFaza] = useState(BIRANJE);
   const [strana, setStrana] = useState(null);
-  const [prelaz, setPrelaz] = useState(null);
+  const [udar, setUdar] = useState(null); // tačka iz koje ekran puca
+  const [prelaz, setPrelaz] = useState(null); // mokri prelaz na "Poruči"
 
   useEffect(() => {
     setTier(detectTier());
-    // Zapamćena strana se primenjuje ODMAH, pre loadera — da traka loadera
-    // već bude u boji frakcije i sajt te prepozna pre prvog klika.
+    // Zapamćena strana vodi pravo na prodaju — ko je već izabrao ne bira
+    // ponovo pri svakoj poseti. Prekidač „promeni stranu" i dalje stoji.
     const s = ucitajStranu();
     if (s) {
       setStrana(s);
       primeniStranu(s);
+      setFaza(PRODAJA);
     }
   }, []);
 
-  const izaberi = useCallback((id) => {
+  // Zajedničko za klik i za napunjen naboj — jedina razlika je odakle puca.
+  const potvrdi = useCallback((id, tacka) => {
     setStrana(id);
     upisiStranu(id);
     primeniStranu(id);
+    setUdar(tacka);
+    setFaza(LOM);
   }, []);
 
-  // Loader čeka podloge hero-a — obe, jer se obe vide pre izbora.
+  const nazad = useCallback(() => {
+    setFaza(BIRANJE);
+    setStrana(null);
+    setUdar(null);
+    primeniStranu(null);
+    obrisiStranu();
+    if (window.__lenis) window.__lenis.scrollTo(0, { immediate: true, force: true });
+    else window.scrollTo(0, 0);
+  }, []);
+
+  const lomGotov = useCallback(() => {
+    setFaza(PRODAJA);
+    if (window.__lenis) window.__lenis.scrollTo(0, { immediate: true, force: true });
+    else window.scrollTo(0, 0);
+  }, []);
+
+  // Loader čeka podloge hero-a i oba peškira — sve četiri se vide pre izbora,
+  // pa nema smisla otkriti hero dok bilo šta od toga nije tu.
   const preload = useMemo(() => {
     if (!tier) return [];
-    const r = tier === LOW ? 'low' : tier === 'mid' ? 'md' : 'hi';
+    const v = tier === LOW ? 'sm' : 'md';
     return [
-      `/drykult/plate-pink-${r}.jpg`,
-      `/drykult/plate-mamba-${r}.jpg`,
-      '/drykult/pink-md.png',
-      '/drykult/mamba-md.png',
+      podlogaSlika(HROM, tier),
+      podlogaSlika(MAMBA, tier),
+      peskirSlika(HROM, tier, v),
+      peskirSlika(MAMBA, tier, v),
     ];
   }, [tier]);
-
-  const zavrsiPrelaz = useCallback(() => setPrelaz(null), []);
 
   return (
     <>
@@ -64,38 +99,28 @@ export default function Home() {
       {tier && <Loader assets={preload} onDone={() => setReady(true)} />}
 
       <main className={styles.main}>
-        {tier && (
+        {tier && faza !== PRODAJA && (
           <SideChooser
             tier={tier}
             ready={ready}
-            izabrana={strana}
-            onIzbor={izaberi}
-            onPoruci={setPrelaz}
+            izabrana={faza === LOM ? strana : null}
+            onIzbor={potvrdi}
+            onNaboj={potvrdi}
           />
         )}
 
-        <section id="sta-je" className={styles.next}>
-          <p className={styles.nextKicker}>Šta je DRYKULT</p>
-          <RevealLines
-            lines={['Nije krpa.', 'Pravilo je.']}
-            as="h2"
-            className={styles.nextTitle}
-            stagger={110}
-          />
-          <RevealWords
-            className={styles.nextBody}
-            text="Peškir od 850 grama po kvadratu, 90 sa 70 centimetara, sa dve strane tkanine. Twisted-loop strana kupi vodu iz prve, plišana polira ono što ostane. Jedan prelaz preko panela i nema ni kapi ni traga."
-          />
-          <RevealWords
-            className={styles.nextBody}
-            text="Nema countdown-a, nema izmišljenih recenzija. Dokaz je gore — obrisao si ga sam."
-          />
-        </section>
-
-        <OrderSection strana={strana} />
+        {tier && faza === PRODAJA && (
+          <FactionView strana={strana} onNazad={nazad} onPoruci={setPrelaz} />
+        )}
       </main>
 
-      <SideSwitch izabrana={strana} onIzbor={izaberi} />
+      <ShatterTransition
+        active={faza === LOM}
+        origin={udar}
+        side={strana}
+        tier={tier}
+        onDone={lomGotov}
+      />
 
       <WetTransition
         active={!!prelaz}
@@ -103,7 +128,7 @@ export default function Home() {
         targetId="poruci"
         tier={tier}
         side={strana}
-        onDone={zavrsiPrelaz}
+        onDone={() => setPrelaz(null)}
       />
     </>
   );

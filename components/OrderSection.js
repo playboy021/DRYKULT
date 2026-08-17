@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import LiquidButton from './LiquidButton';
 import { RevealLines, RevealWords } from './Reveal';
-import { STRANE, HROM } from '../lib/faction';
+import { STRANE, HROM, peskirSlika } from '../lib/faction';
 import styles from './OrderSection.module.css';
 
 const CENA_RSD = 3000;
@@ -48,7 +48,7 @@ export default function OrderSection({ strana }) {
         <div className={styles.media}>
           <img
             className={styles.foto}
-            src={`/drykult/${f.peskir}-hi.png`}
+            src={peskirSlika(strana || HROM, null, 'hi')}
             alt={`DRYKULT peškir — strana ${f.ime}`}
             draggable={false}
           />

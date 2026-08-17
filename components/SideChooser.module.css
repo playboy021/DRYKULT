@@ -21,15 +21,18 @@
   background-size: 200% 100%;
   z-index: 0;
 }
+/* Sama slika dolazi iz JS-a (--slika), jer zavisi od tiera. Kad je bila
+   tvrdo kodirana na -hi, MID je skidao i md (loader ga čeka) i hi (CSS ga
+   vuče) — dvostruko, i loader je propuštao onu koja se stvarno prikaže. */
 .pl {
   left: 0;
   background-position: left center;
-  background-image: url('/drykult/plate-pink-hi.jpg');
+  background-image: var(--slika);
 }
 .pr {
   right: 0;
   background-position: right center;
-  background-image: url('/drykult/plate-mamba-hi.jpg');
+  background-image: var(--slika);
 }
 
 .cv {
@@ -71,13 +74,19 @@
   outline-offset: -0.75rem;
 }
 
+/* Donja granica svetline je 0.68, ne 0.44. Na 0.44 su se KORALNA slova
+   gubila u crnom: natpis na pink peškiru je srednje svetao, pa ga tamnjenje
+   pojede. Limun-zelena je mnogo svetlija i preživljava isto tamnjenje —
+   zato je izgledalo da je „samo pink loš". Glow u boji frakcije dodatno
+   odvaja peškir od crne podloge. */
 .towel {
   width: auto;
   height: 34svh;
   max-width: 82%;
   object-fit: contain;
-  filter: brightness(calc(0.44 + var(--w, 0.5) * 0.7)) drop-shadow(0 1.5rem 2.5rem rgba(0, 0, 0, 0.8));
-  transform: translateY(calc((1 - var(--w, 0.5)) * 0.75rem));
+  filter: brightness(calc(0.68 + var(--w, 0.5) * 0.42)) saturate(calc(0.9 + var(--w, 0.5) * 0.35))
+    drop-shadow(0 1.5rem 2.5rem rgba(0, 0, 0, 0.8));
+  transform: translateY(calc((1 - var(--w, 0.5)) * 0.75rem)) scale(calc(1 + var(--naboj, 0) * 0.05));
   transition:
     filter 90ms linear,
     transform 260ms ease;
@@ -100,7 +109,30 @@
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--muted);
-  opacity: calc(0.18 + var(--w, 0.5) * 0.82);
+  opacity: calc(0.3 + var(--w, 0.5) * 0.7);
+}
+
+/* Traka naboja. Jedina stvar koja korisniku kaže da se nešto puni —
+   bez nje se automatsko okidanje čita kao da je sajt sam odlučio. */
+.naboj {
+  display: block;
+  width: 7rem;
+  max-width: 60%;
+  height: 0.1875rem;
+  border-radius: 2rem;
+  overflow: hidden;
+  background: rgba(244, 246, 248, 0.12);
+  opacity: calc(0.15 + var(--naboj, 0) * 0.85);
+  transition: opacity 200ms ease;
+}
+
+.naboji {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform-origin: left center;
+  transform: scaleX(var(--naboj, 0));
+  border-radius: 2rem;
 }
 
 /* Posle izbora: odbačena strana se povlači, izabrana ostaje puna. */
@@ -209,38 +241,82 @@
   flex: none;
 }
 
-/* --- LOW tier: dve ploče jedna ispod druge --------------------------------
-   Bez kursora nema mokre ivice ni dominacije — bira se tapom, pa obe ploče
-   moraju biti ravnopravne i dovoljno velike da se prst ne promaši. */
-.stack .halves {
+/* --- LOW tier: normalan tok, ne preklapanje --------------------------------
+   Na desktopu sadržaj lebdi PREKO kadra i to radi jer ima mesta. Na 375px
+   naslov i peškiri se preklapaju i ništa se ne čita. Zato telefon dobija
+   pravi vertikalni tok: naslov, pa dve ploče ispod njega.
+   Bez kursora nema ni mokre ivice ni dominacije — bira se tapom ili držanjem,
+   pa obe ploče moraju biti ravnopravne i dovoljno velike da se prst ne promaši. */
+.hero.stack {
+  display: flex;
   flex-direction: column;
+  height: auto;
+  min-height: 100svh;
 }
+
+/* Podloge se premeštaju NA same ploče — apsolutni slojevi nemaju smisla
+   kad je raspored u toku. */
 .stack .plate {
-  width: 100%;
-  height: 50%;
-  background-size: 100% 200%;
+  display: none;
 }
-.stack .pl {
-  top: 0;
-  bottom: auto;
-  background-position: center top;
+
+.stack .content {
+  order: -1; /* naslov ide iznad ploča, iako je u DOM-u posle njih */
+  position: static;
+  min-height: 0;
+  padding: 4.5rem 1.5rem 2rem;
+  justify-content: flex-start;
 }
-.stack .pr {
-  top: auto;
-  bottom: 0;
-  background-position: center bottom;
+
+.stack .halves {
+  position: static;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 0.0625rem; /* tanka linija između ploča umesto mokre ivice */
+  background: var(--line);
+}
+
+.stack .half {
+  flex: 1 1 0;
+  justify-content: center;
+  gap: 0.625rem;
+  padding: 1.75rem 1.5rem;
+  min-height: 15rem;
+  background-size: cover;
+  background-position: center;
+  /* Ploče su velike mete — pritisak ne sme da izabere tekst ni da otvori
+     kontekstni meni dok se drži prst. */
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
 }
 .stack .half {
-  justify-content: center;
-  padding: 1.5rem;
+  background-image: linear-gradient(rgba(7, 8, 10, 0.55), rgba(7, 8, 10, 0.72)), var(--slika);
+}
+
+.stack .towel {
+  height: auto;
+  width: auto;
+  max-height: 15svh;
+  max-width: 52%;
+}
+
+/* Bez kursora nema dominacije, pa su obe ploče pune svetline —
+   `--w` se na LOW nikad ne menja i ostao bi zamrznut na 0.5. */
+.stack .towel,
+.stack .ime,
+.stack .podnaslov {
+  filter: none;
+  opacity: 1;
 }
 .stack .towel {
-  height: 22svh;
+  filter: drop-shadow(0 0.75rem 1.5rem rgba(0, 0, 0, 0.8));
+  transform: scale(calc(1 + var(--naboj, 0) * 0.06));
 }
-.stack .content {
-  justify-content: flex-start;
-  padding-top: 4rem;
-  pointer-events: none;
+.stack .naboj {
+  width: 9rem;
+  height: 0.25rem;
+  opacity: calc(0.25 + var(--naboj, 0) * 0.75);
 }
 
 @media (max-width: 1024px) {

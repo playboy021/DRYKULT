@@ -117,6 +117,22 @@ Rani buffer preko `IntersectionObserver` sa `rootMargin:'400px'`, puštanje na
 `components/HeroVideo.js` postavlja `v.src` u `useEffect`. U markup-u stoji samo `poster`.
 Da `src` stoji u JSX-u, telefon bi počeo da vuče fajl pre nego što JS odluči koji treba.
 
+### 4.8 Brzine idu po SEKUNDI, nikad po frejmu
+Svaka animacija koja akumulira (`x += korak`) mora da množi sa `dt`, ne sa
+konstantom. Na 144Hz monitoru rAF okine 2.4 puta češće nego na 60Hz — kod
+vezan za frejm tamo radi 2.4 puta brže i „radi" samo na ekranu na kom je pisan.
+
+Uhvaćeno na naboju u `SideChooser`: punjenje od 1.05s postajalo je 0.44s.
+Isto važi za prigušenje (`poz += (cilj - poz) * 0.1` → `* (1 - Math.pow(0.0001, dt))`).
+
+`dt` se ograničava na 50ms: kad se tab vrati iz pozadine, prvi `dt` zna da bude
+sekundama velik i akumulator skoči na kraj u jednom frejmu.
+
+### 4.9 Fotografija sa alfom ide u WebP, ne u PNG
+PNG je bezgubitan — za fotografiju tkanine nema šta da dobije, a plaća ogromno.
+Izmereno na peškirima: **918 KB u PNG-u protiv 75 KB u WebP-u** za isti par,
+i to se skidalo na SVAKOM tieru uključujući telefon. Dvanaest puta.
+
 ### 4.6 Uvek poštuj
 `prefers-reduced-motion` (LiquidReveal se uopšte ne montira, ostaje statična mokra slika),
 `saveData`, tab u pozadini (Lenis staje, rAF petlje se gase).
@@ -268,6 +284,48 @@ i praćenje ivice i klik na stranu. Dugmad ga vraćaju na `auto`.
 u boju frakcije zato ide na samim elementima (`color`, `box-shadow`), ne na `:root`.
 `transition: --f-core` je tiho mrtav kod — izgleda kao da radi, a ne radi ništa.
 
+### NABOJ — izbor bez klika
+
+`SideChooser`. Što se duže držiš jedne strane, to se njen naboj više puni;
+na 100% se sam okida lom. Klik i dalje radi kao prečica, ali punjenje nosi
+trenutak jer odluka ima trajanje.
+
+- `high` — puni se DUBINOM ulaska kursora u stranu (prag 0.3 od ivice)
+- `mid` / `low` — puni se DRŽANJEM (`pointerdown` na polovini)
+- pun naboj za ~1.05s, prazni se za ~0.42s (brže nego što se puni)
+
+Uz naboj rastu amplituda i frekvencija talasanja ivice — voda počinje da ključa
+kako se odluka bliži. To je jedino što korisniku kaže „nešto se sprema", a da mu
+niko ništa nije napisao. Traka ispod imena je drugo.
+
+**Dve zamke, obe realne:**
+1. **Prevlačenje na telefonu je SKROL, ne držanje.** Bez otkazivanja naboja na
+   pomeraj veći od 12px, svako skrolovanje preko hero-a bi posle sekunde
+   prebacilo korisnika na stranu koju nije birao.
+2. **Klik posle napunjenog naboja potvrđuje DRUGI put.** `onClick` stiže posle
+   `pointerup`, a naboj je već okinuo — bez čuvara `if (izabrana) return`
+   lom krene dvaput.
+
+### LOM — kad se naboj napuni
+
+`components/ShatterTransition.js`. Tri faze, ukupno 1500ms: pukotine (0–260),
+raspad krhotina (260–1100), proizvod ostaje (900–1500).
+
+Krhotine su teksturisane **podlogom te frakcije** — to je ono što je i bilo na
+ekranu, pa lom izgleda kao da je pukao sam kadar. Prava snimka DOM-a nije moguća
+bez spoljne biblioteke, a podloga je dovoljno blizu jer ona i ispunjava hero.
+
+Proizvod stoji **iza krhotina od prvog frejma**. Da se pojavljuje posle, lom i
+otkrivanje bi se čitali kao dva odvojena poteza umesto kao jedan.
+
+**Naučeno iz offline simulacije:** prva verzija je izgledala kao **meta za pikado**.
+Uzrok: radijusi prstenova bili su zajednički za sve žbice, pa su prstenovi ispadali
+savršeni krugovi. Ispravka — radijusi idu **po svakoj žbici posebno**, uglovi
+variraju skoro dvostruko, prvi prsten kreće odmaknut od centra (inače se oko tačke
+udara nakupi rozeta koja liči na vatromet), i poneki segment prstena namerno
+nedostaje. Uz to se u prvoj fazi crtaju samo **žbice i prstenovi**, ne obrisi svih
+krhotina — staklo pri udaru prvo pukne u nekoliko linija, tek posle se raspadne.
+
 ### Izrezivanje peškira sa bele pozadine
 
 `scripts/gen-drykult.mjs`. Peškir je crn, pozadina bela — ključuje se po luminansi.
@@ -399,14 +457,22 @@ Pogađa i 16.2.10 i 16.3.0.
 
 ## Izmereno
 
-| Tier | Slike / video | Napomena |
-|---|---|---|
-| `high` | **564 KB** (wet 268.5 + dry 295.8, 1440×949) | oba se preloaduju u loaderu |
-| `mid` | **269 KB** (wet 127 + dry 142, 1024×675) | |
-| `low` | poster 108 KB + video 795 KB = **903 KB** | pravi snimak; video se učitava lenjo, poster ide odmah |
+Sve što loader čeka pre nego što otkrije hero — dve podloge + oba peškira:
 
-Zajedničko: JS ~424 KB (nemin.), CSS 12 KB, **fontovi 302 KB** (Archivo 171.8 — latin 83.8 +
+| Tier | podloge | peškiri | ukupno | pre WebP-a |
+|---|---|---|---|---|
+| `high` | 597 KB (1920px) | 75 KB (640px) | **672 KB** | 1515 KB |
+| `mid` | 327 KB (1280px) | 75 KB (640px) | **402 KB** | 1245 KB |
+| `low` | 135 KB (760px) | 37 KB (420px) | **172 KB** | 1054 KB |
+
+Telefon je šest puta lakši nego pre prelaska na WebP i `sm` varijantu.
+
+Zajedničko: JS ~444 KB (nemin.), CSS 26 KB, **fontovi 302 KB** (Archivo 171.8 — latin 83.8 +
 latin-ext 88.0; Inter 130.6 — latin 83.3 + latin-ext 47.3).
+
+**Podloga se postavlja iz JS-a (`--slika`), ne iz CSS-a.** Dok je bila tvrdo
+kodirana na `-hi`, MID je skidao i `md` (koju loader čeka) i `hi` (koju CSS vuče) —
+dvostruko, a loader je propuštao baš onu koja se prikaže.
 
 **Fontovi su najskuplja stavka posle slika.** Navođenje `weight: [...]` ne pomaže — Google
 za Inter servira samo varijabilnu verziju, emituje se isti bajt (provereno, heševi identični).
