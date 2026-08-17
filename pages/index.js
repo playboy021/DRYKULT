@@ -1,8 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import Head from 'next/head';
 import Loader from '../components/Loader';
+import SiteHeader from '../components/SiteHeader';
 import SideChooser from '../components/SideChooser';
+import ProofSection from '../components/ProofSection';
 import FactionView from '../components/FactionView';
+import OrderSection from '../components/OrderSection';
 import ShatterTransition from '../components/ShatterTransition';
 import WetTransition from '../components/WetTransition';
 import { detectTier, LOW } from '../lib/device';
@@ -98,19 +101,32 @@ export default function Home() {
 
       {tier && <Loader assets={preload} onDone={() => setReady(true)} />}
 
-      <main className={styles.main}>
+      {/* Traka je providna preko hero-a da sudar boja ide do vrha ekrana,
+          a puna čim se pređe u prodaju. */}
+      <SiteHeader strana={strana} prozirna={faza !== PRODAJA} />
+
+      <main id="vrh" className={styles.main}>
         {tier && faza !== PRODAJA && (
-          <SideChooser
-            tier={tier}
-            ready={ready}
-            izabrana={faza === LOM ? strana : null}
-            onIzbor={potvrdi}
-            onNaboj={potvrdi}
-          />
+          <>
+            <SideChooser
+              tier={tier}
+              ready={ready}
+              izabrana={faza === LOM ? strana : null}
+              onIzbor={potvrdi}
+              onNaboj={potvrdi}
+            />
+            <ProofSection tier={tier} strana={strana} />
+          </>
         )}
 
+        {/* Redosled je namerno ovakav: proizvod, pa DOKAZ, pa tek onda forma.
+            Forma pre dokaza traži poverenje koje još nije zarađeno. */}
         {tier && faza === PRODAJA && (
-          <FactionView strana={strana} onNazad={nazad} onPoruci={setPrelaz} />
+          <>
+            <FactionView strana={strana} onNazad={nazad} onPoruci={setPrelaz} />
+            <ProofSection tier={tier} strana={strana} />
+            <OrderSection strana={strana} />
+          </>
         )}
       </main>
 

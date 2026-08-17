@@ -1,42 +1,57 @@
 import { useEffect, useRef } from 'react';
 import { RevealLines, RevealWords, RevealFade } from './Reveal';
-import { STRANE, HROM, MAMBA, peskirSlika, podlogaSlika } from '../lib/faction';
+import { STRANE, HROM, MAMBA, peskirSlika } from '../lib/faction';
 import { LOW, MID } from '../lib/device';
 import styles from './SideChooser.module.css';
 
 // HERO — "izaberi stranu".
 //
-// Obe polovine nose ISTU haubu; menja se samo boja svetla. Zato podela mora
-// da izgleda kao granica NA jednoj površini, a ne kao spoj dve fotke:
-// background-size 200% + position left/right znači da leva polovina prikazuje
-// levu stranu iste slike, a desna desnu. Spoj se poklapa u piksel.
+// Pozadina NIJE slika sa linijom preko nje. Pozadina JESTE sudar dve boje:
+// dva polja koja se guraju, a granica je mesto gde se dodiruju. Ranije je
+// ovde stajala fotografija mokre haube sa dijagonalnom neonskom prugom, pa
+// se ta pruga tukla sa vertikalnom podelom — dve linije na različite strane,
+// ništa nije pratilo ništa. Fotografija se vraća kad se snimi pravi materijal.
 //
 // IZBOR IDE BEZ KLIKA. Što se duže držiš jedne strane, to se njen naboj više
 // puni; na 100% se sam okida lom. Klik i dalje radi kao brza prečica — ali
 // punjenje je ono što nosi trenutak, jer odluka ima trajanje.
 //
 // Po tieru:
-//   high — mokra ivica prati kursor, naboj se puni blizinom
-//   mid  — ivica stoji na sredini, naboj se puni hover-om nad polovinom
+//   high — granica prati kursor, oba polja žive
+//   mid  — granica na sredini, naboj se puni hover-om nad polovinom
 //   low  — nema kursora: dve ploče, naboj se puni DRŽANJEM prsta
 
 const NASLOV = ['Suvo je pravilo.', 'Trag je greška.'];
 
-// Prag: koliko duboko u stranu treba ući da naboj počne da raste.
 const PRAG = 0.3;
-// Brzine su po SEKUNDI, ne po frejmu. Vezivanje za frejm je klasična zamka:
-// na monitoru od 144Hz rAF okine 2.4 puta češće nego na 60Hz, pa bi se naboj
-// tamo punio za 0.44s umesto za 1.05s — kod bi „radio" samo na ekranu na kom
-// je pisan.
-const PUNJENJE = 1 / 1.05; // pun naboj za ~1.05s držanja na samom kraju
-const PRAZNJENJE = 1 / 0.42; // prazni se brže nego što se puni
+// Brzine su po SEKUNDI, ne po frejmu (ZAKON 4.8).
+const PUNJENJE = 1 / 1.05;
+const PRAZNJENJE = 1 / 0.42;
+
+// Jedan oblak se crta JEDNOM u sprite pa se posle samo drawImage-uje.
+// Trideset radijalnih gradijenata po frejmu preko celog ekrana bi bilo
+// najskuplje mesto u celoj animaciji; keširani sprite je red veličine jeftiniji.
+function oblakSprite(size, rgb) {
+  const c = document.createElement('canvas');
+  c.width = size;
+  c.height = size;
+  const x = c.getContext('2d');
+  const r = size / 2;
+  const g = x.createRadialGradient(r, r, 0, r, r, r);
+  g.addColorStop(0, `rgba(${rgb},0.42)`);
+  g.addColorStop(0.35, `rgba(${rgb},0.2)`);
+  g.addColorStop(0.7, `rgba(${rgb},0.06)`);
+  g.addColorStop(1, `rgba(${rgb},0)`);
+  x.fillStyle = g;
+  x.fillRect(0, 0, size, size);
+  return c;
+}
 
 export default function SideChooser({ tier, ready, izabrana, onIzbor, onNaboj }) {
   const hostRef = useRef(null);
   const cvRef = useRef(null);
   const lRef = useRef(null);
   const rRef = useRef(null);
-  // Držanje prsta/dugmeta na polovini — koristi ga MID i LOW
   const drziRef = useRef(null);
   const pocetakRef = useRef(null);
 
@@ -87,13 +102,46 @@ export default function SideChooser({ tier, ready, izabrana, onIzbor, onNaboj })
       host.addEventListener('pointerleave', onLeave, { passive: true });
     }
 
-    // Kapi koje klize niz mokru ivicu. Bez njih je granica samo linija;
-    // sa njima se čita kao mesto gde se voda skuplja.
-    const kapi = [];
-    const sejKap = () => {
-      kapi.push({ y: Math.random() * H, brzina: (0.4 + Math.random() * 1.4) * H * 0.0016, r: (1 + Math.random() * 2.6) * dpr, a: 0.35 + Math.random() * 0.5 });
+    // --- polja koja se guraju -------------------------------------------------
+    const spriteH = ctx ? oblakSprite(256, STRANE[HROM].rgb) : null;
+    const spriteM = ctx ? oblakSprite(256, STRANE[MAMBA].rgb) : null;
+    const brojOblaka = tier === LOW ? 8 : tier === MID ? 12 : 18;
+
+    const oblaci = [];
+    for (const strana of [-1, 1]) {
+      for (let i = 0; i < brojOblaka; i++) {
+        oblaci.push({
+          strana, // -1 levo (HROM), +1 desno (MAMBA)
+          y: (i + 0.5) / brojOblaka + (Math.random() - 0.5) * 0.06,
+          faza: Math.random() * Math.PI * 2,
+          brzina: 0.5 + Math.random() * 0.8,
+          r: 0.22 + Math.random() * 0.26, // udeo visine ekrana
+          dubina: Math.random(), // koliko daleko od granice stoji
+        });
+      }
+    }
+
+    // Varnice na samom sudaru — sitne, žive, u boji strane koja gura jače.
+    const varnice = [];
+    const sejVarnicu = () => {
+      varnice.push({
+        y: Math.random(),
+        vx: (Math.random() - 0.5) * 2,
+        vy: (Math.random() - 0.5) * 0.6,
+        zivot: 0,
+        trajanje: 0.5 + Math.random() * 0.9,
+        r: 0.6 + Math.random() * 1.8,
+        strana: Math.random() < 0.5 ? -1 : 1,
+      });
     };
-    for (let i = 0; i < 26; i++) sejKap();
+
+    // Granica: dva sinusa različitih frekvencija. Jedan izgleda mehanički
+    // kao talas iz udžbenika; dva daju nepravilnost tečnosti.
+    const granicaX = (k, x0, amp1, amp2, brzina, uzbudjenje) =>
+      x0 +
+      Math.sin(k * 7.5 + t * 1.6 * brzina) * amp1 +
+      Math.sin(k * 3.1 - t * 1.05 * brzina) * amp2 +
+      Math.sin(k * 19 + t * 3.2 * brzina) * amp1 * uzbudjenje * 0.5;
 
     const frejm = (sada) => {
       // Ograničeno na 50ms: kad se tab vrati iz pozadine, prvi dt zna da bude
@@ -101,10 +149,11 @@ export default function SideChooser({ tier, ready, izabrana, onIzbor, onNaboj })
       const dt = Math.min(0.05, (sada - prosli) / 1000);
       prosli = sada;
 
-      // --- pozicija ivice ----------------------------------------------------
-      const cilj = izabrana === HROM ? 0.985 : izabrana === MAMBA ? 0.015 : meta;
-      // Prigušenje vezano za vreme, ne za frejm — inače ivica na 144Hz
-      // stiže do kursora osetno brže nego na 60Hz.
+      // `poz` je GRANICA (udeo ekrana koji drži HROM), a ne pozicija kursora.
+      // Mapiranje je obrnuto — `1 - meta` — jer kursor GURA granicu od sebe:
+      // stojiš duboko u svojoj strani i ona raste. Sa direktnim mapiranjem
+      // se dešavalo suprotno: pomeriš miša levo, a zeleno preplavi ekran.
+      const cilj = izabrana === HROM ? 0.985 : izabrana === MAMBA ? 0.015 : 1 - meta;
       poz += (cilj - poz) * (1 - Math.pow(0.0001, dt));
       if (!reduced) t += dt;
 
@@ -114,17 +163,17 @@ export default function SideChooser({ tier, ready, izabrana, onIzbor, onNaboj })
         let jacina = 0;
 
         if (drziRef.current) {
-          // MID / LOW: drži se prst ili dugme
           punjenjeStrane = drziRef.current;
           jacina = 1;
         } else if (prati) {
-          // HIGH: koliko duboko je kursor ušao u stranu
-          if (poz < PRAG) {
+          // Naboj se puni po KURSORU, ne po granici — granica kasni za
+          // kursorom (opruga), pa bi punjenje inače kasnilo za pokretom.
+          if (meta < PRAG) {
             punjenjeStrane = HROM;
-            jacina = (PRAG - poz) / PRAG;
-          } else if (poz > 1 - PRAG) {
+            jacina = (PRAG - meta) / PRAG;
+          } else if (meta > 1 - PRAG) {
             punjenjeStrane = MAMBA;
-            jacina = (poz - (1 - PRAG)) / PRAG;
+            jacina = (meta - (1 - PRAG)) / PRAG;
           }
         }
 
@@ -140,7 +189,6 @@ export default function SideChooser({ tier, ready, izabrana, onIzbor, onNaboj })
         }
 
         if (naboj >= 1 && stranaNaboja) {
-          // Napunjeno — okida se bez klika.
           const el = (stranaNaboja === HROM ? lRef : rRef).current;
           const r = el ? el.getBoundingClientRect() : null;
           onNaboj(stranaNaboja, {
@@ -152,10 +200,11 @@ export default function SideChooser({ tier, ready, izabrana, onIzbor, onNaboj })
         }
       }
 
+      // Moć strane = širina njene teritorije. HROM drži 0..poz, MAMBA poz..1.
+      const lw = poz;
+      const rw = 1 - poz;
       const nl = stranaNaboja === HROM ? naboj : 0;
       const nr = stranaNaboja === MAMBA ? naboj : 0;
-      const lw = 1 - poz;
-      const rw = poz;
       if (lRef.current) {
         lRef.current.style.setProperty('--w', lw.toFixed(3));
         lRef.current.style.setProperty('--naboj', nl.toFixed(3));
@@ -165,101 +214,120 @@ export default function SideChooser({ tier, ready, izabrana, onIzbor, onNaboj })
         rRef.current.style.setProperty('--naboj', nr.toFixed(3));
       }
 
-      // --- ivica -------------------------------------------------------------
-      if (ctx) {
-        ctx.clearRect(0, 0, W, H);
-        const x0 = poz * W;
+      if (!ctx) {
+        raf = requestAnimationFrame(frejm);
+        return;
+      }
 
-        // Strana koja gubi TONE U CRNO — ne samo da tamni, povlači se.
-        const gl = ctx.createLinearGradient(0, 0, x0, 0);
-        gl.addColorStop(0, `rgba(7,8,10,${Math.max(0, 0.66 - lw * 0.52).toFixed(3)})`);
-        gl.addColorStop(1, 'rgba(7,8,10,0)');
-        ctx.fillStyle = gl;
-        ctx.fillRect(0, 0, x0, H);
+      // --- crtanje sudara ----------------------------------------------------
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.fillStyle = '#07080a';
+      ctx.fillRect(0, 0, W, H);
 
-        const gr = ctx.createLinearGradient(W, 0, x0, 0);
-        gr.addColorStop(0, `rgba(7,8,10,${Math.max(0, 0.66 - rw * 0.52).toFixed(3)})`);
-        gr.addColorStop(1, 'rgba(7,8,10,0)');
-        ctx.fillStyle = gr;
-        ctx.fillRect(x0, 0, W - x0, H);
+      const x0 = poz * W;
+      const uzbudjenje = naboj;
+      const amp1 = H * (0.02 + uzbudjenje * 0.035);
+      const amp2 = H * (0.035 + uzbudjenje * 0.055);
+      const brzina = 1 + uzbudjenje * 2.2;
 
-        // Amplituda i frekvencija RASTU sa nabojem — voda počinje da ključa
-        // kako se odluka bliži. To je jedini deo animacije koji korisnik
-        // vidi kao "nešto se sprema", a da mu niko nije rekao.
-        const uzbudjenje = naboj;
-        const amp1 = H * (0.018 + uzbudjenje * 0.03);
-        const amp2 = H * (0.03 + uzbudjenje * 0.05);
-        const brzina = 1 + uzbudjenje * 2.4;
+      // Oblaci se crtaju sa 'lighter' — gde se dva polja preklope, boja se
+      // sabira i sudar sam od sebe postane najsvetlije mesto u kadru.
+      ctx.globalCompositeOperation = 'lighter';
+      for (const o of oblaci) {
+        const k = o.y;
+        const bx = granicaX(k, x0, amp1, amp2, brzina, uzbudjenje);
 
-        const putanja = (pomeraj) => {
-          ctx.beginPath();
-          for (let y = 0; y <= H; y += 4) {
-            const k = y / H;
-            const x =
-              x0 +
-              pomeraj +
-              Math.sin(k * 7.5 + t * 1.6 * brzina) * amp1 +
-              Math.sin(k * 3.1 - t * 1.05 * brzina) * amp2 +
-              Math.sin(k * 19 + t * 3.2 * brzina) * amp1 * uzbudjenje * 0.5;
-            if (y === 0) ctx.moveTo(x, y);
-            else ctx.lineTo(x, y);
+        // Oblaci ISPUNJAVAJU svoju teritoriju, ne skupljaju se uz granicu.
+        // Prva verzija ih je kačila za granicu sa odmakom — kad se granica
+        // pomeri levo, cela desna polovina ekrana ostajala je crna umesto da
+        // je preplavi pobednička boja. Sad se `dubina` čita kao položaj
+        // UNUTAR teritorije: 0 je uz sam sudar, 1 je uz ivicu ekrana.
+        const teritorija = o.strana < 0 ? bx : W - bx;
+        const talas = Math.sin(t * o.brzina + o.faza) * H * 0.04;
+        const x = bx + o.strana * (teritorija * o.dubina + talas);
+        const y = k * H + Math.cos(t * o.brzina * 0.7 + o.faza) * H * 0.045;
+
+        const moc = o.strana < 0 ? lw : rw;
+        const nabojStrane = o.strana < 0 ? nl : nr;
+        // Poluprečnik prati širinu teritorije da pokrivenost ostane puna i
+        // kad je strana potisnuta uz ivicu.
+        const osnova = Math.max(teritorija * 0.55, H * 0.18);
+        const r = o.r * 2 * osnova * (0.85 + 0.3 * Math.sin(t * o.brzina * 1.3 + o.faza));
+
+        ctx.globalAlpha = (0.4 + moc * 0.5 + nabojStrane * 0.25) * 0.9;
+        ctx.drawImage(o.strana < 0 ? spriteH : spriteM, x - r, y - r, r * 2, r * 2);
+      }
+      ctx.globalAlpha = 1;
+
+      // --- varnice na sudaru --------------------------------------------------
+      if (!reduced) {
+        const zeljeno = 18 + Math.round(uzbudjenje * 40);
+        while (varnice.length < zeljeno) sejVarnicu();
+        for (let i = varnice.length - 1; i >= 0; i--) {
+          const v = varnice[i];
+          v.zivot += dt;
+          if (v.zivot > v.trajanje) {
+            varnice.splice(i, 1);
+            continue;
           }
-        };
-
-        // Hromatski rascep: koralna levo od jezgra, zelena desno.
-        // Ivica time NOSI obe boje umesto da bude neutralna bela crta —
-        // granica je doslovno mesto gde se dve frakcije dodiruju.
-        const razmak = (3 + uzbudjenje * 7) * dpr;
-        ctx.lineWidth = (2.5 + uzbudjenje * 2) * dpr;
-
-        ctx.strokeStyle = `rgba(255,110,128,${(0.55 + uzbudjenje * 0.4).toFixed(3)})`;
-        ctx.shadowBlur = (14 + uzbudjenje * 26) * dpr;
-        ctx.shadowColor = 'rgba(255,110,128,0.9)';
-        putanja(-razmak);
-        ctx.stroke();
-
-        ctx.strokeStyle = `rgba(140,239,46,${(0.55 + uzbudjenje * 0.4).toFixed(3)})`;
-        ctx.shadowColor = 'rgba(140,239,46,0.9)';
-        putanja(razmak);
-        ctx.stroke();
-
-        // Jezgro — belo i usko, drži liniju čitljivom preko obe boje
-        ctx.strokeStyle = `rgba(255,255,255,${(0.7 + uzbudjenje * 0.3).toFixed(3)})`;
-        ctx.lineWidth = (1.2 + uzbudjenje * 1.2) * dpr;
-        ctx.shadowBlur = (8 + uzbudjenje * 14) * dpr;
-        ctx.shadowColor = 'rgba(255,255,255,0.8)';
-        putanja(0);
-        ctx.stroke();
-        ctx.shadowBlur = 0;
-
-        // Kapi klize niz ivicu, obojene stranom ka kojoj su bliže
-        for (const kap of kapi) {
-          kap.y += kap.brzina * (1 + uzbudjenje * 2.5) * dt * 60;
-          if (kap.y > H) {
-            kap.y = -10;
-            kap.r = (1 + Math.random() * 2.6) * dpr;
-          }
-          const k = kap.y / H;
-          const kx =
-            x0 +
-            Math.sin(k * 7.5 + t * 1.6 * brzina) * amp1 +
-            Math.sin(k * 3.1 - t * 1.05 * brzina) * amp2;
-          const boja = lw > rw ? '255,110,128' : '140,239,46';
-          ctx.fillStyle = `rgba(${boja},${(kap.a * (0.5 + uzbudjenje * 0.5)).toFixed(3)})`;
+          const p = v.zivot / v.trajanje;
+          const bx = granicaX(v.y, x0, amp1, amp2, brzina, uzbudjenje);
+          const x = bx + v.vx * p * H * (0.12 + uzbudjenje * 0.2);
+          const y = v.y * H + v.vy * p * H * 0.1;
+          const rgb = v.strana < 0 ? STRANE[HROM].rgb : STRANE[MAMBA].rgb;
+          ctx.fillStyle = `rgba(${rgb},${((1 - p) * 0.9).toFixed(3)})`;
           ctx.beginPath();
-          ctx.arc(kx, kap.y, kap.r, 0, Math.PI * 2);
+          ctx.arc(x, y, v.r * dpr * (1 + uzbudjenje), 0, Math.PI * 2);
           ctx.fill();
         }
       }
+
+      // --- sam sudar: uska vrela linija --------------------------------------
+      // Nije ukrasna crta preko slike — to je mesto gde se dva polja dodiruju,
+      // pa nosi obe boje i beli usijani spoj u sredini.
+      ctx.lineCap = 'round';
+      const putanja = (pomeraj) => {
+        ctx.beginPath();
+        for (let y = 0; y <= H; y += 6) {
+          const x = granicaX(y / H, x0, amp1, amp2, brzina, uzbudjenje) + pomeraj;
+          if (y === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+      };
+      const razmak = (4 + uzbudjenje * 9) * dpr;
+      ctx.lineWidth = (3 + uzbudjenje * 3) * dpr;
+      ctx.strokeStyle = `rgba(${STRANE[HROM].rgb},${(0.4 + uzbudjenje * 0.5).toFixed(3)})`;
+      putanja(-razmak);
+      ctx.stroke();
+      ctx.strokeStyle = `rgba(${STRANE[MAMBA].rgb},${(0.4 + uzbudjenje * 0.5).toFixed(3)})`;
+      putanja(razmak);
+      ctx.stroke();
+
+      ctx.strokeStyle = `rgba(255,255,255,${(0.5 + uzbudjenje * 0.45).toFixed(3)})`;
+      ctx.lineWidth = (1 + uzbudjenje * 1.4) * dpr;
+      putanja(0);
+      ctx.stroke();
+
+      // --- smirivanje sredine -------------------------------------------------
+      // Naslov stoji preko sudara; bez ovoga ga svetlost polja pojede.
+      ctx.globalCompositeOperation = 'source-over';
+      const v = ctx.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, Math.max(W, H) * 0.62);
+      v.addColorStop(0, 'rgba(7,8,10,0.72)');
+      v.addColorStop(0.55, 'rgba(7,8,10,0.35)');
+      v.addColorStop(1, 'rgba(7,8,10,0)');
+      ctx.fillStyle = v;
+      ctx.fillRect(0, 0, W, H);
 
       raf = requestAnimationFrame(frejm);
     };
     raf = requestAnimationFrame(frejm);
 
-    // ZAKON 4.6 — tab u pozadini ne crta.
     const onVis = () => {
       if (document.hidden) cancelAnimationFrame(raf);
-      else raf = requestAnimationFrame(frejm);
+      else {
+        prosli = performance.now();
+        raf = requestAnimationFrame(frejm);
+      }
     };
     document.addEventListener('visibilitychange', onVis);
 
@@ -286,7 +354,6 @@ export default function SideChooser({ tier, ready, izabrana, onIzbor, onNaboj })
         className={`${styles.half} ${styles[strana]} ${aktivna ? styles.aktivna : ''} ${
           odbacena ? styles.odbacena : ''
         }`}
-        style={{ '--slika': `url('${podlogaSlika(id, tier)}')` }}
         onClick={(e) => {
           // Ako je naboj već okinuo izbor, klik koji stigne posle otpuštanja
           // prsta bi ga potvrdio DRUGI put i lom bi krenuo dvaput.
@@ -299,13 +366,9 @@ export default function SideChooser({ tier, ready, izabrana, onIzbor, onNaboj })
         }}
         onPointerMove={(e) => {
           // Na telefonu je prevlačenje preko ploče SKROL, ne držanje.
-          // Bez ovoga bi svako skrolovanje preko hero-a punilo naboj i
-          // posle sekunde te samo prebacilo na stranu koju nisi birao.
           const p = pocetakRef.current;
           if (!p || !drziRef.current) return;
-          if (Math.hypot(e.clientX - p.x, e.clientY - p.y) > 12) {
-            drziRef.current = null;
-          }
+          if (Math.hypot(e.clientX - p.x, e.clientY - p.y) > 12) drziRef.current = null;
         }}
         onPointerUp={() => {
           drziRef.current = null;
@@ -328,7 +391,6 @@ export default function SideChooser({ tier, ready, izabrana, onIzbor, onNaboj })
           {s.ime}
         </span>
         <span className={styles.podnaslov}>{s.boja}</span>
-        {/* Traka naboja — jedina stvar koja korisniku kaže da se nešto puni */}
         <span className={styles.naboj} aria-hidden="true">
           <span className={styles.naboji} style={{ background: s.core }} />
         </span>
@@ -338,17 +400,7 @@ export default function SideChooser({ tier, ready, izabrana, onIzbor, onNaboj })
 
   return (
     <section ref={hostRef} className={`${styles.hero} ${tier === LOW ? styles.stack : ''}`}>
-      <div
-        className={`${styles.plate} ${styles.pl}`}
-        style={{ '--slika': `url('${podlogaSlika(HROM, tier)}')` }}
-        aria-hidden="true"
-      />
-      <div
-        className={`${styles.plate} ${styles.pr}`}
-        style={{ '--slika': `url('${podlogaSlika(MAMBA, tier)}')` }}
-        aria-hidden="true"
-      />
-      {tier !== LOW && <canvas ref={cvRef} className={styles.cv} aria-hidden="true" />}
+      <canvas ref={cvRef} className={styles.cv} aria-hidden="true" />
 
       <div className={styles.halves}>
         {polovina(HROM, 'l')}

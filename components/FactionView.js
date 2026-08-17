@@ -1,4 +1,3 @@
-import OrderSection from './OrderSection';
 import LiquidButton from './LiquidButton';
 import { RevealLines, RevealWords, RevealFade } from './Reveal';
 import { STRANE, peskirSlika } from '../lib/faction';
@@ -72,8 +71,6 @@ export default function FactionView({ strana, onNazad, onPoruci }) {
           </RevealFade>
         </div>
       </section>
-
-      <OrderSection strana={strana} />
     </div>
   );
 }

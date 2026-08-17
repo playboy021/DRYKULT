@@ -284,6 +284,31 @@ i praćenje ivice i klik na stranu. Dugmad ga vraćaju na `auto`.
 u boju frakcije zato ide na samim elementima (`color`, `box-shadow`), ne na `:root`.
 `transition: --f-core` je tiho mrtav kod — izgleda kao da radi, a ne radi ništa.
 
+### SUDAR DVE BOJE — pozadina hero-a
+
+`SideChooser`. Pozadina NIJE slika sa linijom preko nje — pozadina **jeste**
+sudar. Ranije je tu stajala generisana fotografija mokre haube sa svojom
+dijagonalnom neonskom prugom, pa se ta pruga tukla sa vertikalnom podelom:
+dve linije na različite strane, ništa nije pratilo ništa.
+
+Dva polja oblaka (keširani sprite po boji, `lighter` blend) i granica kao
+dva sinusa različitih frekvencija. Fotografija se vraća kad se snimi
+materijal sa pravim peškirom.
+
+**Dve greške uhvaćene offline simulacijom, obe suštinske:**
+
+1. **Oblaci su bili zakačeni za granicu** (odmak od nje). Kad se granica pomeri
+   levo, cela desna polovina ekrana ostajala je **crna** umesto da je preplavi
+   pobednička boja. Ispravka: `dubina` se čita kao položaj UNUTAR teritorije
+   (0 = uz sudar, 1 = uz ivicu ekrana), a poluprečnik prati širinu teritorije.
+2. **Mapiranje kursora bilo je obrnuto.** Granica je bila jednaka poziciji
+   kursora, pa je pomeranje ka jednoj strani tu stranu **smanjivalo** — miš
+   levo, a zeleno preplavi ekran. Granica je sada `1 - kursor`: stojiš duboko
+   u svojoj strani i **guraš granicu od sebe**.
+
+Zbog toga se naboj puni po **kursoru**, a ne po granici — granica kasni za
+kursorom (opruga), pa bi punjenje inače kasnilo za pokretom.
+
 ### NABOJ — izbor bez klika
 
 `SideChooser`. Što se duže držiš jedne strane, to se njen naboj više puni;
@@ -497,6 +522,37 @@ Za pravu naplatu treba: nalog kod provajdera, ključevi u env varijablama
 webhook za potvrdu. Kripto ide preko zasebnog provajdera, isti princip.
 
 **`CENA_RSD` je 3000** — potvrđena cena, više nije placeholder.
+
+### DOKAZ — sekcija koja se ne oslanja na poverenje
+
+`components/ProofSection.js`. Nemamo snimke pravog brisanja, a izmišljene
+brojke ne dolaze u obzir. Zato je dokaz nešto što posetilac **sam uradi**:
+traka puna kapi koju prevuče i pokupi ih, sa brojačem.
+
+Tri broja ispod nisu tvrdnja nego **računica iz specifikacije koju i sami
+objavljujemo**: 90 × 70 cm = 0,63 m²; 850 g/m² × 0,63 = 536 g tkanine; dve strane.
+Sve što se ne može izračunati iz specifikacije tu ne stoji.
+
+`touch-action: none` na traci je obavezan — bez njega prevlačenje prstom
+skroluje stranu umesto da briše.
+
+Poluprečnik brisanja prati **visinu trake**, ne fiksni broj piksela: na
+telefonu je traka niža pa bi fiksnih 90px obrisalo sve iz jednog poteza.
+
+Redosled sekcija u prodaji je proizvod → **dokaz** → forma. Forma pre dokaza
+traži poverenje koje još nije zarađeno.
+
+### Gornja traka i navigacija
+
+`components/SiteHeader.js`. Konkurencija ima devet stavki menija jer je Shopify
+template; nama treba tačno onoliko koliko sajt ima mesta na koja se stiže.
+
+Poruke u traci su **istinite i proverive iz naših pravila** — besplatna dostava
+od dva komada je stvarno pravilo u `OrderSection`, tržišta su ona na koja stvarno
+šaljemo. Bez „100.000 prodatih".
+
+`position: fixed`, ne `sticky` — hero je 100svh i sticky traka bi ga gurnula
+nadole pa bi mu se dno odseklo.
 
 ## Pravilo poštenja
 
