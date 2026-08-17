@@ -8,39 +8,16 @@
 }
 
 /* --- podloga ---------------------------------------------------------------
-   Obe polovine nose ISTU generisanu haubu, samo drugom bojom svetla.
-   background-size:200% + position left/right znači da leva polovina prikazuje
-   levu stranu iste slike, a desna desnu — spoj se poklapa i kadar se čita kao
-   jedna neprekidna površina, a ne kao dve zalepljene fotke. */
-.plate {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 50%;
-  background-repeat: no-repeat;
-  background-size: 200% 100%;
-  z-index: 0;
-}
-/* Sama slika dolazi iz JS-a (--slika), jer zavisi od tiera. Kad je bila
-   tvrdo kodirana na -hi, MID je skidao i md (loader ga čeka) i hi (CSS ga
-   vuče) — dvostruko, i loader je propuštao onu koja se stvarno prikaže. */
-.pl {
-  left: 0;
-  background-position: left center;
-  background-image: var(--slika);
-}
-.pr {
-  right: 0;
-  background-position: right center;
-  background-image: var(--slika);
-}
-
+   Cela pozadina je canvas: dva polja boje koja se guraju. Ranije je ovde
+   stajala fotografija mokre haube sa svojom dijagonalnom neonskom prugom,
+   pa se ta pruga tukla sa vertikalnom podelom — dve linije na različite
+   strane. Fotografija se vraća kad se snimi materijal sa pravim peškirom. */
 .cv {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  z-index: 1;
+  z-index: 0;
   pointer-events: none;
 }
 
@@ -254,12 +231,6 @@
   min-height: 100svh;
 }
 
-/* Podloge se premeštaju NA same ploče — apsolutni slojevi nemaju smisla
-   kad je raspored u toku. */
-.stack .plate {
-  display: none;
-}
-
 .stack .content {
   order: -1; /* naslov ide iznad ploča, iako je u DOM-u posle njih */
   position: static;
@@ -276,22 +247,20 @@
   background: var(--line);
 }
 
+/* Ploče su providne — sudar boja iz canvasa prolazi kroz njih. Samo blago
+   zatamnjenje da tekst i peškir imaju na čemu da stoje. */
 .stack .half {
   flex: 1 1 0;
   justify-content: center;
   gap: 0.625rem;
   padding: 1.75rem 1.5rem;
   min-height: 15rem;
-  background-size: cover;
-  background-position: center;
+  background: rgba(7, 8, 10, 0.35);
   /* Ploče su velike mete — pritisak ne sme da izabere tekst ni da otvori
      kontekstni meni dok se drži prst. */
   user-select: none;
   -webkit-user-select: none;
   -webkit-touch-callout: none;
-}
-.stack .half {
-  background-image: linear-gradient(rgba(7, 8, 10, 0.55), rgba(7, 8, 10, 0.72)), var(--slika);
 }
 
 .stack .towel {
