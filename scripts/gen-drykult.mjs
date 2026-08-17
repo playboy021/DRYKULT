@@ -26,10 +26,14 @@ const FRAKCIJE = [
   { id: 'pink', src: 'peskir 2.png' },
 ];
 
+// WebP, ne PNG. PNG sa alfom je bezgubitni format za FOTOGRAFIJU — peškir sa
+// teksturom tkanine tu nema šta da dobije, a plaća ogromno.
+// Izmereno: par peškira u PNG-u je bio 918 KB i skidao se na SVAKOM tieru,
+// uključujući telefon. WebP sa alfom daje isto oko petine te veličine.
 const TARGETS = [
-  { name: 'hi', w: 1000 },
-  { name: 'md', w: 640 },
-  { name: 'sm', w: 420 }, // mokapi i sitni prikazi
+  { name: 'hi', w: 1000, q: 86 },
+  { name: 'md', w: 640, q: 84 },
+  { name: 'sm', w: 420, q: 82 }, // LOW tier i sitni prikazi
 ];
 
 const clamp255 = (v) => (v < 0 ? 0 : v > 255 ? 255 : v);
@@ -103,9 +107,9 @@ async function main() {
     const img = await loadImage(path.join(SRC, f.src));
     for (const t of TARGETS) {
       const c = cut(img, t.w);
-      const buf = await c.canvas.encode('png');
-      await writeFile(path.join(OUT, `${f.id}-${t.name}.png`), buf);
-      report.push({ file: `${f.id}-${t.name}.png`, kb: +(buf.length / 1024).toFixed(1), dim: `${c.w}x${c.h}` });
+      const buf = await c.canvas.encode('webp', t.q);
+      await writeFile(path.join(OUT, `${f.id}-${t.name}.webp`), buf);
+      report.push({ file: `${f.id}-${t.name}.webp`, kb: +(buf.length / 1024).toFixed(1), dim: `${c.w}x${c.h}` });
 
       if (t.name === 'md') {
         const chk = await onBlack(c).encode('jpeg', 90);

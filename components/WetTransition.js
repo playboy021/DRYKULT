@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { stopScroll, startScroll } from '../lib/scrollLock';
 import { LOW, MID } from '../lib/device';
-import { STRANE } from '../lib/faction';
+import { STRANE, peskirSlika } from '../lib/faction';
 import styles from './WetTransition.module.css';
 
 // MOKRI PRELAZ — klik na "Poruči" pretvara ceo ekran u mokro staklo,
@@ -215,12 +215,20 @@ export default function WetTransition({ active, origin, targetId, tier, side, on
       });
     }
 
+    // Peškir koji briše je peškir IZABRANE strane. Ranije je ovde stajao
+    // towel-sweep.png — plav peškir starog brenda — pa je glavna animacija
+    // vukla tuđi proizvod preko ekrana.
     const towel = new Image();
     let towelReady = false;
     towel.onload = () => {
       towelReady = true;
     };
-    towel.src = '/megaz/towel-sweep.png';
+    towel.src = peskirSlika(side || 'mamba', tier, 'hi');
+
+    // Smer prelaza nosi frakciju: MAMBA briše zdesna nalevo, HROM sleva nadesno.
+    // Nije ukras — posle par poseta smer sam po sebi kaže koju si stranu izabrao,
+    // pre nego što stigneš da pročitaš ijedno slovo.
+    const smer = side === 'hrom' ? 1 : -1;
 
     let jumped = false;
     let raf = 0;
@@ -276,22 +284,33 @@ export default function WetTransition({ active, origin, targetId, tier, side, on
         // ulazi tačno iza desne ivice i izlazi tačno iza leve, koliko god
         // da je širok. Sa fiksnim -0.3W je na telefonu ostajala trećina
         // peškira zaglavljena u kadru na kraju animacije.
-        const cx = W + tw / 2 - e * (W + tw);
+        // Smer: -1 kreće desno i ide levo, +1 kreće levo i ide desno.
+        const cx = smer < 0 ? W + tw / 2 - e * (W + tw) : -tw / 2 + e * (W + tw);
 
-        // Veo i kapi se sklanjaju sa DESNE strane peškira — tamo je obrisano.
+        // Veo i kapi se sklanjaju sa one strane peškira KOJA JE OBRISANA —
+        // a to je strana sa koje je došao, pa zavisi od smera.
         const cut = Math.max(0, Math.min(100, (cx / W) * 100));
-        veil.style.clipPath = `inset(0 ${(100 - cut).toFixed(2)}% 0 0)`;
-        drops.style.clipPath = `inset(0 ${(100 - cut).toFixed(2)}% 0 0)`;
+        const maska =
+          smer < 0
+            ? `inset(0 ${(100 - cut).toFixed(2)}% 0 0)` // obrisano desno
+            : `inset(0 0 0 ${cut.toFixed(2)}%)`; // obrisano levo
+        veil.style.clipPath = maska;
+        drops.style.clipPath = maska;
 
         if (towelReady) {
-          // Kontaktna senka ispred vodeće ivice — bez nje peškir lebdi
-          // umesto da naleže na staklo.
-          const shx = cx - tw * 0.5;
-          const sg = tctx.createLinearGradient(shx - H * 0.07, 0, shx + H * 0.02, 0);
+          // Kontaktna senka ispred VODEĆE ivice — koja je to ivica zavisi
+          // od smera. Bez nje peškir lebdi umesto da naleže na staklo.
+          const shx = cx + smer * tw * 0.5;
+          const sg = tctx.createLinearGradient(
+            shx + smer * H * 0.07,
+            0,
+            shx - smer * H * 0.02,
+            0
+          );
           sg.addColorStop(0, 'rgba(0,4,12,0)');
           sg.addColorStop(1, 'rgba(0,4,12,0.5)');
           tctx.fillStyle = sg;
-          tctx.fillRect(shx - H * 0.07, 0, H * 0.09, H);
+          tctx.fillRect(Math.min(shx, shx + smer * H * 0.07), 0, H * 0.09, H);
 
           // Tkanina se talasa: crtamo peškir u vertikalnim trakama i svaku
           // pomeramo po sinusu koji putuje. Jedan <img> koji klizi izgleda
@@ -300,7 +319,8 @@ export default function WetTransition({ active, origin, targetId, tier, side, on
           // paralelan sa ivicom ekrana uvek izgleda kao UI element, ne kao stvar.
           tctx.save();
           tctx.translate(cx, H / 2);
-          tctx.rotate(-0.14);
+          // Nagib prati smer — krpa se naginje u pravcu u kom je vučena.
+          tctx.rotate(0.14 * smer);
 
           const SLICES = 26;
           const sw = towel.width / SLICES;
@@ -324,13 +344,14 @@ export default function WetTransition({ active, origin, targetId, tier, side, on
           }
           tctx.restore();
 
-          // Bow-wave: voda koju peškir gura ispred sebe (levo od njega)
-          const bw = tctx.createLinearGradient(shx - H * 0.16, 0, shx - H * 0.02, 0);
+          // Bow-wave: voda koju peškir gura ISPRED sebe, u smeru kretanja
+          const bwA = shx + smer * H * 0.16;
+          const bw = tctx.createLinearGradient(bwA, 0, shx + smer * H * 0.02, 0);
           bw.addColorStop(0, `rgba(${rgb},0)`);
           bw.addColorStop(0.65, `rgba(${rgb},0.3)`);
           bw.addColorStop(1, `rgba(${rgb},0)`);
           tctx.fillStyle = bw;
-          tctx.fillRect(shx - H * 0.16, 0, H * 0.16, H);
+          tctx.fillRect(Math.min(bwA, shx), 0, H * 0.16, H);
         }
       }
 
