@@ -2,29 +2,30 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import Head from 'next/head';
 import Loader from '../components/Loader';
 import SiteHeader from '../components/SiteHeader';
-import SideChooser from '../components/SideChooser';
+import HeroB from '../components/HeroB';
 import ProofSection from '../components/ProofSection';
 import FactionView from '../components/FactionView';
 import OrderSection from '../components/OrderSection';
 import ShatterTransition from '../components/ShatterTransition';
-import VersionSwitch from '../components/VersionSwitch';
 import WetTransition from '../components/WetTransition';
 import { detectTier, LOW } from '../lib/device';
-import {
-  ucitajStranu,
-  upisiStranu,
-  obrisiStranu,
-  primeniStranu,
-  peskirSlika,
-  HROM,
-  MAMBA,
-} from '../lib/faction';
+import { upisiStranu, obrisiStranu, primeniStranu, peskirSlika, HROM, MAMBA } from '../lib/faction';
 import styles from '../styles/Home.module.css';
 
-// Tri faze, i samo jedna je na ekranu u datom trenutku:
-//   biranje  — podeljen hero, dve strane
-//   lom      — ekran puca, iza njega se pojavljuje proizvod
-//   prodaja  — samo izabrana strana, sa povratkom na izbor
+// GLAVNA STRANA.
+//
+// Hero je 3D peškir koji prati kursor (`HeroB` + `TowelStage`). Kartice sa
+// strane samo PRIKAZUJU stranu — peškir se obrne 720° i zameni teksturu na
+// vrhu obrta — a potvrđuje se dugmetom „Poruči". Potvrda pokreće lom ekrana
+// i vodi na prodaju izabrane strane.
+//
+// Prethodni hero (podeljen ekran sa nabojem koji se puni držanjem) živi kao
+// arhiva na `/a`. Nije obrisan jer se iz njega može vratiti mehanika naboja
+// ako zatreba; ne indeksira se.
+//
+// Strana se NE pamti u localStorage dok se ne potvrdi — prelistavanje kartica
+// nije izbor.
+
 const BIRANJE = 'biranje';
 const LOM = 'lom';
 const PRODAJA = 'prodaja';
@@ -33,20 +34,19 @@ export default function Home() {
   const [tier, setTier] = useState(null);
   const [ready, setReady] = useState(false);
   const [faza, setFaza] = useState(BIRANJE);
-  const [strana, setStrana] = useState(null);
-  const [udar, setUdar] = useState(null); // tačka iz koje ekran puca
-  const [prelaz, setPrelaz] = useState(null); // mokri prelaz na "Poruči"
+  const [prikaz, setPrikaz] = useState(HROM); // strana koja se PRIKAZUJE
+  const [strana, setStrana] = useState(null); // strana koja je POTVRĐENA
+  const [udar, setUdar] = useState(null);
+  const [prelaz, setPrelaz] = useState(null);
 
   useEffect(() => {
     setTier(detectTier());
-    // Zapamćena strana vodi pravo na prodaju — ko je već izabrao ne bira
-    // ponovo pri svakoj poseti. Prekidač „promeni stranu" i dalje stoji.
-    const s = ucitajStranu();
-    if (s) {
-      setStrana(s);
-      primeniStranu(s);
-      setFaza(PRODAJA);
-    }
+    primeniStranu(HROM);
+  }, []);
+
+  const prikazi = useCallback((id) => {
+    setPrikaz(id);
+    primeniStranu(id);
   }, []);
 
   const naVrh = () => {
@@ -54,33 +54,31 @@ export default function Home() {
     else window.scrollTo(0, 0);
   };
 
-  // Zajedničko za klik i za napunjen naboj — jedina razlika je odakle puca.
-  const potvrdi = useCallback((id, tacka) => {
-    setStrana(id);
-    upisiStranu(id);
-    primeniStranu(id);
-    setUdar(tacka);
-    setFaza(LOM);
-    // Unos u istoriju da BROWSER dugme „nazad" vraća na izbor umesto da
-    // izbaci sa sajta. Bez ovoga je jedna strana bila ćorsokak za navigaciju.
-    try {
-      window.history.pushState({ drykult: 'prodaja' }, '');
-    } catch {
-      /* nije kritično */
-    }
-  }, []);
+  const potvrdi = useCallback(
+    (tacka) => {
+      setStrana(prikaz);
+      upisiStranu(prikaz);
+      primeniStranu(prikaz);
+      setUdar(tacka);
+      setFaza(LOM);
+      try {
+        window.history.pushState({ drykult: 'prodaja' }, '');
+      } catch {
+        /* nije kritično */
+      }
+    },
+    [prikaz]
+  );
 
   const nazad = useCallback(() => {
     setFaza(BIRANJE);
     setStrana(null);
     setUdar(null);
     setPrelaz(null);
-    primeniStranu(null);
     obrisiStranu();
     naVrh();
   }, []);
 
-  // Browser „nazad" iz prodaje vraća na izbor, ne sa sajta.
   useEffect(() => {
     const onPop = () => {
       setFaza((f) => {
@@ -88,7 +86,6 @@ export default function Home() {
         setStrana(null);
         setUdar(null);
         setPrelaz(null);
-        primeniStranu(null);
         obrisiStranu();
         naVrh();
         return BIRANJE;
@@ -98,19 +95,11 @@ export default function Home() {
     return () => window.removeEventListener('popstate', onPop);
   }, []);
 
-  const lomGotov = useCallback(() => {
-    setFaza(PRODAJA);
-    if (window.__lenis) window.__lenis.scrollTo(0, { immediate: true, force: true });
-    else window.scrollTo(0, 0);
-  }, []);
-
-  // Loader čeka SAMO ono što se stvarno prikaže: dva peškira. Podloge su
-  // ispale kad je pozadina postala crna — preloadovale su se (597 KB na
-  // desktopu) za sliku koja se više nigde ne pojavljuje.
+  // 3D scena obučava peškir teksturom pune rezolucije, pa loader mora da je
+  // sačeka — inače se peškir pojavi kao prazna ravan pa tek onda dobije sliku.
   const preload = useMemo(() => {
     if (!tier) return [];
-    const v = tier === LOW ? 'sm' : 'md';
-    return [peskirSlika(HROM, tier, v), peskirSlika(MAMBA, tier, v)];
+    return [peskirSlika(HROM, tier, 'hi'), peskirSlika(MAMBA, tier, 'hi')];
   }, [tier]);
 
   return (
@@ -127,8 +116,6 @@ export default function Home() {
 
       {tier && <Loader assets={preload} onDone={() => setReady(true)} />}
 
-      {/* Traka je providna preko hero-a da sudar boja ide do vrha ekrana,
-          a puna čim se pređe u prodaju. */}
       <SiteHeader
         strana={faza === PRODAJA ? strana : null}
         prozirna={faza !== PRODAJA}
@@ -136,22 +123,21 @@ export default function Home() {
         onPromeni={nazad}
       />
 
-      <main id="vrh" className={styles.main}>
+      <main className={styles.main}>
         {tier && faza !== PRODAJA && (
           <>
-            <SideChooser
+            <HeroB
               tier={tier}
               ready={ready}
-              izabrana={faza === LOM ? strana : null}
-              onIzbor={potvrdi}
-              onNaboj={potvrdi}
+              strana={prikaz}
+              izabrana={faza === LOM ? prikaz : null}
+              onIzbor={prikazi}
+              onPoruci={potvrdi}
             />
-            <ProofSection tier={tier} strana={strana} />
+            <ProofSection tier={tier} strana={prikaz} />
           </>
         )}
 
-        {/* Redosled je namerno ovakav: proizvod, pa DOKAZ, pa tek onda forma.
-            Forma pre dokaza traži poverenje koje još nije zarađeno. */}
         {tier && faza === PRODAJA && (
           <>
             <FactionView strana={strana} onPoruci={setPrelaz} />
@@ -161,15 +147,15 @@ export default function Home() {
         )}
       </main>
 
-      {/* Alat za poređenje — skida se pre nego što sajt ide pred kupce. */}
-      <VersionSwitch aktivna="a" />
-
       <ShatterTransition
         active={faza === LOM}
         origin={udar}
-        side={strana}
+        side={prikaz}
         tier={tier}
-        onDone={lomGotov}
+        onDone={() => {
+          setFaza(PRODAJA);
+          naVrh();
+        }}
       />
 
       <WetTransition

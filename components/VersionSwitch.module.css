@@ -27,29 +27,21 @@
 .dugme {
   display: flex;
   align-items: center;
-  justify-content: center;
-  width: 1.75rem;
-  height: 1.75rem;
-  border-radius: 50%;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  color: var(--muted);
+  gap: 0.25rem;
+  padding: 0.3125rem 0.625rem;
+  border-radius: 2rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--f-core);
+  background: rgba(var(--f-rgb), 0.12);
   transition:
     color 180ms ease,
     background 180ms ease;
 }
 
 .dugme:hover {
-  color: var(--ink);
-  background: rgba(244, 246, 248, 0.08);
-}
-
-.on {
-  color: var(--bg);
-  background: var(--f-core);
-}
-.on:hover {
   color: var(--bg);
   background: var(--f-core);
 }
