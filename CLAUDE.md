@@ -284,18 +284,22 @@ i praćenje ivice i klik na stranu. Dugmad ga vraćaju na `auto`.
 u boju frakcije zato ide na samim elementima (`color`, `box-shadow`), ne na `:root`.
 `transition: --f-core` je tiho mrtav kod — izgleda kao da radi, a ne radi ništa.
 
-### VERZIJA B — `/b`, druga ponuda hero-a
+### HERO — 3D peškir (glavna strana)
 
-Postoje dva hero-a i porede se uživo. Sve ispod hero-a je isto u obe: dokaz,
-poručivanje, lom, mokri prelaz. Menja se samo prvi ekran, jer se samo on i poredi.
+Od 18.08.2026. glavni hero je `HeroB` + `TowelStage`. Prvi hero (podeljen ekran
+sa nabojem) je arhiviran na **`/a`**, `noindex`. Nije obrisan jer nosi mehaniku
+koja može zatrebati: naboj se puni što se duže držiš jedne strane i na 100% sam
+okida lom, bez klika. Ako se ta mehanika ikad vrati, vraća se odatle.
 
-| | A (`/`) | B (`/b`) |
+| | arhiva (`/a`) | glavna (`/`) |
 |---|---|---|
 | pozadina | čestice po strujnom polju | radijalni gradijent u boji strane |
 | proizvod | dva ravna izreska | **3D peškir koji prati kursor** |
 | izbor | naboj se puni držanjem, pa lom | kartice PRIKAZUJU, dugme potvrđuje |
 
-**Peškir u B je tkanina, ne kruti model.** Referenca (`thewatch.60fps.fr`,
+Sve ispod hero-a je isto u obe: dokaz, poručivanje, lom, mokri prelaz.
+
+**Peškir je tkanina, ne kruti model.** Referenca (`thewatch.60fps.fr`,
 soda) koristi `<model-viewer>` i `.glb` jer su limenka i sat KRUTI — samo se
 okreću. Kruti GLB peškira bio bi karton koji rotira. Zato je ovde ravan sa
 podelom čiji **vertex shader talasa mrežu**, obučena našom pravom teksturom
@@ -309,20 +313,19 @@ obrta**, kad je bočno okrenut i praktično nevidljiv — zamena se tako ne vidi
 Mehurići iz reference su ovde **kapi vode**. Isti mehanizam, a kod nas znači
 nešto: peškir se prodaje na tome što vodu kupi.
 
-**`three` je 531 KB i uvlači ga SAMO `/b`** (provereno: uvozi ga jedino
-`TowelStage`, koji ide preko `HeroB` u `pages/b.js`). Verzija A ga ne dodiruje.
+**`three` je 531 KB.** Uvozi ga jedino `TowelStage`, koji ide preko `HeroB` u
+`pages/index.js`. Arhiva na `/a` ga ne dodiruje — Next deli pakete po stranama.
 
-Sateliti oko peškira (zmije za MAMBU, srca za HROM) su **opcioni** — prosleđuje
-se par slika `{ hrom, mamba }` na ČISTOJ CRNOJ, jer idu kroz aditivno mešanje pa
-crno samo nestane, bez izrezivanja. Bez njih je scena samo peškir.
+Sateliti oko peškira (zmije za MAMBU, srca za HROM) su **opcioni i zasad
+isključeni** — prosleđuje se par slika `{ hrom, mamba }` na ČISTOJ CRNOJ, jer idu
+kroz aditivno mešanje pa crno samo nestane, bez izrezivanja. Bez njih je scena
+samo peškir.
 
-Strana se u B **ne pamti dok se ne potvrdi** — prelistavanje kartica ne sme da
-promeni ono što verzija A pamti kao tvoj izbor.
+Strana se **ne pamti dok se ne potvrdi** — prelistavanje kartica nije izbor.
 
-**`components/VersionSwitch.js` je ALAT ZA POREĐENJE, ne deo proizvoda.**
-Prekidač A/B dole desno. Postoji jer je B na putanji `/b`, a ne na zasebnom
-domenu — pa se u Vercel listi domena ne vidi i ne može se naći bez kucanja
-adrese. **Skida se iz obe strane pre nego što sajt ode pred kupce.**
+**`components/VersionSwitch.js` stoji SAMO na `/a`** i vodi nazad na glavnu.
+Glavna strana je čista: na njoj nema nikakvog alata za poređenje, jer to kupac
+ne treba da vidi.
 
 ### 4.10 RASPORED nije TIER
 `tier` odgovara na „koliko uređaj i veza mogu da izguraju" — `low` obuhvata i

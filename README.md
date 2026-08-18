@@ -10,12 +10,16 @@ Next.js (Pages Router) · Lenis · Canvas 2D · Web Audio
 ## Ideja
 
 Nije prodavnica nego **kult oko sušenja**. Kupci nisu kupci — oni su članovi,
-i prvo što urade je da **izaberu stranu**.
+i prvo što urade je da **izaberu stranu**: **HROM** (koralna) ili **MAMBA**
+(neon zelena).
 
-Hero je podeljen na dve frakcije: **HROM** (koralna) i **MAMBA** (neon zelena).
-Pozicija kursora odlučuje ko dominira, a podela nije prava linija nego mokra ivica
-koja se talasa. Kad posetilac izabere, ceo sajt se zaključava u tu frakciju —
-paleta, sjaj, boja spreja u prelazu, čak i ton zvuka.
+Peškir stoji u sredini u 3D i prati kursor. Nije kruti model nego **tkanina** —
+ravan čiji vertex shader talasa mrežu, obučena pravom teksturom proizvoda.
+Klik na drugu stranu i peškir se obrne 720°, a tekstura se menja na vrhu obrta.
+
+Kad posetilac potvrdi, **ekran pukne** i iza krhotina ostane samo njegova strana.
+Od tog trenutka ceo sajt nosi tu frakciju — paleta, sjaj, boja spreja u prelazu,
+čak i ton zvuka.
 
 Konkurencija peškir za sušenje prodaje **tekstom**. Mi ga prodajemo tako što
 posetilac sam obriše ekran.
