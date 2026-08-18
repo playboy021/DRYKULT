@@ -1,0 +1,15 @@
+.host {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  /* Scena mora da propusti kursor do sekcije ispod, koja hvata pokrete i
+     puni naboj — ali sama scena ima svoj pointermove za naginjanje peškira.
+     Zato `auto`, a sekcija sluša na svom nivou preko istog događaja. */
+  pointer-events: auto;
+}
+
+.host canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
