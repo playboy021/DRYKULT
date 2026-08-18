@@ -319,6 +319,11 @@ crno samo nestane, bez izrezivanja. Bez njih je scena samo peškir.
 Strana se u B **ne pamti dok se ne potvrdi** — prelistavanje kartica ne sme da
 promeni ono što verzija A pamti kao tvoj izbor.
 
+**`components/VersionSwitch.js` je ALAT ZA POREĐENJE, ne deo proizvoda.**
+Prekidač A/B dole desno. Postoji jer je B na putanji `/b`, a ne na zasebnom
+domenu — pa se u Vercel listi domena ne vidi i ne može se naći bez kucanja
+adrese. **Skida se iz obe strane pre nego što sajt ode pred kupce.**
+
 ### 4.10 RASPORED nije TIER
 `tier` odgovara na „koliko uređaj i veza mogu da izguraju" — `low` obuhvata i
 **desktop na sporoj vezi ili sa `saveData`**. `raspored` odgovara na „ima li

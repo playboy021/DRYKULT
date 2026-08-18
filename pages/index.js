@@ -7,6 +7,7 @@ import ProofSection from '../components/ProofSection';
 import FactionView from '../components/FactionView';
 import OrderSection from '../components/OrderSection';
 import ShatterTransition from '../components/ShatterTransition';
+import VersionSwitch from '../components/VersionSwitch';
 import WetTransition from '../components/WetTransition';
 import { detectTier, LOW } from '../lib/device';
 import {
@@ -159,6 +160,9 @@ export default function Home() {
           </>
         )}
       </main>
+
+      {/* Alat za poređenje — skida se pre nego što sajt ide pred kupce. */}
+      <VersionSwitch aktivna="a" />
 
       <ShatterTransition
         active={faza === LOM}
