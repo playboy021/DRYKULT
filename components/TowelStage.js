@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
+import { napraviZmiju } from '../lib/zmija';
 import { STRANE, HROM, MAMBA, peskirSlika } from '../lib/faction';
 import { LOW, MID } from '../lib/device';
 import styles from './TowelStage.module.css';
@@ -30,9 +31,9 @@ const VERT = /* glsl */ `
     vec3 p = position;
     // Tri sinusa različitih frekvencija — jedan izgleda kao zastava iz
     // udžbenika, tri daju nepravilnost tkanine.
-    float w = sin(p.x * 2.2 + uTime * 1.6) * 0.09
-            + sin(p.y * 1.7 - uTime * 1.1) * 0.06
-            + sin((p.x + p.y) * 3.1 + uTime * 2.2) * 0.03;
+    float w = sin(p.x * 2.2 + uTime * 1.6) * 0.15
+            + sin(p.y * 1.7 - uTime * 1.1) * 0.11
+            + sin((p.x + p.y) * 3.1 + uTime * 2.2) * 0.055;
     p.z += w * uTalas;
     // Nagib površine se prosleđuje da fragment može da dodá odsjaj na
     // prelomima — bez toga je talasanje geometrijski tu, a oku nevidljivo.
@@ -144,6 +145,16 @@ export default function TowelStage({ tier, strana, izabrana, onTilt, satelitSlik
       sateliti.push(s);
     }
 
+    // --- zmija ----------------------------------------------------------------
+    // Zasad samo za MAMBU. HROM čeka da se odluči šta dobija umesto srca.
+    const zmija = napraviZmiju({
+      boja: STRANE[MAMBA].core,
+      bojaTamna: STRANE[MAMBA].deep,
+      tier,
+    });
+    zmija.grupa.visible = strana === MAMBA;
+    scena.add(zmija.grupa);
+
     // --- veličina -------------------------------------------------------------
     const razmeri = () => {
       const r = host.getBoundingClientRect();
@@ -154,6 +165,12 @@ export default function TowelStage({ tier, strana, izabrana, onTilt, satelitSlik
       // Na uskom ekranu se kamera odmiče da peškir ne izađe iz kadra.
       kamera.position.z = w / h < 0.9 ? 8.4 : 6;
       kamera.updateProjectionMatrix();
+      // "Zid" iz kog zmija izbija je IVICA KADRA, a ne neki fiksni x. Prva
+      // verzija je rupe stavila na ±6.2 — daleko van slike, pa se faza u kojoj
+      // glava viri i gleda posetioca nikad ne bi videla.
+      const rast = kamera.position.z + 0.4; // ravan po kojoj zmija ulazi
+      const polaVis = Math.tan((kamera.fov * Math.PI) / 360) * rast;
+      zmija.postaviZid(polaVis * kamera.aspect - 0.2);
     };
     razmeri();
     const ro = new ResizeObserver(razmeri);
@@ -216,6 +233,9 @@ export default function TowelStage({ tier, strana, izabrana, onTilt, satelitSlik
           ciljMix = zamena.kraj;
           const nt = zamena.nova === MAMBA ? satTexM || satTexH : satTexH || satTexM;
           if (nt) for (const s of sateliti) s.material.map = nt;
+          // Zmija se pojavljuje i nestaje na vrhu obrta, kao i tekstura —
+          // tada je peškir bočno okrenut pa se prelaz ne primeti.
+          zmija.grupa.visible = zamena.nova === MAMBA;
         }
         if (p >= 1) {
           obrt = 0;
@@ -268,6 +288,8 @@ export default function TowelStage({ tier, strana, izabrana, onTilt, satelitSlik
         s.material.opacity = z < 0 ? 0.4 : 0.85;
       }
 
+      if (zmija.grupa.visible && !reduced) zmija.korak(dt, kamera);
+
       render.render(scena, kamera);
       raf = requestAnimationFrame(frejm);
     };
@@ -294,6 +316,7 @@ export default function TowelStage({ tier, strana, izabrana, onTilt, satelitSlik
       texB.dispose();
       satTexH?.dispose();
       satTexM?.dispose();
+      zmija.ocisti();
       for (const s of sateliti) s.material.dispose();
       render.dispose();
       if (render.domElement.parentNode) render.domElement.parentNode.removeChild(render.domElement);

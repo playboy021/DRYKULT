@@ -538,6 +538,44 @@ Gasi se na `pointer: coarse` i `prefers-reduced-motion`.
 **Ne sme unutar `RevealBlock`** — `.rvLine` ima `overflow:hidden` i odsekao bi
 sjaj i senku. Za to postoji `RevealFade` (otkrivanje bez maske).
 
+### Zmija (`lib/zmija.js`)
+
+Proceduralna, bez ijedne fotografije: cev po Catmull-Rom krivoj, krljušt u
+fragment shaderu. Kriva je namerno provučena na `z = -1.6`, a peškir je oko
+`z = 0` — zmija je tamo **stvarno** zaklonjena dubinskim baferom. To isečak sa
+slike ne može, i to je razlog zašto ideja radi baš u 3D sceni.
+
+Četiri faze u krug: `PUTUJE` (iz zida, iza peškira, u drugi zid) → `SAKRIVENA`
+→ `VIRI` (samo glava, `lookAt(kamera)`) → `SMIRAJ`.
+
+**Krljušt — tri stvari bez kojih izgleda kao tapeta.** Sve tri su izmerene sa
+makro kadra prave zelene zmije, ne pogođene:
+
+1. **Redovi idu dijagonalno, ~35°.** Poprečna rešetka daje pruge, ne ljuspe.
+   Dobija se smicanjem `g.x += g.y * uNagib`. Smicanje **mora** po punom
+   obilasku da da ceo broj ćelija (`round(oko * NAGIB) / oko`), inače se na
+   spoju `v = 1 → 0` vidi šav preko cele zmije.
+2. **Trbuh nije krljušt** nego široke poprečne ploče, svetlije od leđa. Gde je
+   trbuh ne zna se iz `uv` — `TubeGeometry` vrti svoj okvir duž krive, pa `v=0`
+   nije "dole". Zato ide `varying vNormalObj` i `smoothstep` po `normal.y`.
+3. **Ljuspa je zaobljen pravougaonik** (superelipsa, potencija 2.0), izdužena
+   ka repu 1.8:1, sa senkom preklapanja na strani ka glavi i svetlom kobilicom
+   po sredini. Oštar romb izgleda kao harlekin, preniska potencija kao pirinač.
+
+**Gustina se IZVODI iz geometrije, ne zadaje.** Prva verzija je imala zadatih
+`210 × 13` i ljuspe su ispale 34× izduženije nego šire — čiste pruge. Sad ide
+`obim / OKO_LJUSPI` pa `duzina_krive / (sirina * IZDUZENJE)`, i ostaje tačno i
+kad se kriva promeni.
+
+**"Zid" je IVICA KADRA, ne fiksni x.** Pri fov 35 i `z = 6` kadar je širok
+oko ±3.5 jedinice. Prva verzija je rupe stavila na `±6.2` a glavu u fazi `VIRI`
+na `x ≈ 4.9` — sve van slike, pa se faza u kojoj zmija gleda posetioca **nikad
+ne bi videla**. Scena računa ivicu u `razmeri()` i javlja je kroz `postaviZid()`.
+Sjaj rupa se vezuje za stvarni `x` glave, ne za napredak duž krive.
+
+Na fov 35 / `z = 6` i platnu visine 900: prečnik zmije **57 px**, ljuspa
+**13 × 23 px** — dovoljno da se vidi bez zumiranja.
+
 ## Zamke okruženja (koštale su vremena)
 
 ### Skriven Browser panel = nema hidracije, i to bez ijedne greške u konzoli
