@@ -284,7 +284,51 @@ i praćenje ivice i klik na stranu. Dugmad ga vraćaju na `auto`.
 u boju frakcije zato ide na samim elementima (`color`, `box-shadow`), ne na `:root`.
 `transition: --f-core` je tiho mrtav kod — izgleda kao da radi, a ne radi ništa.
 
-### POZADINA HERO-A — dva puta pogrešno, pa čista crna
+### 4.10 RASPORED nije TIER
+`tier` odgovara na „koliko uređaj i veza mogu da izguraju" — `low` obuhvata i
+**desktop na sporoj vezi ili sa `saveData`**. `raspored` odgovara na „ima li
+ovaj uređaj miša i mesta za dve kolone". To su dve nezavisne stvari.
+
+Dok su bili spojeni, desktop na 3G vezi je dobijao **mobilni raspored**:
+peškiri naslagani jedan ispod drugog i bez praćenja kursora. Izgledalo je kao
+da je sajt pokvaren, a bio je samo pogrešno pitan.
+
+`lib/device.js` zato izvozi `uskiRaspored()` (pointer coarse ili < 900px) i
+`imaPokazivac()` (pointer fine i bez reduced-motion) odvojeno od `detectTier()`.
+**Praćenje kursora zavisi od pokazivača, ne od tiera.**
+
+### POZADINA HERO-A — polje čestica (tri pokušaja)
+
+`SideChooser`. Pozadina su **čestice koje teku po strujnom polju i ostavljaju
+tragove** — dve struje, koralna i zelena, koje se sudaraju po šavu.
+
+Trag se ne crta linijama nego tako što se platno svaki frejm **pretapa** tankim
+slojem podloge umesto da se briše. Ono što je bilo pre par frejmova još je tu,
+samo tamnije — pa čestica sama za sobom ostavi dim. Najjeftinija moguća tehnika:
+hiljadu `fillRect` po frejmu, bez ijednog gradijenta.
+
+Zato se **`.smiraj` mora crtati u CSS-u, ne na platnu** — vinjeta nacrtana na
+platnu bi se gomilala frejm za frejmom dok sve ne pocrni.
+
+Vrednosti su podešene offline renderom (Node + canvas), jer se trag gradi kroz
+stotine frejmova pa se na jednom kadru ne vidi ništa. Tri pokušaja:
+
+1. **Fotografija mokre haube** — imala je svoju dijagonalnu neonsku prugu koja
+   se tukla sa vertikalnom podelom. Dva nezavisna sistema, ništa nije pratilo ništa.
+2. **Polja oblaka u boji** — mrtav šum iza proizvoda; peškir se gubio.
+3. **Čestice raštrkane po celoj teritoriji** uz pretapanje 0.085 i sjaj 0.35 —
+   pretamno, tragovi se pojedu, sredina prazna a ivice zgusnute.
+
+Ono što radi: **vitice se drže uz šav** (`pojas: 0.24`), pretapanje `0.028`,
+sjaj `0.9`. Ostatak kadra ostaje crn — isto kao na referenci (thewatch.60fps.fr),
+gde dim stoji oko proizvoda a ne preko celog ekrana. Proizvod je hero, ne pozadina.
+
+**Mapiranje kursora u granicu je `1 - kursor`, ne `kursor`.** Sa direktnim
+mapiranjem pomeranje ka jednoj strani tu stranu **smanjuje**. Ovako guraš
+granicu od sebe. Naboj se puni po **kursoru**, ne po granici — granica kasni
+za kursorom (opruga), pa bi punjenje inače kasnilo za pokretom.
+
+### Ranija verzija (arhiva)
 
 Pozadina je sada **čista crna**, sa samo dva elementa: ŠAV između dve strane
 i uzak sjaj koji iz njega curi. Peškir je jedina slika u kadru — a to je i
