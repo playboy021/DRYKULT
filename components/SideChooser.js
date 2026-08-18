@@ -28,25 +28,6 @@ const PRAG = 0.3;
 const PUNJENJE = 1 / 1.05;
 const PRAZNJENJE = 1 / 0.42;
 
-// Jedan oblak se crta JEDNOM u sprite pa se posle samo drawImage-uje.
-// Trideset radijalnih gradijenata po frejmu preko celog ekrana bi bilo
-// najskuplje mesto u celoj animaciji; keširani sprite je red veličine jeftiniji.
-function oblakSprite(size, rgb) {
-  const c = document.createElement('canvas');
-  c.width = size;
-  c.height = size;
-  const x = c.getContext('2d');
-  const r = size / 2;
-  const g = x.createRadialGradient(r, r, 0, r, r, r);
-  g.addColorStop(0, `rgba(${rgb},0.42)`);
-  g.addColorStop(0.35, `rgba(${rgb},0.2)`);
-  g.addColorStop(0.7, `rgba(${rgb},0.06)`);
-  g.addColorStop(1, `rgba(${rgb},0)`);
-  x.fillStyle = g;
-  x.fillRect(0, 0, size, size);
-  return c;
-}
-
 export default function SideChooser({ tier, ready, izabrana, onIzbor, onNaboj }) {
   const hostRef = useRef(null);
   const cvRef = useRef(null);
@@ -102,38 +83,16 @@ export default function SideChooser({ tier, ready, izabrana, onIzbor, onNaboj })
       host.addEventListener('pointerleave', onLeave, { passive: true });
     }
 
-    // --- polja koja se guraju -------------------------------------------------
-    const spriteH = ctx ? oblakSprite(256, STRANE[HROM].rgb) : null;
-    const spriteM = ctx ? oblakSprite(256, STRANE[MAMBA].rgb) : null;
-    const brojOblaka = tier === LOW ? 8 : tier === MID ? 12 : 18;
-
-    const oblaci = [];
-    for (const strana of [-1, 1]) {
-      for (let i = 0; i < brojOblaka; i++) {
-        oblaci.push({
-          strana, // -1 levo (HROM), +1 desno (MAMBA)
-          y: (i + 0.5) / brojOblaka + (Math.random() - 0.5) * 0.06,
-          faza: Math.random() * Math.PI * 2,
-          brzina: 0.5 + Math.random() * 0.8,
-          r: 0.22 + Math.random() * 0.26, // udeo visine ekrana
-          dubina: Math.random(), // koliko daleko od granice stoji
-        });
-      }
-    }
-
-    // Varnice na samom sudaru — sitne, žive, u boji strane koja gura jače.
-    const varnice = [];
-    const sejVarnicu = () => {
-      varnice.push({
+    // Kapi koje klize niz šav — jedini pokret u pozadini pored samog šava.
+    const kapi = [];
+    for (let i = 0; i < (tier === LOW ? 10 : 22); i++) {
+      kapi.push({
         y: Math.random(),
-        vx: (Math.random() - 0.5) * 2,
-        vy: (Math.random() - 0.5) * 0.6,
-        zivot: 0,
-        trajanje: 0.5 + Math.random() * 0.9,
+        brzina: 0.03 + Math.random() * 0.12,
         r: 0.6 + Math.random() * 1.8,
-        strana: Math.random() < 0.5 ? -1 : 1,
+        a: 0.3 + Math.random() * 0.5,
       });
-    };
+    }
 
     // Granica: dva sinusa različitih frekvencija. Jedan izgleda mehanički
     // kao talas iz udžbenika; dva daju nepravilnost tečnosti.
@@ -219,10 +178,14 @@ export default function SideChooser({ tier, ready, izabrana, onIzbor, onNaboj })
         return;
       }
 
-      // --- crtanje sudara ----------------------------------------------------
+      // --- crtanje ------------------------------------------------------------
+      // Pozadina je ČISTA CRNA. Dva pokušaja su otpala: fotografija mokre haube
+      // (imala je svoju dijagonalnu prugu koja se tukla sa podelom) i polja
+      // oblaka u boji (previše šuma iza proizvoda). Ostaje samo šav između dve
+      // strane i blag sjaj koji iz njega curi. Peškir je jedina slika u kadru,
+      // a to je i cela poenta crne tkanine sa neonskim rubom.
       ctx.globalCompositeOperation = 'source-over';
-      ctx.fillStyle = '#07080a';
-      ctx.fillRect(0, 0, W, H);
+      ctx.clearRect(0, 0, W, H);
 
       const x0 = poz * W;
       const uzbudjenje = naboj;
@@ -230,61 +193,36 @@ export default function SideChooser({ tier, ready, izabrana, onIzbor, onNaboj })
       const amp2 = H * (0.035 + uzbudjenje * 0.055);
       const brzina = 1 + uzbudjenje * 2.2;
 
-      // Oblaci se crtaju sa 'lighter' — gde se dva polja preklope, boja se
-      // sabira i sudar sam od sebe postane najsvetlije mesto u kadru.
-      ctx.globalCompositeOperation = 'lighter';
-      for (const o of oblaci) {
-        const k = o.y;
-        const bx = granicaX(k, x0, amp1, amp2, brzina, uzbudjenje);
+      // Sjaj koji curi iz šava — jedina boja u pozadini, i to uska.
+      const sirina = H * (0.14 + uzbudjenje * 0.2);
+      const gl = ctx.createLinearGradient(x0 - sirina, 0, x0, 0);
+      gl.addColorStop(0, `rgba(${STRANE[HROM].rgb},0)`);
+      gl.addColorStop(1, `rgba(${STRANE[HROM].rgb},${(0.07 + lw * 0.1 + nl * 0.2).toFixed(3)})`);
+      ctx.fillStyle = gl;
+      ctx.fillRect(x0 - sirina, 0, sirina, H);
 
-        // Oblaci ISPUNJAVAJU svoju teritoriju, ne skupljaju se uz granicu.
-        // Prva verzija ih je kačila za granicu sa odmakom — kad se granica
-        // pomeri levo, cela desna polovina ekrana ostajala je crna umesto da
-        // je preplavi pobednička boja. Sad se `dubina` čita kao položaj
-        // UNUTAR teritorije: 0 je uz sam sudar, 1 je uz ivicu ekrana.
-        const teritorija = o.strana < 0 ? bx : W - bx;
-        const talas = Math.sin(t * o.brzina + o.faza) * H * 0.04;
-        const x = bx + o.strana * (teritorija * o.dubina + talas);
-        const y = k * H + Math.cos(t * o.brzina * 0.7 + o.faza) * H * 0.045;
+      const gr = ctx.createLinearGradient(x0 + sirina, 0, x0, 0);
+      gr.addColorStop(0, `rgba(${STRANE[MAMBA].rgb},0)`);
+      gr.addColorStop(1, `rgba(${STRANE[MAMBA].rgb},${(0.07 + rw * 0.1 + nr * 0.2).toFixed(3)})`);
+      ctx.fillStyle = gr;
+      ctx.fillRect(x0, 0, sirina, H);
 
-        const moc = o.strana < 0 ? lw : rw;
-        const nabojStrane = o.strana < 0 ? nl : nr;
-        // Poluprečnik prati širinu teritorije da pokrivenost ostane puna i
-        // kad je strana potisnuta uz ivicu.
-        const osnova = Math.max(teritorija * 0.55, H * 0.18);
-        const r = o.r * 2 * osnova * (0.85 + 0.3 * Math.sin(t * o.brzina * 1.3 + o.faza));
-
-        ctx.globalAlpha = (0.4 + moc * 0.5 + nabojStrane * 0.25) * 0.9;
-        ctx.drawImage(o.strana < 0 ? spriteH : spriteM, x - r, y - r, r * 2, r * 2);
-      }
-      ctx.globalAlpha = 1;
-
-      // --- varnice na sudaru --------------------------------------------------
+      // Kapi klize niz šav — jedini pokret pored samog šava.
       if (!reduced) {
-        const zeljeno = 18 + Math.round(uzbudjenje * 40);
-        while (varnice.length < zeljeno) sejVarnicu();
-        for (let i = varnice.length - 1; i >= 0; i--) {
-          const v = varnice[i];
-          v.zivot += dt;
-          if (v.zivot > v.trajanje) {
-            varnice.splice(i, 1);
-            continue;
-          }
-          const p = v.zivot / v.trajanje;
-          const bx = granicaX(v.y, x0, amp1, amp2, brzina, uzbudjenje);
-          const x = bx + v.vx * p * H * (0.12 + uzbudjenje * 0.2);
-          const y = v.y * H + v.vy * p * H * 0.1;
-          const rgb = v.strana < 0 ? STRANE[HROM].rgb : STRANE[MAMBA].rgb;
-          ctx.fillStyle = `rgba(${rgb},${((1 - p) * 0.9).toFixed(3)})`;
+        for (const kap of kapi) {
+          kap.y += kap.brzina * dt * (1 + uzbudjenje * 2);
+          if (kap.y > 1.05) kap.y = -0.05;
+          const kx = granicaX(kap.y, x0, amp1, amp2, brzina, uzbudjenje);
+          const boja = lw > rw ? STRANE[HROM].rgb : STRANE[MAMBA].rgb;
+          ctx.fillStyle = `rgba(${boja},${(kap.a * (0.4 + uzbudjenje * 0.6)).toFixed(3)})`;
           ctx.beginPath();
-          ctx.arc(x, y, v.r * dpr * (1 + uzbudjenje), 0, Math.PI * 2);
+          ctx.arc(kx, kap.y * H, kap.r * dpr, 0, Math.PI * 2);
           ctx.fill();
         }
       }
 
-      // --- sam sudar: uska vrela linija --------------------------------------
-      // Nije ukrasna crta preko slike — to je mesto gde se dva polja dodiruju,
-      // pa nosi obe boje i beli usijani spoj u sredini.
+      // --- šav ----------------------------------------------------------------
+      // Mesto gde se dve strane dodiruju: nosi obe boje i beli usijani spoj.
       ctx.lineCap = 'round';
       const putanja = (pomeraj) => {
         ctx.beginPath();
@@ -308,12 +246,10 @@ export default function SideChooser({ tier, ready, izabrana, onIzbor, onNaboj })
       putanja(0);
       ctx.stroke();
 
-      // --- smirivanje sredine -------------------------------------------------
-      // Naslov stoji preko sudara; bez ovoga ga svetlost polja pojede.
-      ctx.globalCompositeOperation = 'source-over';
-      const v = ctx.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, Math.max(W, H) * 0.62);
+      // Naslov stoji tačno preko šava, pa mu treba mirna podloga — ali samo
+      // uska traka oko sredine, ne vinjeta preko celog kadra.
+      const v = ctx.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, Math.max(W, H) * 0.4);
       v.addColorStop(0, 'rgba(7,8,10,0.72)');
-      v.addColorStop(0.55, 'rgba(7,8,10,0.35)');
       v.addColorStop(1, 'rgba(7,8,10,0)');
       ctx.fillStyle = v;
       ctx.fillRect(0, 0, W, H);

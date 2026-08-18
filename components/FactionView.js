@@ -8,16 +8,15 @@ import styles from './FactionView.module.css';
 //
 // Dugme „nazad" je obavezno i mora biti vidljivo. Izbor koji se ne može
 // poništiti nije izbor nego zamka — a posetilac koji oseti zamku ne kupuje.
-export default function FactionView({ strana, onNazad, onPoruci }) {
+export default function FactionView({ strana, onPoruci }) {
   const f = STRANE[strana];
   if (!f) return null;
 
+  // Povratak na izbor je u gornjoj traci (SiteHeader), ne ovde. Kad je stajao
+  // ovde kao plutajuće dugme na top:1.5rem, fiksna traka ga je pokrivala i
+  // klik prosto nije stizao do njega.
   return (
     <div className={styles.wrap}>
-      <button type="button" className={styles.nazad} onClick={onNazad}>
-        <span aria-hidden="true">←</span> promeni stranu
-      </button>
-
       <section className={styles.hero}>
         <div className={styles.media}>
           <img

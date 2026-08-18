@@ -24,6 +24,10 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# Kontrolne slike izreza na crnoj podlozi — služe samo da se proveri da nema
+# belog oreola. Ne idu na sajt, pa ni u git.
+/public/drykult/_provera-*.jpg
+
 # SIROVI SNIMCI — ne idu u git.
 # Telefonski .MOV fajlovi su 15-80 MB komad; iz njih se izvlače kadrovi
 # skriptama u scripts/, a IZVEDENI asseti (public/megaz/*) se commit-uju.

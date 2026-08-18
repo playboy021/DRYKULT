@@ -11,10 +11,8 @@ import styles from './ShatterTransition.module.css';
 //   RASPAD    260-1100  krhotine odlete uz rotaciju i gravitaciju
 //   PROIZVOD  900-1500  iza njih ostaje crno i peškir izabrane strane
 //
-// Krhotine su teksturisane PODLOGOM te frakcije — to je ono što je i bilo na
-// ekranu, pa lom izgleda kao da je pukao sam kadar, a ne neki nalepljeni sloj.
-// Prava snimka DOM-a nije moguća bez spoljne biblioteke; podloga je dovoljno
-// blizu jer ona i jeste ono što ispunjava hero.
+// Krhotine su TAMNO STAKLO sa užarenom ivicom, ne fotografija. Pukao je
+// ekran, a ne slika na njemu — pa i ne treba da nose nikakvu sliku.
 
 const PUKOTINE_END = 260;
 const RASPAD_END = 1100;
@@ -163,23 +161,16 @@ export default function ShatterTransition({ active, origin, side, tier, onDone }
     const prstenova = tier === LOW ? 3 : tier === MID ? 3 : 4;
     const { krhotine, linije } = napraviKrhotine(W, H, ox, oy, isecaka, prstenova, rnd);
 
-    const podloga = new Image();
-    let spremna = false;
-    podloga.onload = () => {
-      spremna = true;
-    };
-    // Podloga za krhotine ide po tieru. Na telefonu je -hi 300 KB koji se
-    // skida tek u trenutku loma — a to je tačno trenutak kad ne sme da se čeka.
-    const rez = tier === LOW ? 'low' : tier === MID ? 'md' : 'hi';
-    podloga.src = `/drykult/plate-${f.peskir}-${rez}.jpg`;
-
-    // "cover" matematika za podlogu, ista kao CSS object-fit: cover
-    const cover = () => {
-      const iw = podloga.naturalWidth;
-      const ih = podloga.naturalHeight;
-      const s = Math.max(W / iw, H / ih);
-      return { dw: iw * s, dh: ih * s, dx: (W - iw * s) / 2, dy: (H - ih * s) / 2 };
-    };
+    // Krhotine se ne teksturišu fotografijom. Ranije su nosile podlogu mokre
+    // haube, ali pozadina hero-a je sada čista crna sa neonskim šavom — pa bi
+    // fragmenti fotografije prikazivali nešto što na ekranu nikad nije bilo.
+    // Uz to je taj preload bio 597 KB za sliku koja se možda nikad ne vidi.
+    // Sada su krhotine tamno staklo sa užarenom ivicom, što je i tačnije:
+    // pukao je EKRAN, a ne slika na njemu.
+    const staklo = ctx.createLinearGradient(0, 0, W, H);
+    staklo.addColorStop(0, '#14171c');
+    staklo.addColorStop(0.5, '#0b0d11');
+    staklo.addColorStop(1, '#16191f');
 
     let raf = 0;
     const t0 = performance.now();
@@ -211,7 +202,7 @@ export default function ShatterTransition({ active, origin, side, tier, onDone }
         }
         ctx.restore();
 
-        // Blesak u tački udara — sakriva trenutak kad podloga postane krhotine
+        // Blesak u tački udara — sakriva trenutak kad ekran postane krhotine
         const bl = Math.max(0, 1 - t / 220);
         if (bl > 0) {
           const g = ctx.createRadialGradient(ox, oy, 0, ox, oy, H * 0.9);
@@ -224,8 +215,7 @@ export default function ShatterTransition({ active, origin, side, tier, onDone }
       }
 
       // --- faza 2: krhotine odlete ------------------------------------------
-      if (t >= PUKOTINE_END && spremna) {
-        const c = cover();
+      if (t >= PUKOTINE_END) {
         for (const s of krhotine) {
           const age = t - PUKOTINE_END - s.kasnjenje;
           if (age <= 0) {
@@ -235,8 +225,8 @@ export default function ShatterTransition({ active, origin, side, tier, onDone }
             ctx.moveTo(s.tacke[0][0], s.tacke[0][1]);
             for (let i = 1; i < 4; i++) ctx.lineTo(s.tacke[i][0], s.tacke[i][1]);
             ctx.closePath();
-            ctx.clip();
-            ctx.drawImage(podloga, c.dx, c.dy, c.dw, c.dh);
+            ctx.fillStyle = staklo;
+            ctx.fill();
             ctx.restore();
             continue;
           }
@@ -257,9 +247,8 @@ export default function ShatterTransition({ active, origin, side, tier, onDone }
           ctx.moveTo(s.tacke[0][0], s.tacke[0][1]);
           for (let i = 1; i < 4; i++) ctx.lineTo(s.tacke[i][0], s.tacke[i][1]);
           ctx.closePath();
-          ctx.clip();
-          ctx.drawImage(podloga, c.dx, c.dy, c.dw, c.dh);
-          // Ivica krhotine svetli bojom frakcije — bez toga su to samo mrlje
+          ctx.fillStyle = staklo;
+          ctx.fill();
           ctx.restore();
 
           ctx.save();
@@ -289,7 +278,6 @@ export default function ShatterTransition({ active, origin, side, tier, onDone }
 
     return () => {
       cancelAnimationFrame(raf);
-      podloga.onload = null;
       unlock();
     };
   }, [active, origin, side, tier, onDone]);
