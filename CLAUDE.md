@@ -284,30 +284,27 @@ i praćenje ivice i klik na stranu. Dugmad ga vraćaju na `auto`.
 u boju frakcije zato ide na samim elementima (`color`, `box-shadow`), ne na `:root`.
 `transition: --f-core` je tiho mrtav kod — izgleda kao da radi, a ne radi ništa.
 
-### SUDAR DVE BOJE — pozadina hero-a
+### POZADINA HERO-A — dva puta pogrešno, pa čista crna
 
-`SideChooser`. Pozadina NIJE slika sa linijom preko nje — pozadina **jeste**
-sudar. Ranije je tu stajala generisana fotografija mokre haube sa svojom
-dijagonalnom neonskom prugom, pa se ta pruga tukla sa vertikalnom podelom:
-dve linije na različite strane, ništa nije pratilo ništa.
+Pozadina je sada **čista crna**, sa samo dva elementa: ŠAV između dve strane
+i uzak sjaj koji iz njega curi. Peškir je jedina slika u kadru — a to je i
+cela poenta crne tkanine sa neonskim rubom.
 
-Dva polja oblaka (keširani sprite po boji, `lighter` blend) i granica kao
-dva sinusa različitih frekvencija. Fotografija se vraća kad se snimi
-materijal sa pravim peškirom.
+Do toga se stiglo kroz dva odbačena pokušaja, oba vredna pamćenja:
 
-**Dve greške uhvaćene offline simulacijom, obe suštinske:**
+1. **Generisana fotografija mokre haube.** Imala je svoju dijagonalnu neonsku
+   prugu koja se tukla sa vertikalnom podelom — dve linije na različite strane,
+   dva nezavisna sistema, ništa nije moglo da prati ništa.
+2. **Polja oblaka u boji** (dva sprite-a, `lighter` blend). Previše šuma iza
+   proizvoda; peškir se gubio u pozadini umesto da ga ona podupre.
 
-1. **Oblaci su bili zakačeni za granicu** (odmak od nje). Kad se granica pomeri
-   levo, cela desna polovina ekrana ostajala je **crna** umesto da je preplavi
-   pobednička boja. Ispravka: `dubina` se čita kao položaj UNUTAR teritorije
-   (0 = uz sudar, 1 = uz ivicu ekrana), a poluprečnik prati širinu teritorije.
-2. **Mapiranje kursora bilo je obrnuto.** Granica je bila jednaka poziciji
-   kursora, pa je pomeranje ka jednoj strani tu stranu **smanjivalo** — miš
-   levo, a zeleno preplavi ekran. Granica je sada `1 - kursor`: stojiš duboko
-   u svojoj strani i **guraš granicu od sebe**.
+Fotografija se vraća tek kad se snimi materijal sa pravim peškirom.
 
-Zbog toga se naboj puni po **kursoru**, a ne po granici — granica kasni za
-kursorom (opruga), pa bi punjenje inače kasnilo za pokretom.
+**Mapiranje kursora u granicu je `1 - kursor`, ne `kursor`.** Sa direktnim
+mapiranjem pomeranje ka jednoj strani tu stranu **smanjuje** — miš levo, a
+zeleno preplavi ekran. Ovako stojiš duboko u svojoj strani i **guraš granicu
+od sebe**. Naboj se zato puni po **kursoru**, a ne po granici: granica kasni
+za kursorom (opruga), pa bi punjenje inače kasnilo za pokretom.
 
 ### NABOJ — izbor bez klika
 
@@ -482,22 +479,20 @@ Pogađa i 16.2.10 i 16.3.0.
 
 ## Izmereno
 
-Sve što loader čeka pre nego što otkrije hero — dve podloge + oba peškira:
+Loader čeka **samo ono što se stvarno prikaže** — dva peškira:
 
-| Tier | podloge | peškiri | ukupno | pre WebP-a |
-|---|---|---|---|---|
-| `high` | 597 KB (1920px) | 75 KB (640px) | **672 KB** | 1515 KB |
-| `mid` | 327 KB (1280px) | 75 KB (640px) | **402 KB** | 1245 KB |
-| `low` | 135 KB (760px) | 37 KB (420px) | **172 KB** | 1054 KB |
+| Tier | peškiri | ukupno | ranije |
+|---|---|---|---|
+| `high` / `mid` | 75 KB (640px WebP) | **75 KB** | 672 / 402 KB |
+| `low` | 37 KB (420px WebP) | **37 KB** | 172 KB |
 
-Telefon je šest puta lakši nego pre prelaska na WebP i `sm` varijantu.
+Dva reza su to donela: **PNG → WebP** (918 KB → 75 KB za par) i **izbacivanje
+podloga** kad je pozadina postala crna — preloadovale su se 597 KB na desktopu
+za sliku koja se više nigde ne pojavljuje.
 
 Zajedničko: JS ~444 KB (nemin.), CSS 26 KB, **fontovi 302 KB** (Archivo 171.8 — latin 83.8 +
-latin-ext 88.0; Inter 130.6 — latin 83.3 + latin-ext 47.3).
-
-**Podloga se postavlja iz JS-a (`--slika`), ne iz CSS-a.** Dok je bila tvrdo
-kodirana na `-hi`, MID je skidao i `md` (koju loader čeka) i `hi` (koju CSS vuče) —
-dvostruko, a loader je propuštao baš onu koja se prikaže.
+latin-ext 88.0; Inter 130.6 — latin 83.3 + latin-ext 47.3). Fontovi su sada
+najteža stavka na sajtu; pravi rez je self-host sa `pyftsubset`.
 
 **Fontovi su najskuplja stavka posle slika.** Navođenje `weight: [...]` ne pomaže — Google
 za Inter servira samo varijabilnu verziju, emituje se isti bajt (provereno, heševi identični).
@@ -541,6 +536,29 @@ telefonu je traka niža pa bi fiksnih 90px obrisalo sve iz jednog poteza.
 
 Redosled sekcija u prodaji je proizvod → **dokaz** → forma. Forma pre dokaza
 traži poverenje koje još nije zarađeno.
+
+### Navigacija — pravila do kojih se stiglo kroz bagove
+
+**Povratak na izbor MORA biti u traci, ne kao plutajuće dugme.** Stajalo je u
+`FactionView` na `top: 1.5rem` sa `z-index: 60`, a fiksna traka ga je pokrivala
+(`z-index: 70`). Klik je pogađao traku i „promeni stranu" prosto nije radilo.
+
+**Logo je dugme, ne sidro.** Vodio je na `#vrh`, što samo skroluje na vrh iste
+strane — a u fazi prodaje „početna" znači povratak na izbor, dakle reset stanja.
+Sidro to nikad nije moglo.
+
+**Browser „nazad" mora da radi.** Bez `history.pushState` pri izboru strane,
+sistemsko dugme nazad je izbacivalo sa sajta. `popstate` sada vraća na izbor.
+
+**Link na sekciju koja ne postoji je gori od nepostojećeg linka.** „Poruči" u
+traci se prikazuje tek kad je strana izabrana — u fazi izbora `#poruci` nije
+u DOM-u i klik ne bi radio ništa.
+
+**Skrol ka sidru ide kroz Lenis** (`scrollTo` sa `offset: -80` zbog fiksne
+trake). Bez toga se glatki skrol i native skok tuku i strana trzne.
+
+**Traka je providna samo na vrhu** (`window.scrollY < 24`), ne kroz celu fazu.
+Kad se skroluje na sekciju ispod, tekst prolazi kroz providnu traku.
 
 ### Gornja traka i navigacija
 

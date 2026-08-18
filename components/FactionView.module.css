@@ -3,33 +3,6 @@
   background: var(--bg);
 }
 
-.nazad {
-  position: fixed;
-  top: 1.5rem;
-  left: 1.5rem;
-  z-index: 60;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.625rem 1rem;
-  border-radius: 2rem;
-  font-size: 0.75rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--muted);
-  background: rgba(7, 8, 10, 0.72);
-  backdrop-filter: blur(0.625rem);
-  -webkit-backdrop-filter: blur(0.625rem);
-  box-shadow: inset 0 0 0 0.0625rem var(--line);
-  transition:
-    color 180ms ease,
-    box-shadow 180ms ease;
-}
-.nazad:hover {
-  color: var(--ink);
-  box-shadow: inset 0 0 0 0.0625rem rgba(var(--f-rgb), 0.5);
-}
-
 .hero {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);

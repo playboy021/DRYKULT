@@ -15,7 +15,6 @@ import {
   obrisiStranu,
   primeniStranu,
   peskirSlika,
-  podlogaSlika,
   HROM,
   MAMBA,
 } from '../lib/faction';
@@ -49,6 +48,11 @@ export default function Home() {
     }
   }, []);
 
+  const naVrh = () => {
+    if (window.__lenis) window.__lenis.scrollTo(0, { immediate: true, force: true });
+    else window.scrollTo(0, 0);
+  };
+
   // Zajedničko za klik i za napunjen naboj — jedina razlika je odakle puca.
   const potvrdi = useCallback((id, tacka) => {
     setStrana(id);
@@ -56,16 +60,41 @@ export default function Home() {
     primeniStranu(id);
     setUdar(tacka);
     setFaza(LOM);
+    // Unos u istoriju da BROWSER dugme „nazad" vraća na izbor umesto da
+    // izbaci sa sajta. Bez ovoga je jedna strana bila ćorsokak za navigaciju.
+    try {
+      window.history.pushState({ drykult: 'prodaja' }, '');
+    } catch {
+      /* nije kritično */
+    }
   }, []);
 
   const nazad = useCallback(() => {
     setFaza(BIRANJE);
     setStrana(null);
     setUdar(null);
+    setPrelaz(null);
     primeniStranu(null);
     obrisiStranu();
-    if (window.__lenis) window.__lenis.scrollTo(0, { immediate: true, force: true });
-    else window.scrollTo(0, 0);
+    naVrh();
+  }, []);
+
+  // Browser „nazad" iz prodaje vraća na izbor, ne sa sajta.
+  useEffect(() => {
+    const onPop = () => {
+      setFaza((f) => {
+        if (f === BIRANJE) return f;
+        setStrana(null);
+        setUdar(null);
+        setPrelaz(null);
+        primeniStranu(null);
+        obrisiStranu();
+        naVrh();
+        return BIRANJE;
+      });
+    };
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
   }, []);
 
   const lomGotov = useCallback(() => {
@@ -74,17 +103,13 @@ export default function Home() {
     else window.scrollTo(0, 0);
   }, []);
 
-  // Loader čeka podloge hero-a i oba peškira — sve četiri se vide pre izbora,
-  // pa nema smisla otkriti hero dok bilo šta od toga nije tu.
+  // Loader čeka SAMO ono što se stvarno prikaže: dva peškira. Podloge su
+  // ispale kad je pozadina postala crna — preloadovale su se (597 KB na
+  // desktopu) za sliku koja se više nigde ne pojavljuje.
   const preload = useMemo(() => {
     if (!tier) return [];
     const v = tier === LOW ? 'sm' : 'md';
-    return [
-      podlogaSlika(HROM, tier),
-      podlogaSlika(MAMBA, tier),
-      peskirSlika(HROM, tier, v),
-      peskirSlika(MAMBA, tier, v),
-    ];
+    return [peskirSlika(HROM, tier, v), peskirSlika(MAMBA, tier, v)];
   }, [tier]);
 
   return (
@@ -103,7 +128,12 @@ export default function Home() {
 
       {/* Traka je providna preko hero-a da sudar boja ide do vrha ekrana,
           a puna čim se pređe u prodaju. */}
-      <SiteHeader strana={strana} prozirna={faza !== PRODAJA} />
+      <SiteHeader
+        strana={faza === PRODAJA ? strana : null}
+        prozirna={faza !== PRODAJA}
+        onPocetna={nazad}
+        onPromeni={nazad}
+      />
 
       <main id="vrh" className={styles.main}>
         {tier && faza !== PRODAJA && (
@@ -123,7 +153,7 @@ export default function Home() {
             Forma pre dokaza traži poverenje koje još nije zarađeno. */}
         {tier && faza === PRODAJA && (
           <>
-            <FactionView strana={strana} onNazad={nazad} onPoruci={setPrelaz} />
+            <FactionView strana={strana} onPoruci={setPrelaz} />
             <ProofSection tier={tier} strana={strana} />
             <OrderSection strana={strana} />
           </>
