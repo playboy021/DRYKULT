@@ -284,6 +284,41 @@ i praćenje ivice i klik na stranu. Dugmad ga vraćaju na `auto`.
 u boju frakcije zato ide na samim elementima (`color`, `box-shadow`), ne na `:root`.
 `transition: --f-core` je tiho mrtav kod — izgleda kao da radi, a ne radi ništa.
 
+### VERZIJA B — `/b`, druga ponuda hero-a
+
+Postoje dva hero-a i porede se uživo. Sve ispod hero-a je isto u obe: dokaz,
+poručivanje, lom, mokri prelaz. Menja se samo prvi ekran, jer se samo on i poredi.
+
+| | A (`/`) | B (`/b`) |
+|---|---|---|
+| pozadina | čestice po strujnom polju | radijalni gradijent u boji strane |
+| proizvod | dva ravna izreska | **3D peškir koji prati kursor** |
+| izbor | naboj se puni držanjem, pa lom | kartice PRIKAZUJU, dugme potvrđuje |
+
+**Peškir u B je tkanina, ne kruti model.** Referenca (`thewatch.60fps.fr`,
+soda) koristi `<model-viewer>` i `.glb` jer su limenka i sat KRUTI — samo se
+okreću. Kruti GLB peškira bio bi karton koji rotira. Zato je ovde ravan sa
+podelom čiji **vertex shader talasa mrežu**, obučena našom pravom teksturom
+proizvoda: isti utisak, tačnije za ono što prodajemo, bez ijednog izmišljenog
+poligona. Prelomi tkanine hvataju svetlo u fragment shaderu — bez toga je
+talasanje geometrijski tu, a oku nevidljivo.
+
+Pri promeni strane peškir se obrne **720°**, a tekstura se menja **na vrhu
+obrta**, kad je bočno okrenut i praktično nevidljiv — zamena se tako ne vidi.
+
+Mehurići iz reference su ovde **kapi vode**. Isti mehanizam, a kod nas znači
+nešto: peškir se prodaje na tome što vodu kupi.
+
+**`three` je 531 KB i uvlači ga SAMO `/b`** (provereno: uvozi ga jedino
+`TowelStage`, koji ide preko `HeroB` u `pages/b.js`). Verzija A ga ne dodiruje.
+
+Sateliti oko peškira (zmije za MAMBU, srca za HROM) su **opcioni** — prosleđuje
+se par slika `{ hrom, mamba }` na ČISTOJ CRNOJ, jer idu kroz aditivno mešanje pa
+crno samo nestane, bez izrezivanja. Bez njih je scena samo peškir.
+
+Strana se u B **ne pamti dok se ne potvrdi** — prelistavanje kartica ne sme da
+promeni ono što verzija A pamti kao tvoj izbor.
+
 ### 4.10 RASPORED nije TIER
 `tier` odgovara na „koliko uređaj i veza mogu da izguraju" — `low` obuhvata i
 **desktop na sporoj vezi ili sa `saveData`**. `raspored` odgovara na „ima li
