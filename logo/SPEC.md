@@ -14,11 +14,18 @@ licence to clear.
 
 | File | Use |
 |---|---|
-| `svg/drykult-horizontal-*.svg` | **Primary lockup.** Default choice for labels, packaging, print. |
-| `svg/drykult-stacked-*.svg` | Square or narrow spaces (patches, boxes, embroidery on a corner). |
+| `svg/drykult-horizontal-*.svg` | **Primary lockup.** Sewn-in label on the towel, small applications. |
+| `svg/drykult-horizontal-spec-*.svg` | Same, plus the spec line. **Boxes, hang tags, print, web.** Needs more room — see §4. |
+| `svg/drykult-stacked-*.svg` | Square or narrow spaces (patches, embroidery on a corner). |
+| `svg/drykult-stacked-spec-*.svg` | Stacked, plus the spec line. |
 | `svg/drykult-mark-*.svg` | Symbol alone. Use when DRYKULT already appears elsewhere on the item. |
 | `svg/drykult-mark-solid-*.svg` | **Small sizes and embroidery only** — see §4. Same symbol, without the cut. |
 | `svg/drykult-wordmark-*.svg` | Type alone. |
+
+The spec line reads **`1000 GSM · PREMIUM MICROFIBER`**. Its letterforms are also
+custom drawn — upright and lighter than the wordmark, deliberately. It is scaled to
+sit flush with the width of the wordmark above it. **Do not re-set it in a font, do
+not re-space it, and do not change its size relative to the wordmark.**
 
 Colour variants: `-black`, `-white`, `-hrom` (coral), `-mamba` (green).
 
@@ -26,8 +33,17 @@ Colour variants: `-black`, `-white`, `-hrom` (coral), `-mamba` (green).
 **For production always use the SVG.** White PNGs are exported on a black
 background so they are visible; the SVG has no background.
 
-Proportions are fixed. Horizontal lockup **5.432 : 1**, stacked **1.911 : 1**,
-mark **0.609 : 1**, mark-solid **0.718 : 1**, wordmark **5.962 : 1**.
+Proportions are fixed:
+
+| Artwork | Ratio (w : h) |
+|---|---|
+| horizontal | 5.432 : 1 |
+| horizontal-spec | 4.196 : 1 |
+| stacked | 1.911 : 1 |
+| stacked-spec | 1.618 : 1 |
+| mark | 0.609 : 1 |
+| mark-solid | 0.718 : 1 |
+| wordmark | 5.962 : 1 |
 
 Note that `mark` and `mark-solid` have **different proportions** — the cut version is
 taller because the two halves are offset along the cut. This is intentional. Do not
@@ -76,9 +92,17 @@ No other graphic, text, seam, stitch line or trim edge may enter this area.
 | Print / woven label — horizontal lockup | `horizontal` | **30 mm** wide |
 | Print / woven label — stacked lockup | `stacked` | **20 mm** wide |
 | Print / woven label — mark | `mark` | **12 mm** tall |
+| **Print** — with spec line | `horizontal-spec` | **45 mm** wide |
+| **Woven label** — with spec line | `horizontal-spec` | **55 mm** wide |
 | **Embroidery** — mark | `mark-solid` | **15 mm** tall |
 | **Embroidery** — horizontal lockup | `horizontal` | **60 mm** wide |
 | Silicone / rubber patch — mark | `mark-solid` | **14 mm** tall |
+
+**The spec line sets its own minimum.** Its cap height is 26.5 % of the wordmark's,
+so on a 30 mm lockup it would be about 1 mm tall — below that it fills in when woven
+and closes up when printed. If the artwork must go smaller than the sizes above,
+**use the version without the spec line.** Do not shrink the spec lockup and do not
+enlarge the spec line on its own to compensate.
 
 **Why two versions of the mark.** The primary mark is a droplet cut clean through
 by a horizontal gap. At 12 mm tall that gap is about 1.5 mm — fine for printing and
@@ -106,7 +130,25 @@ weaving, but too fine for embroidery, where the two halves will bleed together.
 
 ---
 
-## 6. Trademark symbol
+## 6. The spec line is a measurable claim
+
+`1000 GSM · PREMIUM MICROFIBER` is not marketing copy. **GSM is a measurable
+property and it is printed on the product**, so it has to be true of what ships.
+
+Before the spec artwork goes into production, please **confirm in writing that the
+fabric supplied is 1000 g/m²**, and send a cut sample for us to weigh. Our check:
+a 10 × 10 cm piece, weighed in grams, multiplied by 100.
+
+If the fabric supplied is not 1000 g/m², **stop and tell us** — we will change the
+number rather than print it. Do not adjust the artwork yourselves.
+
+The same applies to "microfiber": the composition must be a genuine microfiber
+blend, and we need the exact composition (e.g. 80/20 polyester/polyamide) for the
+care label.
+
+---
+
+## 7. Trademark symbol
 
 **No ® symbol is included in this artwork, and none must be added.** The ® symbol
 may only be used with a registered trademark. If a symbol is wanted before
@@ -115,7 +157,7 @@ before adding any symbol to production artwork.
 
 ---
 
-## 7. Regenerating
+## 8. Regenerating
 
 The artwork is generated from source geometry, not drawn by hand in an editor:
 

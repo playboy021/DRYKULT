@@ -28,6 +28,35 @@ mora da ima nikakav fajl da bi ga otvorila.
 **Razmaci između slova nisu pogađani nego mereni** — skripta računa belinu između
 svaka dva obrisa i izjednačava je. Zato posle L nema rupe kakva se inače dobije.
 
+## Druga linija
+
+`1000 GSM · PREMIUM MICROFIBER`. Uspravna i lakša od logotipa — to je pravilo iz
+`CLAUDE.md`: logotip je ugaoni italik, sve uz njega ide uspravno, kontrast a ne
+takmičenje. Skalirana je tako da tačno legne u širinu reči iznad; to poravnanje je
+ono što je čini složenom, a ne dopisanom.
+
+I ta slova su crtana, ne iz fonta — istih 14 znakova koliko je trebalo.
+
+**Dve verzije svakog sklopa:**
+- bez spec linije — **etiketa ušivena u peškir**, i sve sitno
+- sa spec linijom — **kutija, viseća etiketa, sajt**
+
+Razlog: spec linija je 26,5 % visine logotipa, pa bi na etiketi od 30 mm bila oko
+1 mm — u tkanju se zalije, u štampi se zatvori. Ispod 45 mm ide verzija bez nje.
+
+## Broj mora da bude tačan
+
+`1000 GSM` nije marketinška fraza nego **merljiv podatak odštampan na proizvodu**.
+U `SPEC.md` sam fabrici tražio pismenu potvrdu gramaže i odsečen uzorak za merenje.
+Kad uzorci stignu: **odseci 10 × 10 cm, izvagaj u gramima, pomnoži sa 100.** Ako ne
+pokaže 1000 — menjamo broj, ne štampamo ga.
+
+Isto važi i za „microfiber" — treba nam tačan sastav (npr. 80/20 poliester/poliamid)
+za etiketu o održavanju.
+
+**Sajt još računa sa 850** (`CLAUDE.md`, a `ProofSection` iz toga izvodi 536 g).
+To ide u istom prolazu kad stignu uzorci i prave slike.
+
 ## Dve verzije znaka — ovo im obavezno reci
 
 - `mark` — sa prorezom. Za štampu i tkane etikete.
