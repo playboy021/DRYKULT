@@ -26,8 +26,12 @@ Colour variants: `-black`, `-white`, `-hrom` (coral), `-mamba` (green).
 **For production always use the SVG.** White PNGs are exported on a black
 background so they are visible; the SVG has no background.
 
-Proportions are fixed. Horizontal lockup **5.552 : 1**, stacked **1.911 : 1**,
-mark **0.729 : 1**, wordmark **5.962 : 1**.
+Proportions are fixed. Horizontal lockup **5.432 : 1**, stacked **1.911 : 1**,
+mark **0.609 : 1**, mark-solid **0.718 : 1**, wordmark **5.962 : 1**.
+
+Note that `mark` and `mark-solid` have **different proportions** — the cut version is
+taller because the two halves are offset along the cut. This is intentional. Do not
+scale one to the other's bounding box.
 
 ---
 

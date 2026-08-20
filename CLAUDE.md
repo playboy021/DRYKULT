@@ -5,8 +5,8 @@ Tržišta: RS, BA, ME. Cena **3000 RSD**. Krećemo od nule — nema kupaca ni re
 
 Nije prodavnica nego **kult oko sušenja**: kupci su članovi, i biraju stranu.
 
-Prethodni brend je bio MEGAZ; saradnja je raskinuta, mašina je ostala. Ako negde
-naiđeš na plav peškir ili `public/megaz/`, to je zaostatak koji ne sme na sajt.
+Saradnja sa prethodnim brendom je raskinuta, mašina je ostala. Sve njegove fotke
+su obrisane. Ako negde naiđeš na plav peškir, to je zaostatak koji ne sme na sajt.
 
 Stanje: **hero i sekcija za poručivanje izgrađeni, vizuelno NIJE provereno u browseru**
 (razlog dole u „Zamke okruženja").
@@ -74,7 +74,7 @@ Trag je greška.
 Izaberi stranu.     ← posle izbora postaje „Ti si MAMBA." u boji frakcije
 ```
 
-Treći red radi i bez kursora (tap bira stranu), pa za razliku od MEGAZ naslova
+Treći red radi i bez kursora (tap bira stranu), pa za razliku od ranijeg naslova
 ne mora da bude tier-svestan.
 
 ### Tipografija
@@ -140,7 +140,7 @@ i to se skidalo na SVAKOM tieru uključujući telefon. Dvanaest puta.
 ### 4.7 Preloader
 Prati **stvarno** učitavanje slika sa tvrdim limitom **4s**. Brojač ide brzinom tajmera
 (`easeInOutCubic`, 1300ms) ali ga stvarno učitavanje može zadržati. `sessionStorage`
-ključ `megaz:loaded` da se ne ponavlja. Zaključava skrol dok ne ode.
+ključ `drykult:loaded` da se ne ponavlja. Zaključava skrol dok ne ode.
 
 ---
 
@@ -729,5 +729,5 @@ scripts/gen-video.mjs    NASLEĐE: web verzije snimaka (stari brend)
 
 assets-src/drykult/      studijske fotke + izvorna podloga
 public/drykult/          izresci i podloge koji idu na sajt
-public/megaz/            NASLEĐE — plav peškir, ne sme na sajt
+public/hero/             PRAZNO — čeka DRYKULT snimanje na autu
 ```

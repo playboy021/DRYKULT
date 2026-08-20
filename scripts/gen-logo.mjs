@@ -69,19 +69,22 @@ function napraviKap({ cx, cy, r, vx, vy, faseta }) {
 // Odnos visine i poluprečnika je ono što odlučuje da li je kap ili jedro. Na
 // 3.15 × r gornje dve trećine ostaju trougao. Na ~2.7 × r krug preuzima oblik
 // i kap se prepozna odmah.
-const KAP = napraviKap({ cx: 46, cy: 78, r: 46, vx: 62, vy: -2, faseta: 10 });
-const REZ_SREDINA = 70; // visina reza — oba dela moraju da imaju mase
-const REZ_SIRINA = 14;  // debljina proreza
-// Pomeraj gornjeg dela je probavan i izbačen: na prvi pogled čita kao greška u
-// štampi, a ne kao pokret. Nagib reza sam nosi dinamiku.
-const REZ_POMAK = 0;
+const KAP = napraviKap({ cx: 46, cy: 78, r: 46, vx: 62, vy: -2, faseta: 7 });
+// Rez ide pod 45° — isti ugao kojim je zasečen svaki ugao u slovima. Nije
+// izabran zbog izgleda nego zato što zaključava znak i logotip u isti sistem.
+//
+// Polovine se RAZMIČU duž reza. Blagi vodoravni prorez je bio pristojan ali
+// pitom; ovako se vidi da kap nije samo presečena nego razvaljena — a to je
+// tačno ono što peškir radi.
+// Pomak mora da bude MALI. Na 12 jedinica polovine otklizaju toliko da se kap
+// više ne prepoznaje — ostanu dva odvojena šiljka. Na 6 se vidi i pokret i kap.
+const REZ_SREDINA = 74;
+const REZ_SIRINA = 10;
+const REZ_POMAK = 6;
 
 // Rez ide POD PRAVIM UGLOM NA ITALIK, ne vodoravno. Vodoravan rez na nagnutom
 // logotipu je jedina linija koja ne pripada sistemu i odmah se vidi.
-// Pun italik ugao preko oblika širokog 78 spusti rez za 17 jedinica s kraja na
-// kraj — više od same debljine proreza, pa čita kao zasečak a ne kao rez.
-// Polovina ugla: veza sa logotipom se vidi, oblik ostaje čitljiv.
-const REZ_K = NAGIB * 0.5;
+const REZ_K = 1; // tan(45°)
 
 // Sutherland–Hodgman nad proizvoljnom poluravni. Prorez je tako STVARNI razmak
 // između dva tela, a ne bela pruga preko — pa radi i kad se logo štampa u boji,
@@ -104,9 +107,15 @@ function odseci(tacke, f) {
 // Linija kroz (x, y0 + K*(x - 46)); pozitivno je ispod nje.
 const linija = (y0, smer) => (p) => smer * (p[1] - (y0 + REZ_K * (p[0] - 46)));
 
-const gornji = odseci(KAP, linija(REZ_SREDINA - REZ_SIRINA / 2, 1));
-const donji = odseci(KAP, linija(REZ_SREDINA + REZ_SIRINA / 2, -1));
-const ZNAK_DELOVI = [gornji.map(([x, y]) => [x + REZ_POMAK, y]), donji];
+// Razmicanje ide DUŽ reza, ne vodoravno — samo tako čita kao smicanje, a ne
+// kao pomeren otisak.
+const duzRez = Math.hypot(1, REZ_K);
+const px = REZ_POMAK / duzRez;
+const py = (REZ_POMAK * REZ_K) / duzRez;
+const ZNAK_DELOVI = [
+  odseci(KAP, linija(REZ_SREDINA - REZ_SIRINA / 2, 1)).map(([x, y]) => [x - px, y - py]),
+  odseci(KAP, linija(REZ_SREDINA + REZ_SIRINA / 2, -1)).map(([x, y]) => [x + px, y + py]),
+];
 const ZNAK_PUN = [KAP]; // bez proreza — za sitne primene i vez
 
 // ---------------------------------------------------------------------------
@@ -325,6 +334,68 @@ if (process.argv.includes('slova')) {
   console.log('slova → logo/png/_provera-slova.png');
 }
 
+// --- pregledni list --------------------------------------------------------
+// Jedna slika sa svim sklopovima I znakom na stvarnoj veličini etikete. Bez
+// ovoga se svaki put mora otvarati po pet fajlova da bi se videlo šta je urađeno.
+async function pregled() {
+  const W = 1500, H = 900;
+  const c = createCanvas(W, H);
+  const g = c.getContext('2d');
+  g.fillStyle = BOJE.black;
+  g.fillRect(0, 0, W, H);
+
+  const crtaj = (delovi, x, y, visina, boja) => {
+    const o = okvir(delovi);
+    const k = visina / o.h;
+    g.save();
+    g.translate(x, y);
+    g.fillStyle = boja;
+    g.beginPath();
+    for (const p of delovi) {
+      p.forEach(([a, b], i) => {
+        const u = (a - o.x0) * k, v = (b - o.y0) * k;
+        i ? g.lineTo(u, v) : g.moveTo(u, v);
+      });
+      g.closePath();
+    }
+    g.fill('evenodd');
+    g.restore();
+    return o.w * k;
+  };
+  const natpis = (t, x, y) => {
+    g.fillStyle = '#5A6068';
+    g.font = '500 15px sans-serif';
+    g.fillText(t, x, y);
+  };
+
+  const znak = sklopi('mark').delovi;
+  const pun = sklopi('mark-solid').delovi;
+
+  natpis('ZNAK — mamba / hrom / puna verzija za vez', 60, 50);
+  let x = 60;
+  x += crtaj(znak, x, 70, 240, BOJE.mamba) + 70;
+  x += crtaj(znak, x, 70, 240, BOJE.hrom) + 70;
+  crtaj(pun, x, 70, 240, BOJE.white);
+
+  natpis('NA ETIKETI — 34 px i 20 px', 60, 372);
+  x = 60;
+  x += crtaj(znak, x, 390, 34, BOJE.white) + 44;
+  x += crtaj(pun, x, 390, 34, BOJE.white) + 60;
+  x += crtaj(znak, x, 398, 20, BOJE.white) + 34;
+  crtaj(pun, x, 398, 20, BOJE.white);
+
+  natpis('VODORAVNI SKLOP', 60, 480);
+  crtaj(sklopi('horizontal').delovi, 60, 500, 110, BOJE.white);
+
+  natpis('USPRAVNI SKLOP', 60, 664);
+  crtaj(sklopi('stacked').delovi, 60, 684, 170, BOJE.mamba);
+
+  natpis('SAMO LOGOTIP', 620, 664);
+  crtaj(sklopi('wordmark').delovi, 620, 700, 74, BOJE.white);
+
+  await writeFile(join(KOREN, 'PREGLED.png'), await c.encode('png'));
+}
+
 for (const vrsta of Object.keys(VARIJANTE)) {
   const { delovi } = sklopi(vrsta);
   for (const v of VARIJANTE[vrsta]) {
@@ -336,4 +407,5 @@ for (const vrsta of Object.keys(VARIJANTE)) {
   const o = okvir(delovi);
   console.log(`${vrsta.padEnd(12)} ${zaokr(o.w)} × ${zaokr(o.h)}  (odnos ${(o.w / o.h).toFixed(3)}:1)`);
 }
-console.log(`\ngotovo → ${KOREN}`);
+await pregled();
+console.log(`\ngotovo → ${KOREN}   (pregled: logo/PREGLED.png)`);
