@@ -22,7 +22,7 @@ import path from 'node:path';
 const run = promisify(execFile);
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SRC_DIR = path.join(ROOT, 'assets-src', 'video');
-const OUT = path.join(ROOT, 'public', 'megaz');
+const OUT = path.join(ROOT, 'public', 'hero');
 
 const CLIPS = [
   {

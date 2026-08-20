@@ -6,10 +6,21 @@ engleskom i u njemu je sve što fabrika treba: boje, Pantone, minimalne veličin
 
 ## Šta je šta
 
-**Znak je kap presečena na dve.** To je cela priča brenda u jednom obliku — kap ne
-preživi. Sve je nacrtano pravim linijama, bez ijedne krive: kriva se u vezu ne može
+**Znak je kap presečena pod 45° i razvaljena** — polovine su odgurnute duž reza.
+To je cela priča brenda u jednom obliku: kap ne preživi. Rez je baš na 45° jer je
+to isti ugao kojim je zasečen svaki ugao u slovima — znak i logotip su tako u
+istom sistemu, a ne dve odvojene stvari.
+
+Sve je nacrtano pravim linijama, bez ijedne krive: kriva se u vezu ne može
 ispratiti, a tkani žakard je pretvori u stepenice. Fasete se vezu i tkaju čisto,
 i daju sečen, hromiran ton koji ide uz ime HROM.
+
+Sama kap se ne ređa tačkama nego se gradi iz **dve tangente sa vrha na krug pri
+dnu** — zato su joj stranice ispupčene. Prve verzije su ređane napamet i ispadale
+su kao jedro.
+
+`logo/PREGLED.png` je jedna slika sa svim sklopovima i znakom na veličini etikete —
+tu se najbrže vidi stanje.
 
 **Slova su crtana, nisu iz fonta.** Nema tuđe licence na tvom logotipu i fabrika ne
 mora da ima nikakav fajl da bi ga otvorila.

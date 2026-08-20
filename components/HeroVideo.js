@@ -77,7 +77,7 @@ export default function HeroVideo({ src, poster }) {
         muted
         playsInline
         preload="metadata"
-        aria-label="MEGAZ peškir prelazi preko mokre haube i suši je"
+        aria-label="DRYKULT peškir prelazi preko mokre haube i suši je"
       />
       <div className={styles.grade} aria-hidden="true" />
       <div className={`${styles.next} ${done ? styles.nextOn : ''}`} aria-hidden={!done}>

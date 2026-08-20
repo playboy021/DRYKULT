@@ -1,4 +1,4 @@
-// Iz JEDNE prave fotke (mat crni M5 + MEGAZ peškir) izvodi ceo hero par.
+// Iz JEDNE prave fotke (mat crni auto + peškir) izvodi ceo hero par.
 //
 // Zašto izvedeno, a ne dve odvojene fotke: liquid reveal farba drugu sliku
 // preko prve po tragu kursora. Ako se dve slike razlikuju i za jedan piksel
@@ -15,7 +15,7 @@ import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const OUT = path.join(ROOT, 'public', 'megaz');
+const OUT = path.join(ROOT, 'public', 'hero');
 
 // Dva izvora, dva kadra — biraju se argumentom: `npm run assets -- foto`.
 //
