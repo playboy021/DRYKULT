@@ -9,7 +9,15 @@ import OrderSection from '../components/OrderSection';
 import ShatterTransition from '../components/ShatterTransition';
 import WetTransition from '../components/WetTransition';
 import { detectTier, LOW } from '../lib/device';
-import { upisiStranu, obrisiStranu, primeniStranu, peskirSlika, HROM, MAMBA } from '../lib/faction';
+import {
+  upisiStranu,
+  obrisiStranu,
+  primeniStranu,
+  peskirSlika,
+  STRANE,
+  HROM,
+  MAMBA,
+} from '../lib/faction';
 import styles from '../styles/Home.module.css';
 
 // GLAVNA STRANA.
@@ -111,7 +119,9 @@ export default function Home() {
           content="DRYKULT premium microfiber peškir za sušenje automobila. 90×70 cm, 850 GSM, twisted-loop. Dve strane: HROM i MAMBA. Srbija, BiH, Crna Gora."
         />
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-        <meta name="theme-color" content="#07080A" />
+        {/* Prati frakciju: na telefonu ovo boji traku browsera, pa bi fiksna
+            vrednost pravila vidljiv šav na vrhu ekrana kad se podloga tonira. */}
+        <meta name="theme-color" content={strana ? STRANE[strana].bg : '#07080A'} />
       </Head>
 
       {tier && <Loader assets={preload} onDone={() => setReady(true)} />}

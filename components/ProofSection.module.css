@@ -55,7 +55,7 @@
      ovde ne sme da stoji tuđa slika, a ni izmišljena. */
   background:
     radial-gradient(120% 140% at 20% 0%, rgba(var(--f-rgb), 0.14), rgba(7, 8, 10, 0) 55%),
-    linear-gradient(160deg, #101318 0%, #07080a 60%);
+    linear-gradient(160deg, var(--bg-2) 0%, var(--bg) 60%);
   box-shadow: inset 0 0 0 0.0625rem var(--line);
   touch-action: none; /* prevlačenje briše, ne skroluje stranu */
   user-select: none;

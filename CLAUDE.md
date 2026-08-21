@@ -30,7 +30,7 @@ Preview konfiguracija je u `D:\projekti\.claude\launch.json` pod imenom `drykult
 ### Paleta
 
 ```css
---bg:      #07080A   /* neutralna crna — peškir je crn, boja dolazi samo od neona */
+--bg:      #07080A   /* PRE izbora strane; posle je menja frakcija */
 --bg-2:    #0E1013
 --ink:     #F4F6F8   /* 18.49:1 */
 --muted:   #8A9099   /*  6.23:1 */
@@ -40,10 +40,41 @@ Preview konfiguracija je u `D:\projekti\.claude\launch.json` pod imenom `drykult
 --f-core   --f-bright   --f-deep   --f-rgb
 ```
 
-| frakcija | core | hue | bright | tamni tekst na core |
-|---|---|---|---|---|
-| **HROM** (koralna) | `#FF6E80` | 353° | `#FFB3BE` | **7.44:1** ✓ |
-| **MAMBA** (neon zelena) | `#8CEF2E` | 91° | `#C3F98D` | **13.83:1** ✓ |
+| frakcija | core | hue | bright | podloga | tamni tekst na core |
+|---|---|---|---|---|---|
+| **HROM** (koralna) | `#FF6E80` | 353° | `#FFB3BE` | `#0C0506` | **7.44:1** ✓ |
+| **MAMBA** (neon zelena) | `#8CEF2E` | 91° | `#C3F98D` | `#080C05` | **13.83:1** ✓ |
+
+### Podloga prati frakciju
+
+Posle izbora se menja i `--bg`, ne samo akcenti. Vrednosti nisu birane okom nego
+**izvedene**: hue frakcije, zasićenost spuštena na 45 %, svetlina ostavljena tačno
+ista kao kod neutralne crne. Zato je promena besplatna:
+
+| | sa `--ink` | sa `--f-core` |
+|---|---|---|
+| `#07080A` neutralna | 18.49:1 | 13.83 / 7.44 |
+| `#080C05` MAMBA | **18.20:1** | **13.61:1** |
+| `#0C0506` HROM | **18.64:1** | **7.49:1** |
+
+Poenta nije da se vidi zelena ili roze pozadina — nego da posle izbora **cela
+podloga pripada strani**, umesto da boju nose samo akcenti. Razlika je namerno
+ispod praga svesnog opažanja.
+
+Usput otkriveno: sadašnja „neutralna" crna **nije neutralna** — hue joj je 220°,
+dakle blago hladna. Bila je tonirana i pre ove promene, samo u boju koja ne
+pripada nijednoj strani.
+
+**Šta je moralo da prati promenu.** Tri mesta su imala upisan `#07080A` i ostala
+bi neutralna dok se sve oko njih tonira:
+`ProofSection.module.css` (gradijent → `var(--bg)`), `SideChooser.js` (platno sad
+**čita** `--bg` umesto da upisuje broj), i `theme-color` u `pages/index.js` — na
+telefonu to boji traku browsera, pa bi fiksna vrednost pravila vidljiv šav na
+vrhu ekrana.
+
+**Podloga se PRELIVA, ne škljocne.** Sama promenljiva se ne može tranzicionirati,
+ali `background-color` na `html, body` može — istih 1200 ms koliko traje i
+gradijent hero-a, da se dve promene ne razilaze. Gasi se na `prefers-reduced-motion`.
 
 **Kako su dobijene:** uzorkovanjem pravih piksela sa studijskih fotki po regionima
 (opšiv / natpis / pliš), pa je iz njih uzet **hue**, ne sirova vrednost. Sirovi pikseli
