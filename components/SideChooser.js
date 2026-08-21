@@ -105,7 +105,10 @@ export default function SideChooser({ tier, ready, izabrana, onIzbor, onNaboj })
       H = Math.max(1, Math.round(r.height * dpr));
       cv.width = W;
       cv.height = H;
-      ctx.fillStyle = '#07080a';
+      // Čita se --bg umesto da se upisuje broj: platno tako ne može da se
+      // razmimoiđe sa podlogom kad frakcija promeni pozadinu.
+      ctx.fillStyle =
+        getComputedStyle(document.documentElement).getPropertyValue('--bg').trim() || '#07080a';
       ctx.fillRect(0, 0, W, H);
       zasej();
     };
