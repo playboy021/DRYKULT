@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import TowelStage from './TowelStage';
 import LiquidButton from './LiquidButton';
 import { RevealLines, RevealWords, RevealFade } from './Reveal';
-import { STRANE, HROM, MAMBA, peskirSlika } from '../lib/faction';
+import { STRANE, PINK, MAMBA, peskirSlika } from '../lib/faction';
 import { LOW } from '../lib/device';
 import styles from './HeroB.module.css';
 
@@ -52,10 +52,10 @@ export default function HeroB({ tier, ready, strana, izabrana, onIzbor, onPoruci
     };
   }, [tier]);
 
-  const f = STRANE[strana] || STRANE[HROM];
+  const f = STRANE[strana] || STRANE[MAMBA];
 
   return (
-    <section className={styles.hero} data-strana={strana || 'hrom'}>
+    <section className={styles.hero} data-strana={strana || 'mamba'}>
       <div ref={kapiRef} className={styles.kapi} aria-hidden="true" />
 
       <TowelStage tier={tier} strana={strana} izabrana={izabrana} />
@@ -104,9 +104,10 @@ export default function HeroB({ tier, ready, strana, izabrana, onIzbor, onPoruci
         {/* --- desno -------------------------------------------------------- */}
         <div className={styles.desno}>
           <RevealFade className={styles.kartice} ready={ready} delay={1000}>
-            {[HROM, MAMBA].map((id) => {
+            {/* MAMBA prva — ona je i podrazumevani prikaz. */}
+            {[MAMBA, PINK].map((id) => {
               const s = STRANE[id];
-              const aktivna = (strana || HROM) === id;
+              const aktivna = (strana || MAMBA) === id;
               return (
                 <button
                   key={id}

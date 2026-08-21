@@ -13,7 +13,7 @@ istom sistemu, a ne dve odvojene stvari.
 
 Sve je nacrtano pravim linijama, bez ijedne krive: kriva se u vezu ne može
 ispratiti, a tkani žakard je pretvori u stepenice. Fasete se vezu i tkaju čisto,
-i daju sečen, hromiran ton koji ide uz ime HROM.
+i daju sečen, hromiran ton — kao brušen metal, ne kao crtež.
 
 Sama kap se ne ređa tačkama nego se gradi iz **dve tangente sa vrha na krug pri
 dnu** — zato su joj stranice ispupčene. Prve verzije su ređane napamet i ispadale

@@ -41,7 +41,7 @@ export default function FactionView({ strana, onPoruci }) {
           <RevealWords
             className={styles.opis}
             text={
-              strana === 'hrom'
+              strana === 'pink'
                 ? 'Glatko i precizno. Twisted-loop strana kupi vodu iz prve, plišana polira ono što ostane — bez ijednog traga u laku.'
                 : 'Brzo i oštro. Twisted-loop strana kupi vodu iz prve, plišana polira ono što ostane — bez ijednog traga u laku.'
             }

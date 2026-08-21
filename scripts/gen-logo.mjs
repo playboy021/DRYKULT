@@ -6,7 +6,7 @@
 //
 // Zašto sve pravim linijama: krivu vez ne ume da isprati, a tkani žakard je
 // rasterizuje u stepenice. Fasete se vezu i tkaju čisto — i daju hromiran,
-// sečen ton koji ide uz ime HROM.
+// sečen ton koji ide uz ime PINK.
 //
 // node scripts/gen-logo.mjs
 
@@ -17,7 +17,7 @@ import { fileURLToPath } from 'node:url';
 
 const KOREN = join(dirname(fileURLToPath(import.meta.url)), '..', 'logo');
 
-const BOJE = { black: '#07080A', white: '#F4F6F8', hrom: '#FF6E80', mamba: '#8CEF2E' };
+const BOJE = { black: '#07080A', white: '#F4F6F8', pink: '#FF6E80', mamba: '#8CEF2E' };
 
 // --- sistem ----------------------------------------------------------------
 // Sve mere izlaze iz ova četiri broja. Kad se jedan promeni, ceo logo ostaje
@@ -424,11 +424,11 @@ async function png(delovi, boja, sirinaPx, put, podloga) {
 }
 
 const VARIJANTE = {
-  horizontal: ['black', 'white', 'hrom', 'mamba'],
-  'horizontal-spec': ['black', 'white', 'hrom', 'mamba'],
+  horizontal: ['black', 'white', 'pink', 'mamba'],
+  'horizontal-spec': ['black', 'white', 'pink', 'mamba'],
   stacked: ['black', 'white'],
-  'stacked-spec': ['black', 'white', 'hrom', 'mamba'],
-  mark: ['black', 'white', 'hrom', 'mamba'],
+  'stacked-spec': ['black', 'white', 'pink', 'mamba'],
+  mark: ['black', 'white', 'pink', 'mamba'],
   'mark-solid': ['black', 'white'],
   wordmark: ['black', 'white'],
 };
@@ -492,10 +492,10 @@ async function pregled() {
   const znak = sklopi('mark').delovi;
   const pun = sklopi('mark-solid').delovi;
 
-  natpis('ZNAK — mamba / hrom / puna verzija za vez', 60, 50);
+  natpis('ZNAK — mamba / pink / puna verzija za vez', 60, 50);
   let x = 60;
   x += crtaj(znak, x, 70, 240, BOJE.mamba) + 70;
-  x += crtaj(znak, x, 70, 240, BOJE.hrom) + 70;
+  x += crtaj(znak, x, 70, 240, BOJE.pink) + 70;
   crtaj(pun, x, 70, 240, BOJE.white);
 
   natpis('NA ETIKETI — 34 px i 20 px', 60, 372);

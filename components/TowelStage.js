@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
-import { STRANE, HROM, MAMBA, peskirSlika } from '../lib/faction';
+import { STRANE, PINK, MAMBA, peskirSlika } from '../lib/faction';
 import { LOW, MID } from '../lib/device';
 import styles from './TowelStage.module.css';
 
@@ -14,7 +14,7 @@ import styles from './TowelStage.module.css';
 // NAŠOM PRAVOM teksturom proizvoda. Isti utisak (proizvod lebdi i prati kursor),
 // ali tačniji za ono što prodajemo — i bez ijednog izmišljenog poligona.
 //
-// Oko peškira lebde zmije (MAMBA) ili srca (HROM), sa parallaxom i odbijanjem
+// Oko peškira lebde zmije (MAMBA) ili srca (PINK), sa parallaxom i odbijanjem
 // od pokazivača. Slike su generisane NA ČISTOJ CRNOJ i idu kroz aditivno
 // mešanje — crno tako samo nestane, bez ijednog izrezivanja.
 
@@ -78,7 +78,7 @@ export default function TowelStage({ tier, strana, izabrana, onTilt, satelitSlik
     host.appendChild(render.domElement);
 
     const ucitaj = new THREE.TextureLoader();
-    const texA = ucitaj.load(peskirSlika(HROM, tier, 'hi'));
+    const texA = ucitaj.load(peskirSlika(PINK, tier, 'hi'));
     const texB = ucitaj.load(peskirSlika(MAMBA, tier, 'hi'));
     for (const t of [texA, texB]) {
       t.colorSpace = THREE.SRGBColorSpace;
@@ -108,10 +108,10 @@ export default function TowelStage({ tier, strana, izabrana, onTilt, satelitSlik
     scena.add(grupa);
 
     // --- sateliti (zmije / srca) ---------------------------------------------
-    // Opciono. Prosleđuje se par slika { hrom, mamba }; bez njih scena je
+    // Opciono. Prosleđuje se par slika { pink, mamba }; bez njih scena je
     // samo peškir. Slike se očekuju NA ČISTOJ CRNOJ jer idu kroz aditivno
     // mešanje — crno tako samo nestane, bez ijednog izrezivanja.
-    const satTexH = satelitSlike?.hrom ? ucitaj.load(satelitSlike.hrom) : null;
+    const satTexH = satelitSlike?.pink ? ucitaj.load(satelitSlike.pink) : null;
     const satTexM = satelitSlike?.mamba ? ucitaj.load(satelitSlike.mamba) : null;
     for (const t of [satTexH, satTexM]) if (t) t.colorSpace = THREE.SRGBColorSpace;
 
@@ -304,7 +304,7 @@ export default function TowelStage({ tier, strana, izabrana, onTilt, satelitSlik
   }, [tier, izabrana]);
 
   useEffect(() => {
-    apiRef.current?.prebaci(strana || HROM);
+    apiRef.current?.prebaci(strana || PINK);
   }, [strana]);
 
   return <div ref={hostRef} className={styles.host} aria-hidden="true" />;

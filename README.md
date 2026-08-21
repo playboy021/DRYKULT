@@ -10,7 +10,7 @@ Next.js (Pages Router) · Lenis · Canvas 2D · Web Audio
 ## Ideja
 
 Nije prodavnica nego **kult oko sušenja**. Kupci nisu kupci — oni su članovi,
-i prvo što urade je da **izaberu stranu**: **HROM** (koralna) ili **MAMBA**
+i prvo što urade je da **izaberu stranu**: **PINK** (koralna) ili **MAMBA**
 (neon zelena).
 
 Peškir stoji u sredini u 3D i prati kursor. Nije kruti model nego **tkanina** —

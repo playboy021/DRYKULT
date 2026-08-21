@@ -42,20 +42,20 @@ Preview konfiguracija je u `D:\projekti\.claude\launch.json` pod imenom `drykult
 
 | frakcija | core | hue | bright | podloga | tamni tekst na core |
 |---|---|---|---|---|---|
-| **HROM** (koralna) | `#FF6E80` | 353° | `#FFB3BE` | `#0C0506` | **7.44:1** ✓ |
-| **MAMBA** (neon zelena) | `#8CEF2E` | 91° | `#C3F98D` | `#080C05` | **13.83:1** ✓ |
+| **PINK** (koralna) | `#FF6E80` | 353° | `#FFB3BE` | `#0E0305` | **7.44:1** ✓ |
+| **MAMBA** (neon zelena) | `#8CEF2E` | 91° | `#C3F98D` | `#080E03` | **13.83:1** ✓ |
 
 ### Podloga prati frakciju
 
 Posle izbora se menja i `--bg`, ne samo akcenti. Vrednosti nisu birane okom nego
-**izvedene**: hue frakcije, zasićenost spuštena na 45 %, svetlina ostavljena tačno
+**izvedene**: hue frakcije, zasićenost spuštena na 60 %, svetlina ostavljena tačno
 ista kao kod neutralne crne. Zato je promena besplatna:
 
 | | sa `--ink` | sa `--f-core` |
 |---|---|---|
 | `#07080A` neutralna | 18.49:1 | 13.83 / 7.44 |
-| `#080C05` MAMBA | **18.20:1** | **13.61:1** |
-| `#0C0506` HROM | **18.64:1** | **7.49:1** |
+| `#080E03` MAMBA | **18.04:1** | **13.50:1** |
+| `#0E0305` PINK | **18.75:1** | **7.54:1** |
 
 Poenta nije da se vidi zelena ili roze pozadina — nego da posle izbora **cela
 podloga pripada strani**, umesto da boju nose samo akcenti. Razlika je namerno
@@ -86,7 +86,7 @@ kao „belo sa nijansom", ne kao neon.
 prepozna, dovoljno blizu materijalu da veza sa proizvodom u ruci ne pukne.
 Pink je ostao na izmerenih 353° — koralno-crven, **ne magenta**.
 
-Nesimetrija je namerna i neizbežna: MAMBA je 13.83:1, HROM 7.44:1. Limun-zelena je
+Nesimetrija je namerna i neizbežna: MAMBA je 13.83:1, PINK 7.44:1. Limun-zelena je
 fizički mnogo svetlija od koralne. Ravnoteža se drži kompozicijom, ne bojom.
 
 **Pre izbora strane tokeni su neutralno beli.** Nijedna frakcija ne sme da bude
@@ -347,8 +347,8 @@ nešto: peškir se prodaje na tome što vodu kupi.
 **`three` je 531 KB.** Uvozi ga jedino `TowelStage`, koji ide preko `HeroB` u
 `pages/index.js`. Arhiva na `/a` ga ne dodiruje — Next deli pakete po stranama.
 
-Sateliti oko peškira (zmije za MAMBU, srca za HROM) su **opcioni i zasad
-isključeni** — prosleđuje se par slika `{ hrom, mamba }` na ČISTOJ CRNOJ, jer idu
+Sateliti oko peškira (zmije za MAMBU, srca za PINK) su **opcioni i zasad
+isključeni** — prosleđuje se par slika `{ pink, mamba }` na ČISTOJ CRNOJ, jer idu
 kroz aditivno mešanje pa crno samo nestane, bez izrezivanja. Bez njih je scena
 samo peškir.
 

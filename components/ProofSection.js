@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { RevealLines, RevealWords, RevealFade } from './Reveal';
-import { STRANE, HROM } from '../lib/faction';
+import { STRANE, PINK } from '../lib/faction';
 import { LOW, MID } from '../lib/device';
 import styles from './ProofSection.module.css';
 
@@ -62,7 +62,7 @@ export default function ProofSection({ tier, strana }) {
     if (!host || !cv) return;
 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const f = STRANE[strana || HROM];
+    const f = STRANE[strana || PINK];
     const ctx = cv.getContext('2d');
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
 

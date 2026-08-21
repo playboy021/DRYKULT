@@ -15,7 +15,7 @@ import {
   primeniStranu,
   peskirSlika,
   STRANE,
-  HROM,
+  PINK,
   MAMBA,
 } from '../lib/faction';
 import styles from '../styles/Home.module.css';
@@ -42,14 +42,16 @@ export default function Home() {
   const [tier, setTier] = useState(null);
   const [ready, setReady] = useState(false);
   const [faza, setFaza] = useState(BIRANJE);
-  const [prikaz, setPrikaz] = useState(HROM); // strana koja se PRIKAZUJE
+  // MAMBA se prikazuje prva. Neka od dve mora da stoji na ekranu pre izbora, a
+  // neon nosi brend jače od koralne — kartice u HeroB idu istim redom.
+  const [prikaz, setPrikaz] = useState(MAMBA); // strana koja se PRIKAZUJE
   const [strana, setStrana] = useState(null); // strana koja je POTVRĐENA
   const [udar, setUdar] = useState(null);
   const [prelaz, setPrelaz] = useState(null);
 
   useEffect(() => {
     setTier(detectTier());
-    primeniStranu(HROM);
+    primeniStranu(PINK);
   }, []);
 
   const prikazi = useCallback((id) => {
@@ -107,7 +109,7 @@ export default function Home() {
   // sačeka — inače se peškir pojavi kao prazna ravan pa tek onda dobije sliku.
   const preload = useMemo(() => {
     if (!tier) return [];
-    return [peskirSlika(HROM, tier, 'hi'), peskirSlika(MAMBA, tier, 'hi')];
+    return [peskirSlika(PINK, tier, 'hi'), peskirSlika(MAMBA, tier, 'hi')];
   }, [tier]);
 
   return (
@@ -116,7 +118,7 @@ export default function Home() {
         <title>DRYKULT — premium microfiber peškir za auto</title>
         <meta
           name="description"
-          content="DRYKULT premium microfiber peškir za sušenje automobila. 90×70 cm, 850 GSM, twisted-loop. Dve strane: HROM i MAMBA. Srbija, BiH, Crna Gora."
+          content="DRYKULT premium microfiber peškir za sušenje automobila. 90×70 cm, 850 GSM, twisted-loop. Dve strane: PINK i MAMBA. Srbija, BiH, Crna Gora."
         />
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
         {/* Prati frakciju: na telefonu ovo boji traku browsera, pa bi fiksna
