@@ -27,7 +27,7 @@ custom drawn — upright and lighter than the wordmark, deliberately. It is scal
 sit flush with the width of the wordmark above it. **Do not re-set it in a font, do
 not re-space it, and do not change its size relative to the wordmark.**
 
-Colour variants: `-black`, `-white`, `-hrom` (coral), `-mamba` (green).
+Colour variants: `-black`, `-white`, `-pink` (coral), `-mamba` (green).
 
 `png/` holds 1200–2400 px raster exports for reference and screen use.
 **For production always use the SVG.** White PNGs are exported on a black
@@ -57,7 +57,7 @@ scale one to the other's bounding box.
 |---|---|---|---|---|
 | Black | `#07080A` | 7 · 8 · 10 | 0 / 0 / 0 / 100 | Black 6 C |
 | White | `#F4F6F8` | 244 · 246 · 248 | 0 / 0 / 0 / 0 | — |
-| **HROM** coral | `#FF6E80` | 255 · 110 · 128 | 0 / 57 / 50 / 0 | 178 C |
+| **PINK** coral | `#FF6E80` | 255 · 110 · 128 | 0 / 57 / 50 / 0 | 178 C |
 | **MAMBA** green | `#8CEF2E` | 140 · 239 · 46 | 41 / 0 / 81 / 6 | 802 C (fluorescent) |
 
 **Pantone values above are visual references, not measured matches. Please
@@ -71,7 +71,7 @@ fluorescent-range green. For print it requires a **spot / fluorescent ink**
 (Pantone 802 C family). For thread or dyed fabric, match to the HEX/RGB value and
 send a physical sample — do not convert through CMYK.
 
-HROM coral `#FF6E80` is also near the edge of CMYK gamut and will print duller in
+PINK coral `#FF6E80` is also near the edge of CMYK gamut and will print duller in
 process colour. Spot ink preferred.
 
 ---

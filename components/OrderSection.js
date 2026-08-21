@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import LiquidButton from './LiquidButton';
 import { RevealLines, RevealWords } from './Reveal';
-import { STRANE, HROM, peskirSlika } from '../lib/faction';
+import { STRANE, PINK, peskirSlika } from '../lib/faction';
 import styles from './OrderSection.module.css';
 
 const CENA_RSD = 3000;
@@ -24,9 +24,9 @@ export default function OrderSection({ strana }) {
   const [placanje, setPlacanje] = useState('kartica');
   const [poslato, setPoslato] = useState(false);
 
-  // Pre izbora strane prikazujemo HROM — ali samo kao sliku, dok tekst
+  // Pre izbora strane prikazujemo PINK — ali samo kao sliku, dok tekst
   // ostaje neutralan. Nijedna frakcija ne sme da izgleda kao podrazumevana.
-  const f = STRANE[strana || HROM];
+  const f = STRANE[strana || PINK];
 
   const roba = CENA_RSD * kolicina;
   const dostava = kolicina >= PRAG_BESPLATNE_DOSTAVE ? 0 : DOSTAVA_RSD;
@@ -48,7 +48,7 @@ export default function OrderSection({ strana }) {
         <div className={styles.media}>
           <img
             className={styles.foto}
-            src={peskirSlika(strana || HROM, null, 'hi')}
+            src={peskirSlika(strana || PINK, null, 'hi')}
             alt={`DRYKULT peškir — strana ${f.ime}`}
             draggable={false}
           />

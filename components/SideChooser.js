@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { RevealLines, RevealWords, RevealFade } from './Reveal';
-import { STRANE, HROM, MAMBA, peskirSlika } from '../lib/faction';
+import { STRANE, PINK, MAMBA, peskirSlika } from '../lib/faction';
 import { LOW, MID, uskiRaspored, imaPokazivac } from '../lib/device';
 import styles from './SideChooser.module.css';
 
@@ -155,10 +155,10 @@ export default function SideChooser({ tier, ready, izabrana, onIzbor, onNaboj })
       const dt = Math.min(0.05, (sada - prosli) / 1000);
       prosli = sada;
 
-      // `poz` je GRANICA (udeo ekrana koji drži HROM). Mapiranje je obrnuto —
+      // `poz` je GRANICA (udeo ekrana koji drži PINK). Mapiranje je obrnuto —
       // `1 - meta` — jer kursor GURA granicu od sebe: stojiš duboko u svojoj
       // strani i ona raste.
-      const cilj = izabrana === HROM ? 0.985 : izabrana === MAMBA ? 0.015 : 1 - meta;
+      const cilj = izabrana === PINK ? 0.985 : izabrana === MAMBA ? 0.015 : 1 - meta;
       poz += (cilj - poz) * (1 - Math.pow(0.0001, dt));
       if (!reduced) t += dt;
 
@@ -172,7 +172,7 @@ export default function SideChooser({ tier, ready, izabrana, onIzbor, onNaboj })
         } else if (prati) {
           // Puni se po KURSORU, ne po granici — granica kasni za kursorom.
           if (meta < PRAG) {
-            strana = HROM;
+            strana = PINK;
             jacina = (PRAG - meta) / PRAG;
           } else if (meta > 1 - PRAG) {
             strana = MAMBA;
@@ -190,7 +190,7 @@ export default function SideChooser({ tier, ready, izabrana, onIzbor, onNaboj })
           if (naboj === 0) stranaNaboja = null;
         }
         if (naboj >= 1 && stranaNaboja) {
-          const el = (stranaNaboja === HROM ? lRef : rRef).current;
+          const el = (stranaNaboja === PINK ? lRef : rRef).current;
           const r = el ? el.getBoundingClientRect() : null;
           onNaboj(stranaNaboja, {
             x: poslednjiKursor.x || (r ? r.left + r.width / 2 : window.innerWidth / 2),
@@ -203,7 +203,7 @@ export default function SideChooser({ tier, ready, izabrana, onIzbor, onNaboj })
 
       const lw = poz;
       const rw = 1 - poz;
-      const nl = stranaNaboja === HROM ? naboj : 0;
+      const nl = stranaNaboja === PINK ? naboj : 0;
       const nr = stranaNaboja === MAMBA ? naboj : 0;
       if (lRef.current) {
         lRef.current.style.setProperty('--w', lw.toFixed(3));
@@ -262,7 +262,7 @@ export default function SideChooser({ tier, ready, izabrana, onIzbor, onNaboj })
           continue;
         }
 
-        const rgb = c.strana < 0 ? STRANE[HROM].rgb : STRANE[MAMBA].rgb;
+        const rgb = c.strana < 0 ? STRANE[PINK].rgb : STRANE[MAMBA].rgb;
         // Najsvetlije uz sam šav — tamo je pritisak najveći.
         const blizina = Math.min(1, Math.abs(sx - c.x) / (W * (TOK.pojas + 0.02)));
         const sjaj = (TOK.sjaj + (1 - blizina) * 0.45) * (0.5 + moc * 0.35 + nab * 0.5);
@@ -359,7 +359,7 @@ export default function SideChooser({ tier, ready, izabrana, onIzbor, onNaboj })
       <div className={styles.smiraj} aria-hidden="true" />
 
       <div className={styles.halves}>
-        {polovina(HROM, 'l')}
+        {polovina(PINK, 'l')}
         {polovina(MAMBA, 'r')}
       </div>
 

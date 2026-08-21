@@ -87,7 +87,7 @@ function playSwoosh(ton) {
     bp.type = 'bandpass';
     bp.Q.value = 0.8;
     // Prelaz frekvencije naniže = utisak da nešto prolazi pored uha.
-    // Opseg dolazi iz frakcije: HROM viši i staklast, MAMBA niži i oštriji.
+    // Opseg dolazi iz frakcije: PINK viši i staklast, MAMBA niži i oštriji.
     bp.frequency.setValueAtTime(ton.od, ac.currentTime);
     bp.frequency.exponentialRampToValueAtTime(ton.do, ac.currentTime + dur);
 
@@ -225,10 +225,10 @@ export default function WetTransition({ active, origin, targetId, tier, side, on
     };
     towel.src = peskirSlika(side || 'mamba', tier, 'hi');
 
-    // Smer prelaza nosi frakciju: MAMBA briše zdesna nalevo, HROM sleva nadesno.
+    // Smer prelaza nosi frakciju: MAMBA briše zdesna nalevo, PINK sleva nadesno.
     // Nije ukras — posle par poseta smer sam po sebi kaže koju si stranu izabrao,
     // pre nego što stigneš da pročitaš ijedno slovo.
-    const smer = side === 'hrom' ? 1 : -1;
+    const smer = side === 'pink' ? 1 : -1;
 
     let jumped = false;
     let raf = 0;

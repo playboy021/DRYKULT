@@ -34,7 +34,7 @@ tkanju se zalije. Sve piše u `logo/SPEC.md`, §4.
 
 - [ ] Odluči šta je: kesa, kutija, ili traka oko presavijenog peškira
 - [ ] Ide `drykult-horizontal-spec` — tu ima mesta za `1000 GSM · PREMIUM MICROFIBER`
-- [ ] Boja pakovanja prati frakciju? (MAMBA zelena / HROM koralna) ili je crno za obe?
+- [ ] Boja pakovanja prati frakciju? (MAMBA zelena / PINK koralna) ili je crno za obe?
 
 **Odluka koju treba doneti:** ako pakovanje prati frakciju, to su dve odvojene
 serije štampe i dvostruko zaliha. Ako je crno za obe, jedna serija ali izbor

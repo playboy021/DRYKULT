@@ -16,7 +16,7 @@ import {
   obrisiStranu,
   primeniStranu,
   peskirSlika,
-  HROM,
+  PINK,
   MAMBA,
 } from '../lib/faction';
 import styles from '../styles/Home.module.css';
@@ -119,7 +119,7 @@ export default function VerzijaA() {
   const preload = useMemo(() => {
     if (!tier) return [];
     const v = tier === LOW ? 'sm' : 'md';
-    return [peskirSlika(HROM, tier, v), peskirSlika(MAMBA, tier, v)];
+    return [peskirSlika(PINK, tier, v), peskirSlika(MAMBA, tier, v)];
   }, [tier]);
 
   return (
