@@ -28,15 +28,26 @@ const SRC = path.join(ROOT, 'assets-src', 'drykult');
 // pa se opšiv i plišano naličje prebojavaju u drugu frakciju. To je uz to i
 // tačnije — to JESTE isti peškir, samo drugog opšiva.
 const ULAZ = 'peskir 1.png';
-const POSAO = [
-  { izlaz: 'peskir-1-logo.png', boja: '#C3F98D', hue: null },  // MAMBA — kako jeste
-  { izlaz: 'peskir-2-logo.png', boja: '#FFB3BE', hue: 353 },   // PINK — opšiv prebojen
-];
+
+// `node scripts/gen-peskir-logo.mjs proba` pravi PROBNU varijantu i ne dira
+// glavne fajlove: pun sklop (znak + logotip + spec linija) u CORE neonu, kao
+// na Flash Detail peškirima — dok osnovna varijanta nosi samo logotip u bright
+// tonu. Odluka koja ide na sajt se donosi poređenjem, ne prepisivanjem.
+const PROBA = process.argv.includes('proba');
+const POSAO = PROBA
+  ? [
+      { izlaz: 'peskir-1-proba.png', boja: '#8CEF2E', hue: null, svg: 'drykult-horizontal-spec-black.svg', udeo: 0.58 },
+      { izlaz: 'peskir-2-proba.png', boja: '#FF6E80', hue: 353, svg: 'drykult-horizontal-spec-black.svg', udeo: 0.58 },
+    ]
+  : [
+      { izlaz: 'peskir-1-logo.png', boja: '#C3F98D', hue: null, svg: 'drykult-wordmark-white.svg', udeo: 0.62 },
+      { izlaz: 'peskir-2-logo.png', boja: '#FFB3BE', hue: 353, svg: 'drykult-wordmark-white.svg', udeo: 0.62 },
+    ];
 
 // --- logotip iz našeg SVG-a ------------------------------------------------
 // Ne dupliramo geometriju: čita se isti fajl koji ide u fabriku.
-async function ucitajLogotip() {
-  const svg = await readFile(path.join(ROOT, 'logo', 'svg', 'drykult-wordmark-white.svg'), 'utf8');
+async function ucitajLogotip(ime) {
+  const svg = await readFile(path.join(ROOT, 'logo', 'svg', ime), 'utf8');
   const d = svg.match(/ d="([^"]+)"/)[1];
   const vb = svg.match(/viewBox="0 0 ([\d.]+) ([\d.]+)"/);
   const putanje = d.split('M').filter(Boolean).map((deo) =>
@@ -288,7 +299,10 @@ function prebojZeleno(D, W, H, hue) {
     // pojede štampu; prebojavanje mora da uhvati i BLEDO plišano naličje
     // (#E8F58C), kod kog crveni kanal skoro stiže zeleni — pa se poredi sa
     // plavim, koji je kod svega žuto-zelenog nizak.
-    if (D[p + 1] <= D[p + 2] + 40) continue;
+    // Prag je spušten sa +40 na +12: ISPRANI vrhovi pliša (g≈252, b≈240) su
+    // promicali i na roze peškiru ostajali kao zelenkaste fleke. Velur ne
+    // strada — njegovi odsjaji su neutralni (g ≈ b), pa i dalje preskaču.
+    if (D[p + 1] <= D[p + 2] + 12) continue;
     const mx = Math.max(r, g, b), mn = Math.min(r, g, b);
     const l = (mx + mn) / 2;
     const s = mx === mn ? 0 : (mx - mn) / (1 - Math.abs(2 * l - 1));
@@ -301,7 +315,7 @@ function prebojZeleno(D, W, H, hue) {
   }
 }
 
-for (const { izlaz, boja, hue } of POSAO) {
+for (const { izlaz, boja, hue, svg, udeo } of POSAO) {
   const ulaz = ULAZ;
   const img = await loadImage(path.join(SRC, ulaz));
   const W = img.width, H = img.height;
@@ -363,7 +377,7 @@ for (const { izlaz, boja, hue } of POSAO) {
   g.putImageData(slika, 0, 0);
 
   // --- naš logotip ---------------------------------------------------------
-  const { putanje, w: lw, h: lh } = await ucitajLogotip();
+  const { putanje, w: lw, h: lh } = await ucitajLogotip(svg);
 
   // Veličina i položaj se vezuju za CRNO TELO peškira, ne za dužinu stare
   // štampe. Stara je merena pragom svetline pa je varirala od slike do slike i
@@ -390,7 +404,7 @@ for (const { izlaz, boja, hue } of POSAO) {
   const telo = tmax - tmin;
   console.log(`  telo peškira duž ose: ${telo.toFixed(0)} px`);
 
-  const k = (telo * 0.62) / lw;
+  const k = (telo * udeo) / lw;
   const cx2 = bx + o.ux * ((tmin + tmax) / 2);
   const cy2 = by + o.uy * ((tmin + tmax) / 2);
 
