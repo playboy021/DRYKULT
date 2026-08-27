@@ -21,8 +21,8 @@ const W = 2400, H = 3000;
 const POD = 2620; // linija poda — ispod nje živi samo refleksija
 
 const SCENE = [
-  { ulaz: 'peskir-1-proba.png', izlaz: 'scena-mamba.png', ime: 'MAMBA', rgb: [140, 239, 46] },
-  { ulaz: 'peskir-2-proba.png', izlaz: 'scena-pink.png', ime: 'PINK', rgb: [255, 110, 128] },
+  { ulaz: 'peskir-1-logo.png', izlaz: 'scena-mamba.png', ime: 'MAMBA', rgb: [140, 239, 46] },
+  { ulaz: 'peskir-2-logo.png', izlaz: 'scena-pink.png', ime: 'PINK', rgb: [255, 110, 128] },
 ];
 
 // --- izrezivanje sa bele — isti recept kao gen-drykult.mjs -------------------

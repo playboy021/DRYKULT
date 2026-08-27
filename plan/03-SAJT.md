@@ -61,12 +61,11 @@ Iz `CLAUDE.md`, otvoreno pitanje 5:
 
 ## 3.5 Čišćenje pre lansiranja
 
-- [ ] `®` → `™` ili dole, tri mesta (vidi `01.2`)
+- [x] ~~`®` → `™` ili dole~~ — **odlučeno 27. 8: ostaje `®`** (vidi `01.2`)
 - [ ] `components/VersionSwitch.js` mora dole sa `/a`
 - [ ] `/a` je arhiva, ima `noindex` — proveri da tako i ostane
-- [ ] Prepisivanje git istorije: commit `7fbfdff` se zove „MEGAZ hero…".
-      Traži force push, briše postojeću istoriju na GitHub-u i pokreće nove
-      Vercel deploy-eve. **Čeka tvoju izričitu potvrdu.**
+- [x] Prepisivanje git istorije — **urađeno 27. 8** po izričitom odobrenju:
+      sve poruke commit-ova prepisane bez imena bivšeg brenda, force push.
 
 ## 3.6 Kad stignu prave slike
 

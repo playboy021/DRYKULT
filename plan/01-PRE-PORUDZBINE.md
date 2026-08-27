@@ -28,15 +28,13 @@ traje mesecima — bolje da krene sad nego kad ti neko preotme ime.
 
 **Dok registracija nije gotova ne sme `®`.** Ide `™`, koji ne traži ništa.
 
-## 1.2 `®` mora dole sa sajta
+## 1.2 `®` na sajtu
 
-Trenutno stoji `DRYKULT®` na tri mesta:
+**ODLUČENO 27. 8: ostaje `®`** — Stefanova odluka, na tri mesta
+(`SiteHeader`, `SideChooser`, `FactionView`).
 
-- [ ] `components/SiteHeader.js:62`
-- [ ] `components/SideChooser.js:365`
-- [ ] `components/FactionView.js:32`
-
-Simbol `®` sme samo uz **registrovan** žig. Reci Claude-u da skine ili zameni sa `™`.
+Napomena stoji i dalje: `®` formalno sme samo uz **registrovan** žig, pa je
+utoliko bitnije da se registracija (1.1) stvarno pokrene.
 
 ## 1.3 Domen
 

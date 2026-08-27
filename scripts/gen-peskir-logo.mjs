@@ -29,20 +29,13 @@ const SRC = path.join(ROOT, 'assets-src', 'drykult');
 // tačnije — to JESTE isti peškir, samo drugog opšiva.
 const ULAZ = 'peskir 1.png';
 
-// `node scripts/gen-peskir-logo.mjs proba` pravi PROBNU varijantu i ne dira
-// glavne fajlove: pun sklop (znak + logotip + spec linija) u CORE neonu, kao
-// na Flash Detail peškirima — dok osnovna varijanta nosi samo logotip u bright
-// tonu. Odluka koja ide na sajt se donosi poređenjem, ne prepisivanjem.
-const PROBA = process.argv.includes('proba');
-const POSAO = PROBA
-  ? [
-      { izlaz: 'peskir-1-proba.png', boja: '#8CEF2E', hue: null, svg: 'drykult-horizontal-spec-black.svg', udeo: 0.58 },
-      { izlaz: 'peskir-2-proba.png', boja: '#FF6E80', hue: 353, svg: 'drykult-horizontal-spec-black.svg', udeo: 0.58 },
-    ]
-  : [
-      { izlaz: 'peskir-1-logo.png', boja: '#C3F98D', hue: null, svg: 'drykult-wordmark-white.svg', udeo: 0.62 },
-      { izlaz: 'peskir-2-logo.png', boja: '#FFB3BE', hue: 353, svg: 'drykult-wordmark-white.svg', udeo: 0.62 },
-    ];
+// ODLUČENO 27. 8: na peškir ide PUN sklop — znak + logotip + spec linija — u
+// core neonu, kao na sklopu koji je otišao fabrici. Varijanta samo sa
+// logotipom u bright tonu je probana uporedo i odbačena.
+const POSAO = [
+  { izlaz: 'peskir-1-logo.png', boja: '#8CEF2E', hue: null, svg: 'drykult-horizontal-spec-black.svg', udeo: 0.58 },
+  { izlaz: 'peskir-2-logo.png', boja: '#FF6E80', hue: 353, svg: 'drykult-horizontal-spec-black.svg', udeo: 0.58 },
+];
 
 // --- logotip iz našeg SVG-a ------------------------------------------------
 // Ne dupliramo geometriju: čita se isti fajl koji ide u fabriku.
