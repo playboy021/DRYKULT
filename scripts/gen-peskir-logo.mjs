@@ -88,14 +88,15 @@ function nadjiNatpis(D, W, H, pojas) {
       // (plavi kanal visok), a pliš je zasićeno zelen (plavi kanal nizak).
       if (pojas) {
         const p = (y * W + x) * 4;
-        // Bledo ALI SA TONOM. Uslov `raspon > 25` odbacuje belu studijsku
-        // pozadinu, koja je isto bleda ali neutralna.
-        // Pravilo mora da bude ovako uopšteno: prva verzija je tražila „plavi
-        // niži od crvenog" i radila je samo za žuto-zelenu štampu, dok je roze
-        // štampa (visok plavi kanal) prolazila neopaženo i ostajala kao duh.
+        // Bledo ALI SA TONOM — i pritom NIJE pliš. Štampa (#FCFCBA) i pliš
+        // (#E8F58C) su varljivo slični; razlikuju se po odnosu r i g kanala:
+        // kod štampe je g ≈ r (žuto-neutralno), kod pliša g vodi za ~13.
+        // Bez uslova `g − r < 8` je ovaj izraz POJEO PLIŠ u pojasu natpisa i
+        // popunio ga crnim velurom — to su bile crne fleke po preklopu.
+        // `raspon < 85` dodatno štiti: pliš ima raspon ~105, štampa ~66.
         const mx = Math.max(D[p], D[p + 1], D[p + 2]);
         const mn = Math.min(D[p], D[p + 1], D[p + 2]);
-        if (mn > 120 && mx > 175 && mx - mn > 25) {
+        if (mn > 120 && mx > 175 && mx - mn > 25 && mx - mn < 85 && D[p + 1] - D[p] < 8) {
           maska[y * W + x] = 1;
           if ((x & 3) === 0 && (y & 3) === 0) tacke.push([x, y]);
           continue;
@@ -134,70 +135,95 @@ const prosiri = (m, W, H, r) => {
   return o;
 };
 
-// --- brisanje: piramidalni inpaint ------------------------------------------
-// Popuna po redovima ne radi. Isprobana je i pokazala dve mane koje se ne daju
-// zakrpiti: pravi vodoravne pruge, i kad su leva i desna ivica različiti
-// materijali (velur ↔ pliš) razmaže granicu.
-//
-// Ovo umesto toga radi klasičan push-pull: slika se spušta niz piramidu tako
-// što svaki nivo uprosečuje SAMO važeće piksele, pa se penje nazad i rupe puni
-// iz grubljeg nivoa. Rezultat je gladak, bez pruga i bez ivica.
-//
-// Ključno: kao IZVOR važi samo velur. Pliš i pozadina su isključeni, pa zelena
-// ne može da procuri u crno telo.
-function inpaint(D, maska, W, H) {
-  const n = W * H;
-  const vazi = new Float32Array(n);
-  const R = new Float32Array(n), G = new Float32Array(n), B = new Float32Array(n);
-  for (let i = 0; i < n; i++) {
-    const p = i * 4;
-    const pozadina = Math.min(D[p], D[p + 1], D[p + 2]) > 215;
-    const zeleno = D[p + 1] > D[p] + 15;
-    const ok = !maska[i] && !pozadina && !zeleno;
-    vazi[i] = ok ? 1 : 0;
-    R[i] = ok ? D[p] : 0;
-    G[i] = ok ? D[p + 1] : 0;
-    B[i] = ok ? D[p + 2] : 0;
+// separabilna erozija/dilatacija kvadratnim jezgrom — za razlikovanje TANKOG
+// zelenog (opšiv, ivične linije) od DEBELE mase (pliš preklopa)
+function eroduj(m, W, H, r) {
+  const t = new Uint8Array(W * H), o = new Uint8Array(W * H);
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    let v = 1;
+    for (let d = -r; d <= r; d++) { const xx = x + d; if (xx < 0 || xx >= W || !m[y * W + xx]) { v = 0; break; } }
+    t[y * W + x] = v;
   }
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    let v = 1;
+    for (let d = -r; d <= r; d++) { const yy = y + d; if (yy < 0 || yy >= H || !t[yy * W + x]) { v = 0; break; } }
+    o[y * W + x] = v;
+  }
+  return o;
+}
+function diliraj(m, W, H, r) {
+  const t = new Uint8Array(W * H), o = new Uint8Array(W * H);
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    let v = 0;
+    for (let d = -r; d <= r; d++) { const xx = x + d; if (xx >= 0 && xx < W && m[y * W + xx]) { v = 1; break; } }
+    t[y * W + x] = v;
+  }
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    let v = 0;
+    for (let d = -r; d <= r; d++) { const yy = y + d; if (yy >= 0 && yy < H && t[yy * W + x]) { v = 1; break; } }
+    o[y * W + x] = v;
+  }
+  return o;
+}
 
-  // spuštanje
-  const nivoi = [{ w: W, h: H, R, G, B, vazi }];
+
+// --- brisanje: dvoklasni piramidalni inpaint --------------------------------
+// Popuna po redovima ne radi (pruge, mešanje materijala). Jednoklasni push-pull
+// ne radi ni u jednom smeru: zabrani li se pliš kao izvor, stara štampa NA
+// PLIŠU se puni velurom (crni obrisi slova na zelenom); dozvoli li se sve,
+// pliš procuri u velur (bledi obrisi na crnom). Zato TRI push-pull prolaza:
+//   A — popuna samo iz velura;  B — popuna samo iz pliša/opšiva;
+//   M — polje materijala (0 = velur, 1 = zeleno) preko svih važećih piksela.
+// Svaka rupa uzima A ili B prema tome šta M kaže da je oko nje.
+function pushPull(W, H, kanali, vazi) {
+  const n = W * H;
+  const K = kanali.length;
+  const os = kanali.map((k) => {
+    const f = new Float32Array(n);
+    for (let i = 0; i < n; i++) f[i] = vazi[i] ? k[i] : 0;
+    return f;
+  });
+  const v0 = new Float32Array(n);
+  for (let i = 0; i < n; i++) v0[i] = vazi[i] ? 1 : 0;
+
+  const nivoi = [{ w: W, h: H, k: os, vazi: v0 }];
   let cw = W, ch = H;
   while (cw > 4 && ch > 4) {
     const nw = cw >> 1, nh = ch >> 1;
     const gore = nivoi[nivoi.length - 1];
-    const r2 = new Float32Array(nw * nh), g2 = new Float32Array(nw * nh);
-    const b2 = new Float32Array(nw * nh), v2 = new Float32Array(nw * nh);
+    const nk = Array.from({ length: K }, () => new Float32Array(nw * nh));
+    const nv = new Float32Array(nw * nh);
     for (let y = 0; y < nh; y++) {
       for (let x = 0; x < nw; x++) {
-        let sr = 0, sg = 0, sb = 0, sv = 0;
+        let sv = 0;
+        const s = new Array(K).fill(0);
         for (let dy = 0; dy < 2; dy++) {
           for (let dx = 0; dx < 2; dx++) {
             const j = (y * 2 + dy) * cw + (x * 2 + dx);
-            sr += gore.R[j]; sg += gore.G[j]; sb += gore.B[j]; sv += gore.vazi[j];
+            sv += gore.vazi[j];
+            for (let q = 0; q < K; q++) s[q] += gore.k[q][j];
           }
         }
         const i2 = y * nw + x;
-        if (sv > 0) { r2[i2] = sr / sv; g2[i2] = sg / sv; b2[i2] = sb / sv; v2[i2] = 1; }
+        if (sv > 0) { nv[i2] = 1; for (let q = 0; q < K; q++) nk[q][i2] = s[q] / sv; }
       }
     }
-    nivoi.push({ w: nw, h: nh, R: r2, G: g2, B: b2, vazi: v2 });
+    nivoi.push({ w: nw, h: nh, k: nk, vazi: nv });
     cw = nw; ch = nh;
   }
 
-  // penjanje — rupe se pune iz grubljeg nivoa
   for (let l = nivoi.length - 2; l >= 0; l--) {
     const dole = nivoi[l + 1], ovaj = nivoi[l];
     for (let y = 0; y < ovaj.h; y++) {
       for (let x = 0; x < ovaj.w; x++) {
         const i2 = y * ovaj.w + x;
         if (ovaj.vazi[i2]) continue;
-        // BILINEARNO, ne najbliži. Sa najbližim se grublji nivo vidi kao
-        // kvadratne mrlje preko celog pojasa — to je bio blokasti artefakt.
+        // bilinearno, ne najbliži — najbliži pravi kvadratne mrlje
         const fx = (x - 0.5) / 2, fy = (y - 0.5) / 2;
         const x0 = Math.floor(fx), y0 = Math.floor(fy);
         const tx = fx - x0, ty = fy - y0;
-        let sr = 0, sg = 0, sb = 0, sw = 0;
+        let sw = 0;
+        const s = new Array(K).fill(0);
         for (let dy = 0; dy < 2; dy++) {
           for (let dx = 0; dx < 2; dx++) {
             const xx = Math.min(dole.w - 1, Math.max(0, x0 + dx));
@@ -205,20 +231,110 @@ function inpaint(D, maska, W, H) {
             const j = yy * dole.w + xx;
             if (!dole.vazi[j]) continue;
             const w = (dx ? tx : 1 - tx) * (dy ? ty : 1 - ty);
-            sr += dole.R[j] * w; sg += dole.G[j] * w; sb += dole.B[j] * w; sw += w;
+            sw += w;
+            for (let q = 0; q < K; q++) s[q] += dole.k[q][j] * w;
           }
         }
         if (sw <= 0) continue;
-        ovaj.R[i2] = sr / sw; ovaj.G[i2] = sg / sw; ovaj.B[i2] = sb / sw;
         ovaj.vazi[i2] = 1;
+        for (let q = 0; q < K; q++) ovaj.k[q][i2] = s[q] / sw;
       }
     }
   }
+  return os;
+}
+
+function inpaint(D, maska, W, H) {
+  const n = W * H;
+  const R = new Float32Array(n), G = new Float32Array(n), B = new Float32Array(n);
+  const vaziSve = new Uint8Array(n);
+  const vaziVel = new Uint8Array(n);
+  const vaziZel = new Uint8Array(n);
+  for (let i = 0; i < n; i++) {
+    const p = i * 4;
+    R[i] = D[p]; G[i] = D[p + 1]; B[i] = D[p + 2];
+    const pozadina = Math.min(D[p], D[p + 1], D[p + 2]) > 215;
+    const z = D[p + 1] - D[p] >= 8 && D[p + 1] > D[p + 2] + 30;
+    const ok = !maska[i] && !pozadina;
+    vaziSve[i] = ok ? 1 : 0;
+    vaziVel[i] = ok && !z ? 1 : 0;
+    vaziZel[i] = ok && z ? 1 : 0;
+  }
+
+  const [Ar, Ag, Ab] = pushPull(W, H, [R, G, B], vaziVel);
+  const [Br, Bg, Bb] = pushPull(W, H, [R, G, B], vaziZel);
+
+  // KOJI materijal je istina za svaku rupu? Interpolirano polje je padalo na
+  // pregibu: tanka svetla ivica pliša uz sam šav "prisvoji" i velur levo od
+  // sebe, pa su se stara slova na crnom punila bledim plišom. Zato:
+  //  1. zeleno se ERODUJE (9 px) — tanke linije nestanu, ostane prava masa
+  //     pliša i opšiva;
+  //  2. materijal rupe = ono do čega je CHAMFER rastojanje kraće.
+  const EROZIJA = 9;
+  const zelJak = new Uint8Array(n);
+  // separabilni min-filter: prvo po x, pa po y
+  const tmp = new Uint8Array(n);
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      let m = 1;
+      for (let d = -EROZIJA; d <= EROZIJA; d++) {
+        const xx = x + d;
+        if (xx < 0 || xx >= W || !vaziZel[y * W + xx]) { m = 0; break; }
+      }
+      tmp[y * W + x] = m;
+    }
+  }
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      let m = 1;
+      for (let d = -EROZIJA; d <= EROZIJA; d++) {
+        const yy = y + d;
+        if (yy < 0 || yy >= H || !tmp[yy * W + x]) { m = 0; break; }
+      }
+      zelJak[y * W + x] = m;
+    }
+  }
+
+  const chamfer = (seme) => {
+    const INF = 1e9;
+    const dist = new Float32Array(n);
+    for (let i = 0; i < n; i++) dist[i] = seme[i] ? 0 : INF;
+    for (let y = 0; y < H; y++) {
+      for (let x = 0; x < W; x++) {
+        const i = y * W + x;
+        let v = dist[i];
+        if (x > 0) v = Math.min(v, dist[i - 1] + 1);
+        if (y > 0) {
+          v = Math.min(v, dist[i - W] + 1);
+          if (x > 0) v = Math.min(v, dist[i - W - 1] + 1.414);
+          if (x < W - 1) v = Math.min(v, dist[i - W + 1] + 1.414);
+        }
+        dist[i] = v;
+      }
+    }
+    for (let y = H - 1; y >= 0; y--) {
+      for (let x = W - 1; x >= 0; x--) {
+        const i = y * W + x;
+        let v = dist[i];
+        if (x < W - 1) v = Math.min(v, dist[i + 1] + 1);
+        if (y < H - 1) {
+          v = Math.min(v, dist[i + W] + 1);
+          if (x < W - 1) v = Math.min(v, dist[i + W + 1] + 1.414);
+          if (x > 0) v = Math.min(v, dist[i + W - 1] + 1.414);
+        }
+        dist[i] = v;
+      }
+    }
+    return dist;
+  };
+  const dVel = chamfer(vaziVel);
+  const dZel = chamfer(zelJak);
 
   for (let i = 0; i < n; i++) {
     if (!maska[i]) continue;
     const p = i * 4;
-    D[p] = R[i]; D[p + 1] = G[i]; D[p + 2] = B[i];
+    if (dZel[i] < dVel[i]) { D[p] = Br[i]; D[p + 1] = Bg[i]; D[p + 2] = Bb[i]; }
+    else { D[p] = Ar[i]; D[p + 1] = Ag[i]; D[p + 2] = Ab[i]; }
   }
 }
 
@@ -341,11 +457,15 @@ for (const { izlaz, boja, hue, svg, udeo } of POSAO) {
   // Širenje ne zna ni za šta — ono naduva masku u SVIM smerovima, pa i preko
   // pliša, opšiva i bele pozadine. Zato se posle njega ponovo primenjuju iste
   // zaštite. Ovo je bio uzrok kvadratnog ćoška i sivih mrlja uz preklop.
+  // Posle širenja: skida se pozadina i SVE zeleno (g vodi nad r uz jasnu
+  // prednost nad b — hvata i opšiv i pliš, a staru štampu g ≈ r ne).
+  // Probano je i puštanje debelog pliša u masku uz morfološko otvaranje —
+  // dalo je blokove na granicama popune; ova verzija je merljivo najčistija.
   for (let i = 0; i < W * H; i++) {
     if (!puna[i]) continue;
     const p = i * 4;
     const pozadina = Math.min(D[p], D[p + 1], D[p + 2]) > 215;
-    const zeleno = D[p + 1] > D[p] + 15;
+    const zeleno = D[p + 1] - D[p] >= 8 && D[p + 1] > D[p + 2] + 30;
     if (pozadina || zeleno) puna[i] = 0;
   }
 
@@ -364,6 +484,36 @@ for (const { izlaz, boja, hue, svg, udeo } of POSAO) {
   }
 
   inpaint(D, puna, W, H);
+
+  // ČIŠĆENJE BLEDIH KONTURA na veluru: antialiasing ivice starih slova su
+  // zelenkaste od podloge pa ih zelena zaštita izuzme iz maske, i ostanu kao
+  // tanke svetle linije. Pravilo: bled piksel u pojasu, NIJE zeleno, okružen
+  // pretežno tamnim → zameni prosekom tamnih suseda. Dva prolaza za linije
+  // od 2–3 piksela.
+  for (let prolaz = 0; prolaz < 3; prolaz++) {
+    const kopija = D.slice();
+    for (let y = 6; y < H - 6; y++) {
+      for (let x = 6; x < W - 6; x++) {
+        if (!uPojasu(x, y)) continue;
+        const p = (y * W + x) * 4;
+        const lum = 0.2126 * kopija[p] + 0.7152 * kopija[p + 1] + 0.0722 * kopija[p + 2];
+        if (lum < 105) continue;
+        // Zeleno se NE preskače: konture su baš zelenkaste (AA ivice na
+        // podlozi). Opšiv ne strada — uz njega je svetla pozadina, pa udeo
+        // tamnih suseda ne stiže do praga.
+        let tam = 0, uk = 0, sr2 = 0, sg2 = 0, sb2 = 0;
+        for (const [dx, dy] of [[-6, 0], [6, 0], [0, -6], [0, 6], [-4, -4], [4, 4], [-4, 4], [4, -4]]) {
+          const q = ((y + dy) * W + (x + dx)) * 4;
+          const l2 = 0.2126 * kopija[q] + 0.7152 * kopija[q + 1] + 0.0722 * kopija[q + 2];
+          uk++;
+          if (l2 < 70) { tam++; sr2 += kopija[q]; sg2 += kopija[q + 1]; sb2 += kopija[q + 2]; }
+        }
+        if (tam / uk >= 0.6) {
+          D[p] = sr2 / tam; D[p + 1] = sg2 / tam; D[p + 2] = sb2 / tam;
+        }
+      }
+    }
+  }
   // Prebojavanje ide POSLE brisanja stare štampe — inače bi se i njeni ostaci
   // prebojili pa bi duh bio u novoj boji.
   if (hue !== null) prebojZeleno(D, W, H, hue);
@@ -430,10 +580,10 @@ for (const { izlaz, boja, hue, svg, udeo } of POSAO) {
     if (S[i] < 4) continue;
     const p = i - 3;
     const lum = 0.2126 * D[p] + 0.7152 * D[p + 1] + 0.0722 * D[p + 2];
-    // Donja granica ne sme nisko. Na 0.62 je koralna štampa padala na #9E6E76 —
-    // blatnjavo i bez kontrasta na crnom. Nabori i dalje prolaze kroz štampu,
-    // samo je više ne gase.
-    const f = Math.max(0.84, Math.min(1.18, 1 + (lum - sredLum) / 130));
+    // Skoro isključeno (±6 %): na jačim vrednostima je štampa u visokoj
+    // rezoluciji izgledala izgrebano i prljavo — a čitkost izbliza je bitnija
+    // od iluzije da boja prati svaki nabor.
+    const f = Math.max(0.94, Math.min(1.06, 1 + (lum - sredLum) / 300));
     for (let kk = 0; kk < 3; kk++) S[p + kk] = Math.max(0, Math.min(255, S[p + kk] * f));
   }
   sg.putImageData(sl, 0, 0);
