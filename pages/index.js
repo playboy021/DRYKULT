@@ -51,7 +51,10 @@ export default function Home() {
 
   useEffect(() => {
     setTier(detectTier());
-    primeniStranu(PINK);
+    // MORA da bude ista strana kao `prikaz`. Dok je ovde stajala druga frakcija,
+    // peškir je bio zelen a naslov, traka i dugme roze — pola ekrana jedna
+    // strana, pola druga.
+    primeniStranu(MAMBA);
   }, []);
 
   const prikazi = useCallback((id) => {

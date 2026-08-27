@@ -22,8 +22,8 @@ const SRC = path.join(ROOT, 'assets-src', 'drykult');
 const OUT = path.join(ROOT, 'public', 'drykult');
 
 const FRAKCIJE = [
-  { id: 'mamba', src: 'peskir 1.png' },
-  { id: 'pink', src: 'peskir 2.png' },
+  { id: 'mamba', src: 'peskir-1-logo.png' },
+  { id: 'pink', src: 'peskir-2-logo.png' },
 ];
 
 // WebP, ne PNG. PNG sa alfom je bezgubitni format za FOTOGRAFIJU — peškir sa
