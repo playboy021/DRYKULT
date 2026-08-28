@@ -461,6 +461,7 @@ for (const { izlaz, hue, svg, udeo } of POSAO) {
     if (gg - r >= 8 && gg > b + 30 && lum > 170) { sr += r; sg2 += gg; sb2 += b; ns++; }
   }
   let bojaStampe = [Math.round(sr / ns), Math.round(sg2 / ns), Math.round(sb2 / ns)];
+  const plisUzorak = [...bojaStampe];
   if (hue !== null) bojaStampe = rotirajHue(bojaStampe, hue);
   const boja = `rgb(${bojaStampe.join(',')})`;
   console.log(`  boja štampe (uzorak pliša${hue !== null ? ' → hue ' + hue : ''}): ${boja}`);
@@ -516,6 +517,58 @@ for (const { izlaz, hue, svg, udeo } of POSAO) {
 
   inpaint(D, puna, W, H);
 
+  // GRUNGE NA PLIŠU → SENČENI PLIŠ. Ostaci stare štampe na senci pregiba se ne
+  // daju rekonstruisati (nema čistog izvora), ali se daju PREPOZNATI: to su
+  // tamne površine POTPUNO ZATVORENE zelenim. Velur je jedna ogromna povezana
+  // površina (~2,5 M piksela); sve ne-zeleno što je od njega odsečeno i malo —
+  // to su fleke. Pretapaju se u pliš sa zadržanim senčenjem, ne u ravnu boju.
+  {
+    const n = W * H;
+    const pripada = new Uint8Array(n);
+    for (let i2 = 0; i2 < n; i2++) {
+      const p2 = i2 * 4;
+      const poz = Math.min(D[p2], D[p2 + 1], D[p2 + 2]) > 215;
+      const z = D[p2 + 1] - D[p2] >= 8 && D[p2 + 1] > D[p2 + 2] + 30;
+      pripada[i2] = !poz && !z ? 1 : 0;
+    }
+    const oznaka = new Int32Array(n).fill(-1);
+    const velicina = [];
+    const stek = new Int32Array(n);
+    let sledeca = 0;
+    for (let i2 = 0; i2 < n; i2++) {
+      if (!pripada[i2] || oznaka[i2] >= 0) continue;
+      const id = sledeca++;
+      let vrh = 0, br = 0;
+      stek[vrh++] = i2;
+      oznaka[i2] = id;
+      while (vrh) {
+        const j = stek[--vrh];
+        br++;
+        const x = j % W;
+        if (x > 0 && pripada[j - 1] && oznaka[j - 1] < 0) { oznaka[j - 1] = id; stek[vrh++] = j - 1; }
+        if (x < W - 1 && pripada[j + 1] && oznaka[j + 1] < 0) { oznaka[j + 1] = id; stek[vrh++] = j + 1; }
+        if (j >= W && pripada[j - W] && oznaka[j - W] < 0) { oznaka[j - W] = id; stek[vrh++] = j - W; }
+        if (j < n - W && pripada[j + W] && oznaka[j + W] < 0) { oznaka[j + W] = id; stek[vrh++] = j + W; }
+      }
+      velicina[id] = br;
+    }
+    const lumP = 0.2126 * plisUzorak[0] + 0.7152 * plisUzorak[1] + 0.0722 * plisUzorak[2];
+    for (let i2 = 0; i2 < n; i2++) {
+      const id = oznaka[i2];
+      // 120k: najveća viđena fleka je ~30k, telo velura je ~2,5M — razmak ogroman
+      if (id < 0 || velicina[id] > 120000) continue;
+      const p2 = i2 * 4;
+      const lum = 0.2126 * D[p2] + 0.7152 * D[p2 + 1] + 0.0722 * D[p2 + 2];
+      // kompresija senke: duboko crno postane srednja senka, svetlo skoro ne mrda
+      const nl = 118 + (lum - 118) * 0.35;
+      const k = Math.max(0.2, nl / lumP);
+      for (let q = 0; q < 3; q++) {
+        const cilj = Math.min(255, plisUzorak[q] * k);
+        D[p2 + q] = Math.round(D[p2 + q] * 0.25 + cilj * 0.75);
+      }
+    }
+  }
+
   // ČIŠĆENJE BLEDIH KONTURA na veluru: antialiasing ivice starih slova su
   // zelenkaste od podloge pa ih zelena zaštita izuzme iz maske, i ostanu kao
   // tanke svetle linije. Pravilo: bled piksel u pojasu, NIJE zeleno, okružen
@@ -545,6 +598,32 @@ for (const { izlaz, hue, svg, udeo } of POSAO) {
       }
     }
   }
+  // PRIGUŠENI OSTACI NA PLIŠU. Izmereno na fleci: pikseli tipa [180,190,108]
+  // i [145,152,103] — zelenkasti, svetline 130–190, dok je zdrav pliš na ~245.
+  // Prolaze test "zeleno" pa ih ni maska ni popuna ne diraju. Ovde se, samo
+  // unutar pojasa natpisa, dižu ka svetlini pliša i utapaju u njegovu boju —
+  // senčenje ostaje (kompresija, ne ravnanje), fleka nestaje.
+  {
+    const lumP = 0.2126 * plisUzorak[0] + 0.7152 * plisUzorak[1] + 0.0722 * plisUzorak[2];
+    for (let y = 0; y < H; y++) {
+      for (let x = 0; x < W; x++) {
+        if (!uPojasu(x, y)) continue;
+        const p2 = (y * W + x) * 4;
+        const r = D[p2], gg = D[p2 + 1], b = D[p2 + 2];
+        // labaviji test nego drugde: fleka ima i piksele sa g-r od samo 4
+        if (gg - r < 4 || gg <= b + 25) continue;
+        const lum = 0.2126 * r + 0.7152 * gg + 0.0722 * b;
+        if (lum >= 205 || lum < 40) continue;
+        const nl = 205 + (lum - 205) * 0.25;
+        const k = nl / lum;
+        for (let q = 0; q < 3; q++) {
+          const cilj = Math.min(255, plisUzorak[q] * (nl / lumP));
+          D[p2 + q] = Math.round(Math.min(255, D[p2 + q] * k) * 0.45 + cilj * 0.55);
+        }
+      }
+    }
+  }
+
   // Prebojavanje ide POSLE brisanja stare štampe — inače bi se i njeni ostaci
   // prebojili pa bi duh bio u novoj boji.
   if (hue !== null) prebojZeleno(D, W, H, hue);
