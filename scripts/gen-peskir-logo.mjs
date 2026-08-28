@@ -32,9 +32,10 @@ const ULAZ = 'peskir 1.png';
 // ODLUČENO 27. 8: na peškir ide PUN sklop — znak + logotip + spec linija — u
 // core neonu, kao na sklopu koji je otišao fabrici. Varijanta samo sa
 // logotipom u bright tonu je probana uporedo i odbačena.
+// Boja štampe se NE zadaje — uzorkuje se sa pliša (vidi dole u petlji).
 const POSAO = [
-  { izlaz: 'peskir-1-logo.png', boja: '#8CEF2E', hue: null, svg: 'drykult-horizontal-spec-black.svg', udeo: 0.58 },
-  { izlaz: 'peskir-2-logo.png', boja: '#FF6E80', hue: 353, svg: 'drykult-horizontal-spec-black.svg', udeo: 0.58 },
+  { izlaz: 'peskir-1-logo.png', hue: null, svg: 'drykult-horizontal-spec-black.svg', udeo: 0.58 },
+  { izlaz: 'peskir-2-logo.png', hue: 353, svg: 'drykult-horizontal-spec-black.svg', udeo: 0.58 },
 ];
 
 // --- logotip iz našeg SVG-a ------------------------------------------------
@@ -398,6 +399,22 @@ function osa(tacke) {
   return { cx, cy, ug, ux, uy, od: p(0.01), do: p(0.99) };
 }
 
+// Rotacija tona jedne boje uz očuvanje svetline i zasićenosti — ista
+// transformacija kojom se preboji pliš, pa štampa i naličje OSTANU ISTA BOJA
+// i na roze peškiru.
+function rotirajHue([R2, G2, B2], hue) {
+  const r = R2 / 255, g = G2 / 255, b = B2 / 255;
+  const mx = Math.max(r, g, b), mn = Math.min(r, g, b);
+  const l = (mx + mn) / 2;
+  const s = mx === mn ? 0 : (mx - mn) / (1 - Math.abs(2 * l - 1));
+  const c = (1 - Math.abs(2 * l - 1)) * s;
+  const x = c * (1 - Math.abs(((hue / 60) % 2) - 1));
+  const m = l - c / 2;
+  const t = hue < 60 ? [c, x, 0] : hue < 120 ? [x, c, 0] : hue < 180 ? [0, c, x]
+    : hue < 240 ? [0, x, c] : hue < 300 ? [x, 0, c] : [c, 0, x];
+  return t.map((v) => Math.round((v + m) * 255));
+}
+
 // Prebojavanje opšiva i plišanog naličja u drugu frakciju. Menja se SAMO ton,
 // a svetlina i zasićenost ostaju — tako nabori, senke i sjaj tkanine prežive.
 function prebojZeleno(D, W, H, hue) {
@@ -424,7 +441,7 @@ function prebojZeleno(D, W, H, hue) {
   }
 }
 
-for (const { izlaz, boja, hue, svg, udeo } of POSAO) {
+for (const { izlaz, hue, svg, udeo } of POSAO) {
   const ulaz = ULAZ;
   const img = await loadImage(path.join(SRC, ulaz));
   const W = img.width, H = img.height;
@@ -433,6 +450,20 @@ for (const { izlaz, boja, hue, svg, udeo } of POSAO) {
   g.drawImage(img, 0, 0);
   const slika = g.getImageData(0, 0, W, H);
   const D = slika.data;
+
+  // BOJA ŠTAMPE = BOJA NALIČJA, po odluci. Ne pogađa se hex — uzorkuje se
+  // osvetljeni pliš sa same fotke, pa logotip i naličje ne mogu da se raziđu.
+  // Za roze se isti uzorak provuče kroz istu hue-rotaciju kao i pliš.
+  let sr = 0, sg2 = 0, sb2 = 0, ns = 0;
+  for (let i = 0; i < D.length; i += 4) {
+    const r = D[i], gg = D[i + 1], b = D[i + 2];
+    const lum = 0.2126 * r + 0.7152 * gg + 0.0722 * b;
+    if (gg - r >= 8 && gg > b + 30 && lum > 170) { sr += r; sg2 += gg; sb2 += b; ns++; }
+  }
+  let bojaStampe = [Math.round(sr / ns), Math.round(sg2 / ns), Math.round(sb2 / ns)];
+  if (hue !== null) bojaStampe = rotirajHue(bojaStampe, hue);
+  const boja = `rgb(${bojaStampe.join(',')})`;
+  console.log(`  boja štampe (uzorak pliša${hue !== null ? ' → hue ' + hue : ''}): ${boja}`);
 
   // Prvi prolaz nađe GDE je natpis, drugi ga očisti do mekih ivica unutar
   // pojasa. Jedan prolaz nije dovoljan: strog prag ostavlja duhove stare

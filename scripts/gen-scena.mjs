@@ -74,7 +74,23 @@ const znak = await znakPutanje();
 for (const { ulaz, izlaz, ime, rgb } of SCENE) {
   const img = await loadImage(path.join(SRC, ulaz));
   const isecak = izrezi(img);
-  const [R, G, B] = rgb;
+  // Boja scene se UZORKUJE sa samog peškira (svetli zasićeni pikseli = pliš i
+  // štampa, koji su sada ista boja) — sjaj, žig i HUD tako ne mogu da se
+  // raziđu sa proizvodom. Konstanta iz SCENE ostaje samo kao rezerva.
+  let [R, G, B] = rgb;
+  {
+    const ic = isecak.getContext('2d');
+    const d = ic.getImageData(0, 0, isecak.width, isecak.height).data;
+    let sr = 0, sg = 0, sb = 0, n2 = 0;
+    for (let i = 0; i < d.length; i += 16) {
+      if (d[i + 3] < 200) continue;
+      const r = d[i], g2 = d[i + 1], b2 = d[i + 2];
+      const mx = Math.max(r, g2, b2), mn = Math.min(r, g2, b2);
+      const lum = 0.2126 * r + 0.7152 * g2 + 0.0722 * b2;
+      if (lum > 160 && mx - mn > 40) { sr += r; sg += g2; sb += b2; n2++; }
+    }
+    if (n2 > 500) { R = Math.round(sr / n2); G = Math.round(sg / n2); B = Math.round(sb / n2); }
+  }
   const boja = (a) => `rgba(${R},${G},${B},${a})`;
 
   const c = createCanvas(W, H);
