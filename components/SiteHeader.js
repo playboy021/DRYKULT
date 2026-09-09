@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { STRANE } from '../lib/faction';
+import { STRANE, DOSTUPNE } from '../lib/faction';
 import styles from './SiteHeader.module.css';
 
 // Gornja traka + navigacija.
@@ -76,11 +76,13 @@ export default function SiteHeader({ strana, prozirna, onPocetna, onPromeni }) {
         </div>
 
         <div className={styles.desno}>
+          {/* "promeni" postoji samo dok ima na šta da se promeni. Sa jednom
+              dostupnom stranom bi vodio nazad na izbor u kom nema izbora. */}
           {f && (
             <button type="button" className={styles.znak} onClick={onPromeni}>
               <span className={styles.tacka} aria-hidden="true" />
               {f.ime}
-              <span className={styles.promeni}>promeni</span>
+              {DOSTUPNE.length > 1 && <span className={styles.promeni}>promeni</span>}
             </button>
           )}
           <span className={styles.cena}>3.000 RSD</span>

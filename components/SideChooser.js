@@ -389,7 +389,7 @@ export default function SideChooser({ tier, ready, izabrana, onIzbor, onNaboj })
         <RevealFade className={styles.trust} ready={ready} delay={1240}>
           <span className={styles.markets}>RS · BA · ME</span>
           <span className={styles.sep} aria-hidden="true" />
-          <span>90 × 70 cm · 850 GSM · twisted-loop</span>
+          <span>90 × 70 cm · 1000 GSM · twisted-loop</span>
         </RevealFade>
       </div>
     </section>

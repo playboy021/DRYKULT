@@ -1,24 +1,31 @@
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
-import { STRANE, PINK, MAMBA, peskirSlika } from '../lib/faction';
-import { LOW, MID } from '../lib/device';
+import { MAMBA, STRANE, peskirSlika } from '../lib/faction';
+import { LOW, MID, imaPokazivac } from '../lib/device';
 import styles from './TowelStage.module.css';
 
-// 3D scena hero-a (verzija B).
+// 3D scena hero-a.
 //
 // Referenca (thewatch / soda) koristi <model-viewer> i .glb, jer je njihov
 // proizvod KRUT — limenka i sat se samo okreću. Peškir je TKANINA: kruti model
 // bi bio ravna ploča koja rotira, i to bi ga prikazalo kao karton.
 //
 // Zato je ovde ravan sa podelom čiji vertex shader talasa mrežu, obučena
-// NAŠOM PRAVOM teksturom proizvoda. Isti utisak (proizvod lebdi i prati kursor),
-// ali tačniji za ono što prodajemo — i bez ijednog izmišljenog poligona.
+// NAŠOM PRAVOM teksturom proizvoda — od 9. 9. 2026. to je fabrički render
+// zelenog peškira sa crnom štampom, VODORAVAN (1,356:1). Odnos strana se ČITA
+// iz teksture kad stigne, ne piše se ovde: prošla verzija je imala upisan
+// 1000/1286 i prva slika drugog formata bi izdužila logo.
 //
-// Oko peškira lebde zmije (MAMBA) ili srca (PINK), sa parallaxom i odbijanjem
-// od pokazivača. Slike su generisane NA ČISTOJ CRNOJ i idu kroz aditivno
-// mešanje — crno tako samo nestane, bez ijednog izrezivanja.
+// Oko peškira su KAPI VODE u 3D — prave tačke u sceni, sa dubinom: prolaze
+// iza peškira i ispred njega, i dubinski bafer ih zaklanja tamo gde treba.
+// CSS mehurići iz prve verzije su bili ravni sloj preko svega; ovi žive u
+// istom prostoru kao proizvod.
+//
+// LET NA SKROL (samo sa pokazivačem, ZAKON 4.2 — telefon nema scrub): dok se
+// hero skroluje, peškir se izvija, podiže i tone u providnost, a kapi ubrzaju
+// nagore. Kao kod thewatch — proizvod ne stoji dok stranica prolazi pored njega.
 
-const SATELITA = { [LOW]: 5, [MID]: 8, high: 12 };
+const KAPI = { [LOW]: 0, [MID]: 150, high: 280 };
 
 const VERT = /* glsl */ `
   uniform float uTime;
@@ -42,25 +49,51 @@ const VERT = /* glsl */ `
 `;
 
 const FRAG = /* glsl */ `
-  uniform sampler2D uMapA;
-  uniform sampler2D uMapB;
-  uniform float uMix;
+  uniform sampler2D uMap;
   uniform float uSjaj;
+  uniform float uAlfa;
   varying vec2 vUv;
   varying float vNagib;
   void main() {
-    vec4 a = texture2D(uMapA, vUv);
-    vec4 b = texture2D(uMapB, vUv);
-    vec4 c = mix(a, b, uMix);
+    vec4 c = texture2D(uMap, vUv);
     if (c.a < 0.02) discard;
     // Prelomi tkanine hvataju svetlo: gde je talas najizraženiji, tu je i
     // odsjaj. To je ono što ravnu sliku pretvara u krpu.
     c.rgb += vNagib * uSjaj;
+    c.a *= uAlfa;
     gl_FragColor = c;
   }
 `;
 
-export default function TowelStage({ tier, strana, izabrana, onTilt, satelitSlike }) {
+// Kap: tačka koja se crta kao kuglica — providno telo, obod u boji frakcije,
+// beli odsjaj gore-levo. Veličina u pikselima opada sa dubinom, pa se i bez
+// ijednog poligona vidi šta je blizu a šta daleko.
+const KAP_VERT = /* glsl */ `
+  attribute float aVel;
+  uniform float uPix;
+  void main() {
+    vec4 mv = modelViewMatrix * vec4(position, 1.0);
+    gl_PointSize = aVel * uPix / -mv.z;
+    gl_Position = projectionMatrix * mv;
+  }
+`;
+
+const KAP_FRAG = /* glsl */ `
+  uniform vec3 uBoja;
+  void main() {
+    vec2 q = gl_PointCoord - 0.5;
+    float d = length(q);
+    if (d > 0.5) discard;
+    float telo = 1.0 - smoothstep(0.42, 0.5, d);
+    float rub = smoothstep(0.26, 0.5, d) * telo;
+    float sjaj = 1.0 - smoothstep(0.0, 0.2, length(q - vec2(-0.13, -0.15)));
+    vec3 c = uBoja * (0.3 + rub * 0.9) + vec3(1.0) * sjaj;
+    float a = telo * (0.08 + rub * 0.5 + sjaj * 0.85);
+    gl_FragColor = vec4(c, a);
+  }
+`;
+
+export default function TowelStage({ tier, strana, izabrana, onTilt }) {
   const hostRef = useRef(null);
   const apiRef = useRef(null);
 
@@ -68,6 +101,8 @@ export default function TowelStage({ tier, strana, izabrana, onTilt, satelitSlik
     const host = hostRef.current;
     if (!host) return;
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // Let na skrol traži pokazivač: bez njega nema ni skroba ni praćenja.
+    const letenje = imaPokazivac() && !reduced && tier !== LOW;
 
     const scena = new THREE.Scene();
     const kamera = new THREE.PerspectiveCamera(35, 1, 0.1, 100);
@@ -77,18 +112,33 @@ export default function TowelStage({ tier, strana, izabrana, onTilt, satelitSlik
     render.setPixelRatio(Math.min(window.devicePixelRatio, tier === LOW ? 1.5 : 2));
     host.appendChild(render.domElement);
 
-    const ucitaj = new THREE.TextureLoader();
-    const texA = ucitaj.load(peskirSlika(PINK, tier, 'hi'));
-    const texB = ucitaj.load(peskirSlika(MAMBA, tier, 'hi'));
-    for (const t of [texA, texB]) {
-      t.colorSpace = THREE.SRGBColorSpace;
-      t.anisotropy = 4;
-    }
-
-    // Peškir je 1000×1286 — odnos se mora poštovati, inače se logo izduži.
-    const ODNOS = 1000 / 1286;
+    // --- peškir ---------------------------------------------------------------
     const VIS = 3.1;
-    const geo = new THREE.PlaneGeometry(VIS * ODNOS, VIS, 40, 48);
+    let odnos = 1.356; // rezerva do dolaska teksture; prava vrednost se čita iz slike
+    let osnovna = 1; // skala da peškir stane u kadar
+    const vidno = { w: 1, h: 1 }; // vidljivi prostor na z = 0
+
+    const uklopi = () => {
+      // 84% vidljive širine i 90% visine — koliko god da je ekran uzak,
+      // peškir ostaje ceo u kadru umesto da ga kamera seče.
+      osnovna = Math.min(1, (0.84 * vidno.w) / (VIS * odnos), (0.9 * vidno.h) / VIS);
+    };
+
+    const ucitaj = new THREE.TextureLoader();
+    const peskir = new THREE.Mesh();
+    const postaviOdnos = (o) => {
+      odnos = o;
+      peskir.geometry?.dispose();
+      peskir.geometry = new THREE.PlaneGeometry(VIS * odnos, VIS, 48, 36);
+      uklopi();
+    };
+    const tex = ucitaj.load(peskirSlika(MAMBA, tier, 'hi'), (t) => {
+      if (t.image?.width && t.image?.height) postaviOdnos(t.image.width / t.image.height);
+    });
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.anisotropy = 4;
+    postaviOdnos(odnos);
+
     const mat = new THREE.ShaderMaterial({
       vertexShader: VERT,
       fragmentShader: FRAG,
@@ -96,64 +146,72 @@ export default function TowelStage({ tier, strana, izabrana, onTilt, satelitSlik
       uniforms: {
         uTime: { value: 0 },
         uTalas: { value: 1 },
-        uMapA: { value: texA },
-        uMapB: { value: texB },
-        uMix: { value: strana === MAMBA ? 1 : 0 },
-        uSjaj: { value: 0.35 },
+        uMap: { value: tex },
+        uSjaj: { value: 0.28 },
+        uAlfa: { value: 1 },
       },
     });
-    const peskir = new THREE.Mesh(geo, mat);
+    peskir.material = mat;
     const grupa = new THREE.Group();
     grupa.add(peskir);
     scena.add(grupa);
 
-    // --- sateliti (zmije / srca) ---------------------------------------------
-    // Opciono. Prosleđuje se par slika { pink, mamba }; bez njih scena je
-    // samo peškir. Slike se očekuju NA ČISTOJ CRNOJ jer idu kroz aditivno
-    // mešanje — crno tako samo nestane, bez ijednog izrezivanja.
-    const satTexH = satelitSlike?.pink ? ucitaj.load(satelitSlike.pink) : null;
-    const satTexM = satelitSlike?.mamba ? ucitaj.load(satelitSlike.mamba) : null;
-    for (const t of [satTexH, satTexM]) if (t) t.colorSpace = THREE.SRGBColorSpace;
-
-    const brojSat = satTexH || satTexM ? SATELITA[tier] || SATELITA.high : 0;
-    const sateliti = [];
-    for (let i = 0; i < brojSat; i++) {
-      const m = new THREE.SpriteMaterial({
-        map: strana === MAMBA ? satTexM || satTexH : satTexH || satTexM,
-        blending: THREE.AdditiveBlending,
-        depthWrite: false,
-        transparent: true,
-        opacity: 0.85,
-      });
-      const s = new THREE.Sprite(m);
-      const ugao = (i / brojSat) * Math.PI * 2 + Math.random() * 0.5;
-      const r = 2.1 + Math.random() * 1.5;
-      s.userData = {
-        ugao,
-        r,
-        y: (Math.random() - 0.5) * 3.4,
-        z: (Math.random() - 0.5) * 2.6,
-        brzina: 0.1 + Math.random() * 0.25,
-        vel: 0.42 + Math.random() * 0.5,
+    // --- kapi -----------------------------------------------------------------
+    const brojKapi = KAPI[tier] ?? KAPI.high;
+    const boja = new THREE.Color(STRANE[MAMBA].core);
+    const poz = new Float32Array(brojKapi * 3);
+    const vel = new Float32Array(brojKapi);
+    const kapi = [];
+    for (let i = 0; i < brojKapi; i++) {
+      // Dubina ide od -2.6 (iza peškira) do +2.4 (ispred). Peškir je na 0 sa
+      // depthWrite, pa kapi iza njega stvarno nestaju iza tkanine.
+      const k = {
+        x: (Math.random() - 0.5) * 9,
+        y: (Math.random() - 0.5) * 7,
+        z: (Math.random() - 0.5) * 5 - 0.1,
+        brz: 0.12 + Math.random() * 0.3,
         faza: Math.random() * Math.PI * 2,
         ox: 0,
-        oy: 0, // odbijanje od pokazivača
+        oy: 0,
       };
-      s.scale.setScalar(s.userData.vel);
-      scena.add(s);
-      sateliti.push(s);
+      kapi.push(k);
+      vel[i] = 0.05 + Math.pow(Math.random(), 1.6) * 0.19; // mnogo sitnih, malo krupnih
     }
+    const kapGeo = new THREE.BufferGeometry();
+    kapGeo.setAttribute('position', new THREE.BufferAttribute(poz, 3));
+    kapGeo.setAttribute('aVel', new THREE.BufferAttribute(vel, 1));
+    const kapMat = new THREE.ShaderMaterial({
+      vertexShader: KAP_VERT,
+      fragmentShader: KAP_FRAG,
+      transparent: true,
+      depthWrite: false, // kapi ne zaklanjaju jedna drugu
+      depthTest: true, // ali ih peškir zaklanja
+      uniforms: {
+        uPix: { value: 400 },
+        uBoja: { value: boja },
+      },
+    });
+    const tacke = new THREE.Points(kapGeo, kapMat);
+    tacke.frustumCulled = false;
+    if (brojKapi) scena.add(tacke);
 
     // --- veličina -------------------------------------------------------------
+    let hostH = 1;
     const razmeri = () => {
       const r = host.getBoundingClientRect();
       const w = Math.max(1, r.width);
       const h = Math.max(1, r.height);
+      hostH = h;
       render.setSize(w, h, false);
       kamera.aspect = w / h;
       // Na uskom ekranu se kamera odmiče da peškir ne izađe iz kadra.
       kamera.position.z = w / h < 0.9 ? 8.4 : 6;
       kamera.updateProjectionMatrix();
+      vidno.h = 2 * Math.tan((kamera.fov * Math.PI) / 360) * kamera.position.z;
+      vidno.w = vidno.h * kamera.aspect;
+      uklopi();
+      // gl_PointSize je u pikselima BAFERA, pa množi i pixel ratio
+      kapMat.uniforms.uPix.value = h * 0.62 * render.getPixelRatio();
     };
     razmeri();
     const ro = new ResizeObserver(razmeri);
@@ -162,33 +220,31 @@ export default function TowelStage({ tier, strana, izabrana, onTilt, satelitSlik
     // --- kursor ---------------------------------------------------------------
     const mis = { x: 0, y: 0 };
     const glatko = { x: 0, y: 0 };
-    const misPx = new THREE.Vector2(-9999, -9999);
+    let misAktivan = false;
     const onMove = (e) => {
       const r = host.getBoundingClientRect();
       mis.x = (e.clientX - r.left) / r.width - 0.5;
       mis.y = (e.clientY - r.top) / r.height - 0.5;
-      misPx.set(e.clientX - r.left, e.clientY - r.top);
+      misAktivan = true;
       onTilt?.(mis.x + 0.5);
     };
     const onLeave = () => {
       mis.x = 0;
       mis.y = 0;
-      misPx.set(-9999, -9999);
+      misAktivan = false;
     };
     host.addEventListener('pointermove', onMove, { passive: true });
     host.addEventListener('pointerleave', onLeave, { passive: true });
 
     // --- prebacivanje strane --------------------------------------------------
-    let obrt = 0; // dodatni obrt tokom zamene
-    let ciljMix = strana === MAMBA ? 1 : 0;
+    // Zadržano za trenutak kad se druga strana otključa: obrt od 720° sa
+    // zamenom teksture na vrhu. Zaključana strana se ignoriše.
+    let obrt = 0;
     let zamena = null;
-
     apiRef.current = {
       prebaci(nova) {
-        if (zamena) return;
-        const kraj = nova === MAMBA ? 1 : 0;
-        if (kraj === ciljMix) return;
-        zamena = { t: 0, kraj, zamenjeno: false, nova };
+        if (zamena || !nova || STRANE[nova]?.zakljucano || nova === MAMBA) return;
+        zamena = { t: 0 };
       },
     };
 
@@ -205,67 +261,75 @@ export default function TowelStage({ tier, strana, izabrana, onTilt, satelitSlik
       glatko.x += (mis.x - glatko.x) * (1 - Math.pow(0.0001, dt));
       glatko.y += (mis.y - glatko.y) * (1 - Math.pow(0.0001, dt));
 
+      // Napredak skrola kroz hero, ublažen. 0 na vrhu, 1 kad hero izađe.
+      const p = letenje ? Math.min(1, Math.max(0, window.scrollY / (hostH * 0.85))) : 0;
+      const pe = p * p * (3 - 2 * p);
+
       if (zamena) {
         zamena.t += dt;
-        const p = Math.min(1, zamena.t / 1.5);
-        // Obrt od 720 stepeni; tekstura se menja na VRHU, kad je peškir
-        // bočno okrenut i praktično nevidljiv — zamena se tako ne vidi.
-        obrt = p * Math.PI * 4;
-        if (!zamena.zamenjeno && p > 0.5) {
-          zamena.zamenjeno = true;
-          ciljMix = zamena.kraj;
-          const nt = zamena.nova === MAMBA ? satTexM || satTexH : satTexH || satTexM;
-          if (nt) for (const s of sateliti) s.material.map = nt;
-        }
-        if (p >= 1) {
+        const q = Math.min(1, zamena.t / 1.5);
+        obrt = q * Math.PI * 4;
+        if (q >= 1) {
           obrt = 0;
           zamena = null;
         }
       }
 
       mat.uniforms.uTime.value = t;
-      mat.uniforms.uMix.value += (ciljMix - mat.uniforms.uMix.value) * Math.min(1, dt * 6);
+      // U letu tkanina leprša jače, i tone u providnost — ne nestaje naglo.
+      mat.uniforms.uTalas.value = 1 + pe * 1.3;
+      mat.uniforms.uAlfa.value = 1 - pe * 0.92;
 
-      // Peškir prati kursor, ali sa ograničenim uglom — preko toga se vidi
-      // da je ravan, a ne tkanina.
-      grupa.rotation.y = glatko.x * 0.9 + obrt;
-      grupa.rotation.x = glatko.y * 0.5;
-      grupa.position.y = Math.sin(t * 0.8) * 0.12;
+      // Peškir prati kursor sa ograničenim uglom — preko toga se vidi da je
+      // ravan, a ne tkanina. Na skrol se izvija, diže i odlazi ka kameri.
+      grupa.rotation.y = glatko.x * 0.9 + obrt + pe * Math.PI * 0.7;
+      grupa.rotation.x = glatko.y * 0.5 - pe * 0.42;
+      grupa.rotation.z = pe * 0.22;
+      grupa.position.y = Math.sin(t * 0.8) * 0.12 + pe * 2.4;
+      grupa.position.z = pe * 1.2;
 
       // Izabrana strana: peškir se primakne i smiri.
       const cilj = izabrana ? 1.12 : 1;
-      grupa.scale.x += (cilj - grupa.scale.x) * Math.min(1, dt * 3);
+      const zeljena = osnovna * cilj * (1 - pe * 0.25);
+      grupa.scale.x += (zeljena - grupa.scale.x) * Math.min(1, dt * 3);
       grupa.scale.y = grupa.scale.z = grupa.scale.x;
 
-      for (const s of sateliti) {
-        const u = s.userData;
-        u.ugao += u.brzina * dt;
-        const x = Math.cos(u.ugao) * u.r;
-        const z = Math.sin(u.ugao) * u.r + u.z;
-        const y = u.y + Math.sin(t * 0.7 + u.faza) * 0.28;
+      // --- kapi ---------------------------------------------------------------
+      if (brojKapi) {
+        const mx = glatko.x * vidno.w;
+        const my = -glatko.y * vidno.h;
+        const ubrzanje = 1 + pe * 7;
+        for (let i = 0; i < brojKapi; i++) {
+          const k = kapi[i];
+          k.y += k.brz * ubrzanje * dt;
+          k.x += Math.sin(t * 0.9 + k.faza) * 0.16 * dt;
 
-        // Odbijanje od pokazivača: satelit se projektuje u ekran i beži
-        // od kursora. Isto što rade sa trešnjama u referenci.
-        s.position.set(x + u.ox, y + u.oy, z);
-        const p = s.position.clone().project(kamera);
-        const r = host.getBoundingClientRect();
-        const ex = (p.x * 0.5 + 0.5) * r.width;
-        const ey = (-p.y * 0.5 + 0.5) * r.height;
-        const dx = ex - misPx.x;
-        const dy = ey - misPx.y;
-        const d = Math.hypot(dx, dy);
-        let cx = 0;
-        let cy = 0;
-        if (d < 320 && d > 0.001) {
-          const sila = (320 - d) / 320;
-          cx = (dx / d) * sila * 1.1;
-          cy = (-dy / d) * sila * 1.1;
+          // Odbijanje od pokazivača — samo kapi blizu ravni peškira, jer
+          // kursor živi u toj ravni; daleke ne reaguju i to je tačno.
+          let cx = 0;
+          let cy = 0;
+          if (misAktivan && Math.abs(k.z) < 1.4) {
+            const dx = k.x - mx;
+            const dy = k.y - my;
+            const d = Math.hypot(dx, dy);
+            if (d < 1.2 && d > 0.001) {
+              const sila = (1.2 - d) / 1.2;
+              cx = (dx / d) * sila * 0.9;
+              cy = (dy / d) * sila * 0.9;
+            }
+          }
+          k.ox += (cx - k.ox) * Math.min(1, dt * 5);
+          k.oy += (cy - k.oy) * Math.min(1, dt * 5);
+
+          if (k.y > 3.8) {
+            k.y = -3.8;
+            k.x = (Math.random() - 0.5) * 9;
+          }
+          poz[i * 3] = k.x + k.ox;
+          poz[i * 3 + 1] = k.y + k.oy;
+          poz[i * 3 + 2] = k.z;
         }
-        u.ox += (cx - u.ox) * Math.min(1, dt * 5);
-        u.oy += (cy - u.oy) * Math.min(1, dt * 5);
-
-        // Sателiti iza peškira su prigušeni, da ne prave šum preko proizvoda.
-        s.material.opacity = z < 0 ? 0.4 : 0.85;
+        kapGeo.attributes.position.needsUpdate = true;
       }
 
       render.render(scena, kamera);
@@ -288,13 +352,11 @@ export default function TowelStage({ tier, strana, izabrana, onTilt, satelitSlik
       document.removeEventListener('visibilitychange', onVis);
       host.removeEventListener('pointermove', onMove);
       host.removeEventListener('pointerleave', onLeave);
-      geo.dispose();
+      peskir.geometry?.dispose();
       mat.dispose();
-      texA.dispose();
-      texB.dispose();
-      satTexH?.dispose();
-      satTexM?.dispose();
-      for (const s of sateliti) s.material.dispose();
+      tex.dispose();
+      kapGeo.dispose();
+      kapMat.dispose();
       render.dispose();
       if (render.domElement.parentNode) render.domElement.parentNode.removeChild(render.domElement);
     };
@@ -304,7 +366,7 @@ export default function TowelStage({ tier, strana, izabrana, onTilt, satelitSlik
   }, [tier, izabrana]);
 
   useEffect(() => {
-    apiRef.current?.prebaci(strana || PINK);
+    apiRef.current?.prebaci(strana || MAMBA);
   }, [strana]);
 
   return <div ref={hostRef} className={styles.host} aria-hidden="true" />;

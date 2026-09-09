@@ -19,9 +19,11 @@
   justify-content: center;
 }
 
+/* Peškir je sada VODORAVAN (1,356:1) — 62svh visine bi mu dalo 84svh širine i
+   pregazilo kolonu. 54svh ga drži u kadru, a i dalje je najveća stvar na ekranu. */
 .towel {
   width: auto;
-  height: 62svh;
+  height: 54svh;
   max-width: 100%;
   object-fit: contain;
   filter: drop-shadow(0 2.5rem 5rem rgba(var(--f-rgb), 0.28));

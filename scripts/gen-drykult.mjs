@@ -21,8 +21,14 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SRC = path.join(ROOT, 'assets-src', 'drykult');
 const OUT = path.join(ROOT, 'public', 'drykult');
 
+// MAMBA sada ide iz FABRIČKOG rendera (peskir-zeleni.png): zeleno telo, crn
+// opšiv i crna štampa, već sa providnom pozadinom. Ključ po luminansi mu ništa
+// ne radi (zeleno je zasićeno pa ostaje, crno je tamno pa ostaje, providno je
+// već providno) — pa isti `cut()` radi bez izmene. Odnos strana je 1,356:1,
+// VODORAVAN — TowelStage ga zato čita iz teksture umesto da ga ima upisan.
+// PINK ostaje na starom izvoru samo zbog arhive na /a; na glavnoj je zaključan.
 const FRAKCIJE = [
-  { id: 'mamba', src: 'peskir-1-logo.png' },
+  { id: 'mamba', src: 'peskir-zeleni.png' },
   { id: 'pink', src: 'peskir-2-logo.png' },
 ];
 

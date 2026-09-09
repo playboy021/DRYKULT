@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import LiquidButton from './LiquidButton';
 import { RevealLines, RevealWords } from './Reveal';
-import { STRANE, PINK, peskirSlika } from '../lib/faction';
+import { STRANE, MAMBA, peskirSlika } from '../lib/faction';
 import styles from './OrderSection.module.css';
 
 const CENA_RSD = 3000;
@@ -24,9 +24,9 @@ export default function OrderSection({ strana }) {
   const [placanje, setPlacanje] = useState('kartica');
   const [poslato, setPoslato] = useState(false);
 
-  // Pre izbora strane prikazujemo PINK — ali samo kao sliku, dok tekst
-  // ostaje neutralan. Nijedna frakcija ne sme da izgleda kao podrazumevana.
-  const f = STRANE[strana || PINK];
+  // Rezerva je MAMBA: jedina strana koja se trenutno može naručiti. PINK je
+  // zaključan dok se ženska verzija ne napravi (lib/faction.js).
+  const f = STRANE[strana || MAMBA];
 
   const roba = CENA_RSD * kolicina;
   const dostava = kolicina >= PRAG_BESPLATNE_DOSTAVE ? 0 : DOSTAVA_RSD;
@@ -48,7 +48,7 @@ export default function OrderSection({ strana }) {
         <div className={styles.media}>
           <img
             className={styles.foto}
-            src={peskirSlika(strana || PINK, null, 'hi')}
+            src={peskirSlika(strana || MAMBA, null, 'hi')}
             alt={`DRYKULT peškir — strana ${f.ime}`}
             draggable={false}
           />
@@ -63,7 +63,7 @@ export default function OrderSection({ strana }) {
           <p className={styles.kicker}>Poruči</p>
           <RevealLines lines={['Uzmi', 'svoju stranu']} as="h2" className={styles.title} stagger={110} />
           <RevealWords
-            text="90 × 70 cm, 850 GSM, twisted-loop. Srbija, Bosna i Hercegovina, Crna Gora. Slanje istog radnog dana za porudžbine do 14h."
+            text="90 × 70 cm, 1000 GSM, twisted-loop. Srbija, Bosna i Hercegovina, Crna Gora. Slanje istog radnog dana za porudžbine do 14h."
             className={styles.lede}
           />
 

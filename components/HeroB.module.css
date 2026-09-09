@@ -16,35 +16,37 @@
   transition: background 1200ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* --- kapi koje se dižu ------------------------------------------------------ */
+/* Kapi vode su od 9. 9. 2026. u 3D sceni (TowelStage) — kao tačke sa dubinom
+   koje peškir zaklanja. CSS sloj koji je ovde stajao bio je ravan i preko
+   svega, pa je uklonjen. */
 
-.kapi {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  overflow: hidden;
+/* --- kicker (thewatch: sitan numerisan red iznad naslova) ------------------ */
+
+.kicker {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
 }
 
-.kap {
-  position: absolute;
-  bottom: -3rem;
-  border-radius: 50%;
-  background:
-    radial-gradient(circle at 32% 30%, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0) 42%),
-    radial-gradient(circle at 50% 50%, rgba(var(--f-rgb), 0.18) 55%, rgba(var(--f-rgb), 0.5) 88%, rgba(var(--f-rgb), 0) 100%);
-  animation-name: dizanje;
-  animation-timing-function: linear;
-  animation-fill-mode: forwards;
+.kickerBroj {
+  font-family: var(--font-display);
+  font-variation-settings: 'wdth' 125;
+  font-weight: 700;
+  color: var(--f-core);
+  transition: color 900ms ease;
 }
 
-@keyframes dizanje {
-  from {
-    transform: translateY(0) translateX(0);
-  }
-  to {
-    transform: translateY(-115svh) translateX(1.5rem);
-  }
+.kickerCrta {
+  width: 2.25rem;
+  height: 0.0625rem;
+  background: var(--f-core);
+  opacity: 0.6;
+  transition: background 900ms ease;
 }
 
 /* --- raspored --------------------------------------------------------------- */
@@ -82,9 +84,11 @@
   font-family: var(--font-display);
   font-variation-settings: 'wdth' 125;
   font-weight: 700;
-  font-size: clamp(2.75rem, 6.4vw, 6.5rem);
-  line-height: 0.88;
-  letter-spacing: -0.03em;
+  /* Krupnije i zbijenije nego pre (6.4vw → 7.6vw): u thewatch registru naslov
+     nije tekst pored proizvoda nego ravnopravan objekat u kadru. */
+  font-size: clamp(3rem, 7.6vw, 8.25rem);
+  line-height: 0.86;
+  letter-spacing: -0.035em;
   text-transform: uppercase;
   margin: 0;
   color: var(--ink);
@@ -227,6 +231,55 @@
   color: var(--muted);
 }
 
+/* --- zaključana strana ------------------------------------------------------
+   Vidi se da postoji, ne može da se uzme. Isti peškir, prebojen u koralno
+   (hue 116° → 353° je +237°) i utišan — nagoveštaj, ne lažan proizvod. */
+
+.karticaZakljucana {
+  cursor: not-allowed;
+  background: rgba(244, 246, 248, 0.03);
+}
+
+.karticaZakljucana:hover {
+  background: rgba(244, 246, 248, 0.05);
+}
+
+.karticaZakljucana img {
+  filter: hue-rotate(237deg) saturate(0.55) brightness(0.42) drop-shadow(0 1rem 1.75rem rgba(0, 0, 0, 0.6));
+}
+
+/* Zaključana se ne diže na hover — ne obećava ono što se ne može uzeti. */
+.karticaZakljucana:hover img {
+  transform: none;
+}
+
+.karticaZakljucana .karticaIme {
+  color: var(--muted);
+}
+
+.kljuc {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.625rem;
+  height: 1.625rem;
+  border-radius: 50%;
+  color: var(--k);
+  background: rgba(7, 8, 10, 0.85);
+  box-shadow: inset 0 0 0 0.0625rem rgba(var(--f-rgb), 0.25);
+}
+
+.hint {
+  max-width: 19rem;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--muted);
+  text-shadow: 0 0.125rem 1rem rgba(0, 0, 0, 0.9);
+}
+
 /* --- podnožje --------------------------------------------------------------- */
 
 .podnozje {
@@ -255,6 +308,51 @@
 .tvoja b {
   font-weight: 700;
   transition: color 900ms ease;
+}
+
+/* Skrol znak (thewatch): tanka linija koja "curi" nadole. Kaže da hero nije
+   kraj — da peškir poleti tek kad se skroluje. Nema ga na LOW (nema leta). */
+.skrol {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  color: var(--muted);
+}
+
+.skrol i {
+  position: relative;
+  display: block;
+  width: 0.0625rem;
+  height: 2.25rem;
+  background: rgba(244, 246, 248, 0.14);
+  overflow: hidden;
+}
+
+.skrol i::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 40%;
+  background: var(--f-core);
+  animation: curenje 1800ms cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes curenje {
+  from {
+    transform: translateY(-110%);
+  }
+  to {
+    transform: translateY(260%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skrol i::after {
+    animation: none;
+    transform: translateY(75%);
+  }
 }
 
 /* --- responzivno ------------------------------------------------------------ */

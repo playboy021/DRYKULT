@@ -51,7 +51,7 @@ export default function FactionView({ strana, onPoruci }) {
           <RevealFade className={styles.spec} delay={820}>
             <span>90 × 70 cm</span>
             <span className={styles.sep} aria-hidden="true" />
-            <span>850 GSM</span>
+            <span>1000 GSM</span>
             <span className={styles.sep} aria-hidden="true" />
             <span>twisted-loop</span>
           </RevealFade>

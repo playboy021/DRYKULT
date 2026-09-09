@@ -1,7 +1,7 @@
 # DRYKULT
 
 Scroll-driven sajt za **DRYKULT** — premium microfiber peškir za sušenje automobila.
-90 × 70 cm · 850 GSM · twisted-loop. Srbija, Bosna i Hercegovina, Crna Gora.
+90 × 70 cm · 1000 GSM · twisted-loop. Srbija, Bosna i Hercegovina, Crna Gora.
 
 Next.js (Pages Router) · Lenis · Canvas 2D · Web Audio
 
@@ -10,8 +10,8 @@ Next.js (Pages Router) · Lenis · Canvas 2D · Web Audio
 ## Ideja
 
 Nije prodavnica nego **kult oko sušenja**. Kupci nisu kupci — oni su članovi,
-i prvo što urade je da **izaberu stranu**: **PINK** (koralna) ili **MAMBA**
-(neon zelena).
+i prvo što urade je da **izaberu stranu**. **MAMBA** (neon zelena) je tu; **PINK**
+(koralna, ženska verzija) se vidi ali je zaključan dok se ne napravi.
 
 Peškir stoji u sredini u 3D i prati kursor. Nije kruti model nego **tkanina** —
 ravan čiji vertex shader talasa mrežu, obučena pravom teksturom proizvoda.

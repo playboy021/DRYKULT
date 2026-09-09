@@ -15,7 +15,6 @@ import {
   primeniStranu,
   peskirSlika,
   STRANE,
-  PINK,
   MAMBA,
 } from '../lib/faction';
 import styles from '../styles/Home.module.css';
@@ -58,6 +57,9 @@ export default function Home() {
   }, []);
 
   const prikazi = useCallback((id) => {
+    // Zaključana strana se ne može ni prikazati — kartica je vidljiva da se
+    // zna da dolazi, ali klik na nju ne sme da promeni stanje sajta.
+    if (STRANE[id]?.zakljucano) return;
     setPrikaz(id);
     primeniStranu(id);
   }, []);
@@ -110,9 +112,11 @@ export default function Home() {
 
   // 3D scena obučava peškir teksturom pune rezolucije, pa loader mora da je
   // sačeka — inače se peškir pojavi kao prazna ravan pa tek onda dobije sliku.
+  // Samo MAMBA: PINK je zaključan, pa se njegova puna tekstura ne skida
+  // uzalud — na karticama ide `sm` verzija i to je sve što mu treba.
   const preload = useMemo(() => {
     if (!tier) return [];
-    return [peskirSlika(PINK, tier, 'hi'), peskirSlika(MAMBA, tier, 'hi')];
+    return [peskirSlika(MAMBA, tier, 'hi')];
   }, [tier]);
 
   return (
@@ -121,7 +125,7 @@ export default function Home() {
         <title>DRYKULT — premium microfiber peškir za auto</title>
         <meta
           name="description"
-          content="DRYKULT premium microfiber peškir za sušenje automobila. 90×70 cm, 850 GSM, twisted-loop. Dve strane: PINK i MAMBA. Srbija, BiH, Crna Gora."
+          content="DRYKULT premium microfiber peškir za sušenje automobila. 90×70 cm, 1000 GSM, twisted-loop. MAMBA je tu, PINK uskoro. Srbija, BiH, Crna Gora."
         />
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
         {/* Prati frakciju: na telefonu ovo boji traku browsera, pa bi fiksna

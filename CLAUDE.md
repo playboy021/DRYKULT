@@ -1,6 +1,7 @@
 # DRYKULT — scroll-driven sajt
 
-Premium microfiber peškir za sušenje automobila. 90 × 70 cm, 850 GSM, twisted-loop.
+Premium microfiber peškir za sušenje automobila. 90 × 70 cm, 1000 GSM, twisted-loop
+(1000 je ono što PIŠE na fabričkom renderu; na uzorku se meri — `plan/01`, 1.5).
 Tržišta: RS, BA, ME. Cena **3000 RSD**. Krećemo od nule — nema kupaca ni recenzija.
 
 Nije prodavnica nego **kult oko sušenja**: kupci su članovi, i biraju stranu.
@@ -42,8 +43,18 @@ Preview konfiguracija je u `D:\projekti\.claude\launch.json` pod imenom `drykult
 
 | frakcija | core | hue | bright | podloga | tamni tekst na core |
 |---|---|---|---|---|---|
-| **PINK** (koralna) | `#FF6E80` | 353° | `#FFB3BE` | `#0E0305` | **7.44:1** ✓ |
-| **MAMBA** (neon zelena) | `#8CEF2E` | 91° | `#C3F98D` | `#080E03` | **13.83:1** ✓ |
+| **MAMBA** (neon zelena) | `#45E33B` | 116° | `#99F094` | `#040E03` | **11.74:1** ✓ |
+| **PINK** (koralna) — *zaključana* | `#FF6E80` | 353° | `#FFB3BE` | `#0E0305` | **7.44:1** ✓ |
+
+**MAMBA je 9. 9. 2026. PREMERENA sa fabričkog rendera pravog peškira**
+(`assets-src/drykult/peskir-zeleni.png`, 2000 × 1500, providna pozadina): `#45E33B`,
+hue 116°, zasićenost 75 %. Ranijih 91° je bio kompromis sa studijske fotke prethodnog
+uzorka (izmereno 68°, gurnuto ka zelenom da ne čita kao limun). Sad proizvod postoji i
+sajt ide za njim. Peškir je sada **zeleno telo + crna štampa**, vodoravan (1,356:1) —
+`TowelStage` odnos strana **čita iz teksture**, ne drži ga upisan.
+
+**PINK je zaključan** (`zakljucano: true` u `lib/faction.js`): kartica se vidi, ne može da
+se izabere ni naruči, nema datuma. Sve što nabraja strane ide preko `DOSTUPNE`.
 
 ### Podloga prati frakciju
 
@@ -54,7 +65,7 @@ ista kao kod neutralne crne. Zato je promena besplatna:
 | | sa `--ink` | sa `--f-core` |
 |---|---|---|
 | `#07080A` neutralna | 18.49:1 | 13.83 / 7.44 |
-| `#080E03` MAMBA | **18.04:1** | **13.50:1** |
+| `#040E03` MAMBA | **18.16:1** | **11.53:1** |
 | `#0E0305` PINK | **18.75:1** | **7.54:1** |
 
 Poenta nije da se vidi zelena ili roze pozadina — nego da posle izbora **cela
@@ -86,7 +97,7 @@ kao „belo sa nijansom", ne kao neon.
 prepozna, dovoljno blizu materijalu da veza sa proizvodom u ruci ne pukne.
 Pink je ostao na izmerenih 353° — koralno-crven, **ne magenta**.
 
-Nesimetrija je namerna i neizbežna: MAMBA je 13.83:1, PINK 7.44:1. Limun-zelena je
+Nesimetrija je namerna i neizbežna: MAMBA je 11.74:1, PINK 7.44:1. Neon zelena je
 fizički mnogo svetlija od koralne. Ravnoteža se drži kompozicijom, ne bojom.
 
 **Pre izbora strane tokeni su neutralno beli.** Nijedna frakcija ne sme da bude
@@ -643,7 +654,7 @@ brojke ne dolaze u obzir. Zato je dokaz nešto što posetilac **sam uradi**:
 traka puna kapi koju prevuče i pokupi ih, sa brojačem.
 
 Tri broja ispod nisu tvrdnja nego **računica iz specifikacije koju i sami
-objavljujemo**: 90 × 70 cm = 0,63 m²; 850 g/m² × 0,63 = 536 g tkanine; dve strane.
+objavljujemo**: 90 × 70 cm = 0,63 m²; 1000 g/m² × 0,63 = 630 g tkanine; dve strane.
 Sve što se ne može izračunati iz specifikacije tu ne stoji.
 
 `touch-action: none` na traci je obavezan — bez njega prevlačenje prstom

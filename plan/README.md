@@ -39,6 +39,9 @@ Ako se ništa drugo iz ovog foldera ne uradi, ovo tri moraju.
 - Sekcija DOKAZ (posetilac sam briše kapi)
 - Tri tiera uređaja, pravila u `CLAUDE.md`
 - Sve fotke prethodnog brenda obrisane
+- **9. 9. 2026:** fabrički render pravog peškira (zeleno telo, crna štampa) je na
+  sajtu; paleta MAMBA premerena sa njega (`#45E33B`, 116°); 3D kapi u sceni; let na
+  skrol; PINK zaključan sa nagoveštajem ženske verzije; 1000 GSM svuda
 
 ## Pravilo koje se ne pregovara
 

@@ -27,14 +27,11 @@ Otvori `drykult.vercel.app` na kompu i na telefonu, 20 minuta, i piši šta bode
 
 ## 3.2 Brojka 850 → 1000
 
-Sajt na više mesta još računa sa **850 GSM**:
-
-- [ ] `CLAUDE.md` — specifikacija
-- [ ] `components/ProofSection.js` — iz 850 izvodi **536 g** (850 × 0,63 m²)
-- [ ] `README.md`
-
-Na 1000 g/m² to postaje **630 g**. Menja se **tek kad se gramaža izmeri na uzorku**
-(`01.5`) — ne pre.
+- [x] **Urađeno 9. 9. 2026.** — sajt, `CLAUDE.md`, `README.md` i `ProofSection`
+      (536 g → **630 g**) sada nose **1000 GSM**, jer to PIŠE na fabričkom renderu
+      peškira koji je na sajtu; sajt i proizvod ne smeju da govore različito.
+- [ ] **I dalje obavezno:** izmeriti gramažu na uzorku (`01.5`). Ako ne izađe
+      1000 — menja se broj i na sajtu i u štampi, ne kriju se razlike.
 
 ## 3.3 Fontovi — najteži asset na sajtu
 

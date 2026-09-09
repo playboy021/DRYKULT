@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { RevealLines, RevealWords, RevealFade } from './Reveal';
-import { STRANE, PINK } from '../lib/faction';
+import { STRANE, MAMBA } from '../lib/faction';
 import { LOW, MID } from '../lib/device';
 import styles from './ProofSection.module.css';
 
@@ -11,7 +11,9 @@ import styles from './ProofSection.module.css';
 // posetilac SAM uradi: traka puna kapi koju prevuče i pokupi ih.
 //
 // Brojevi ispod nisu tvrdnja nego RAČUNICA iz specifikacije koju i sami
-// objavljujemo: 90 × 70 cm je 0,63 m², a 850 g/m² puta 0,63 je 536 g tkanine.
+// objavljujemo: 90 × 70 cm je 0,63 m², a 1000 g/m² puta 0,63 je 630 g tkanine.
+// 1000 je ono što PIŠE na proizvodu (fabrički render, 9. 9. 2026.) — na uzorku
+// se meri i, ako ne izađe, menja se broj, ne štampa (plan/01, 1.5).
 // Sve što se ne može izračunati iz specifikacije ovde ne stoji.
 
 const KAPI = { [LOW]: 260, [MID]: 460, high: 700 };
@@ -62,7 +64,7 @@ export default function ProofSection({ tier, strana }) {
     if (!host || !cv) return;
 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const f = STRANE[strana || PINK];
+    const f = STRANE[strana || MAMBA];
     const ctx = cv.getContext('2d');
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
 
@@ -206,8 +208,8 @@ export default function ProofSection({ tier, strana }) {
             <span className={styles.opis}>površina — 90 × 70 cm</span>
           </div>
           <div className={styles.stavka}>
-            <span className={styles.vrednost}>536 g</span>
-            <span className={styles.opis}>tkanine — 850 g/m² × 0,63 m²</span>
+            <span className={styles.vrednost}>630 g</span>
+            <span className={styles.opis}>tkanine — 1000 g/m² × 0,63 m²</span>
           </div>
           <div className={styles.stavka}>
             <span className={styles.vrednost}>2</span>
