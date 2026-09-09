@@ -23,7 +23,12 @@ const SRC = path.join(ROOT, 'assets-src', 'drykult');
 
 // 4:3, kao mockup. Sve dalje (3D ravan, kartice) računa sa ovim odnosom.
 const W = 2000, H = 1500;
-const ZELENA = [74, 242, 63]; // #4AF23F — core MAMBA, vidi lib/faction.js
+// IZMERENO sa fabričkog mockupa (assets-src/drykult/peskir-zeleni-mockup.jpeg,
+// prosek 252 k zasićenih piksela): #59F312, hue 101°, zasićenost 90 %.
+// Prva verzija je imala upisano #4AF23F (hue 116) — pogođeno okom, ne izmereno,
+// i ceo sajt je jedno vreme išao za tom pogrešnom bojom. Ovo je izvor istine
+// dok ne stigne prava fotka; lib/faction.js i globals.css nose istu vrednost.
+const ZELENA = [89, 243, 18]; // #59F312
 const CRNA = [7, 8, 10];
 
 const TARGETS = [

@@ -53,17 +53,18 @@
   --bg: #0e0305; /* sa --ink 18.75:1, sa --f-core 7.54:1 */
 }
 
-/* MAMBA je 9. 9. 2026. PREMERENA sa fabričkog rendera pravog peškira
-   (assets-src/drykult/peskir-zeleni.png): #45E33B, hue 116°, zasićenost 75%.
-   Ranijih 91° je bio kompromis izveden sa studijske fotke prethodnog uzorka;
-   sad proizvod postoji i sajt ide za njim, ne obrnuto. Tamni tekst na core
-   11.74:1 — i dalje daleko iznad praga. */
+/* MAMBA je 9. 9. 2026. IZMERENA sa fabričkog mockupa pravog peškira
+   (assets-src/drykult/peskir-zeleni-mockup.jpeg): #59F312, hue 101°,
+   zasićenost 90%. Ranijih 91° je bio kompromis sa studijske fotke prethodnog
+   uzorka; sad proizvod postoji i sajt ide za njim, ne obrnuto. Nacrtani
+   render (scripts/gen-peskir-zeleni.mjs) nosi ISTU vrednost. Tamni tekst na
+   core 13.60:1 — daleko iznad praga. */
 :root[data-side='mamba'] {
-  --f-core: #45e33b; /* 116 stepeni, tamni tekst na njemu 11.74:1 */
-  --f-bright: #99f094;
-  --f-deep: #167411;
-  --f-rgb: 69, 227, 59;
-  --bg: #040e03; /* sa --ink 18.16:1, sa --f-core 11.53:1 */
+  --f-core: #59f312; /* 101 stepen, tamni tekst na njemu 13.60:1 */
+  --f-bright: #adf98a;
+  --f-deep: #2c7e06;
+  --f-rgb: 89, 243, 18;
+  --bg: #070e03; /* sa --ink 18.10:1, sa --f-core 13.31:1 */
 }
 
 /* Napomena: CSS promenljive se NE mogu tranzicionirati bez @property

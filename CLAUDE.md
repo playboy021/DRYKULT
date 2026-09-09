@@ -43,15 +43,22 @@ Preview konfiguracija je u `D:\projekti\.claude\launch.json` pod imenom `drykult
 
 | frakcija | core | hue | bright | podloga | tamni tekst na core |
 |---|---|---|---|---|---|
-| **MAMBA** (neon zelena) | `#45E33B` | 116° | `#99F094` | `#040E03` | **11.74:1** ✓ |
+| **MAMBA** (neon zelena) | `#59F312` | 101° | `#ADF98A` | `#070E03` | **13.60:1** ✓ |
 | **PINK** (koralna) — *zaključana* | `#FF6E80` | 353° | `#FFB3BE` | `#0E0305` | **7.44:1** ✓ |
 
-**MAMBA je 9. 9. 2026. PREMERENA sa fabričkog rendera pravog peškira**
-(`assets-src/drykult/peskir-zeleni.png`, 2000 × 1500, providna pozadina): `#45E33B`,
-hue 116°, zasićenost 75 %. Ranijih 91° je bio kompromis sa studijske fotke prethodnog
+**MAMBA je 9. 9. 2026. IZMERENA sa fabričkog mockupa pravog peškira**
+(`assets-src/drykult/peskir-zeleni-mockup.jpeg`, prosek 252 k zasićenih piksela):
+`#59F312`, hue 101°, zasićenost 90 %. Peškir na sajtu (`peskir-zeleni.png`) je
+**nacrtan** po tom mockupu skriptom `scripts/gen-peskir-zeleni.mjs` i nosi istu
+vrednost — do prave fotke. Ranijih 91° je bio kompromis sa studijske fotke prethodnog
 uzorka (izmereno 68°, gurnuto ka zelenom da ne čita kao limun). Sad proizvod postoji i
 sajt ide za njim. Peškir je sada **zeleno telo + crna štampa**, vodoravan (1,356:1) —
 `TowelStage` odnos strana **čita iz teksture**, ne drži ga upisan.
+
+**Zamka koja je koštala jedan ceo prolaz:** nacrtani render je prvo imao upisano
+`#4AF23F` (hue 116) — pogođeno okom — a ja sam paletu „izmerio" sa TOG rendera i
+mislio da merim proizvod. Meri se uvek sa **izvornog** materijala (mockup/fotka), nikad
+sa nečega što je već izvedeno iz pretpostavke.
 
 **PINK je zaključan** (`zakljucano: true` u `lib/faction.js`): kartica se vidi, ne može da
 se izabere ni naruči, nema datuma. Sve što nabraja strane ide preko `DOSTUPNE`.
@@ -65,7 +72,7 @@ ista kao kod neutralne crne. Zato je promena besplatna:
 | | sa `--ink` | sa `--f-core` |
 |---|---|---|
 | `#07080A` neutralna | 18.49:1 | 13.83 / 7.44 |
-| `#040E03` MAMBA | **18.16:1** | **11.53:1** |
+| `#070E03` MAMBA | **18.10:1** | **13.31:1** |
 | `#0E0305` PINK | **18.75:1** | **7.54:1** |
 
 Poenta nije da se vidi zelena ili roze pozadina — nego da posle izbora **cela
@@ -97,7 +104,7 @@ kao „belo sa nijansom", ne kao neon.
 prepozna, dovoljno blizu materijalu da veza sa proizvodom u ruci ne pukne.
 Pink je ostao na izmerenih 353° — koralno-crven, **ne magenta**.
 
-Nesimetrija je namerna i neizbežna: MAMBA je 11.74:1, PINK 7.44:1. Neon zelena je
+Nesimetrija je namerna i neizbežna: MAMBA je 13.60:1, PINK 7.44:1. Neon zelena je
 fizički mnogo svetlija od koralne. Ravnoteža se drži kompozicijom, ne bojom.
 
 **Pre izbora strane tokeni su neutralno beli.** Nijedna frakcija ne sme da bude
