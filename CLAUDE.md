@@ -18,7 +18,8 @@ Stanje: **hero i sekcija za poručivanje izgrađeni, vizuelno NIJE provereno u b
 
 ```bash
 npm run dev          # port 3210
-node scripts/gen-drykult.mjs   # izrezuje peškire sa bele pozadine
+node scripts/gen-peskir-zeleni.mjs   # CRTA peškir po fabričkom mockupu (do prave fotke)
+node scripts/gen-drykult.mjs         # izrezuje/skalira peškire u webp po tieru
 node scripts/gen-plate.mjs     # hero podloga, obe frakcije iz jedne slike
 ```
 
