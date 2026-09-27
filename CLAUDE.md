@@ -1,7 +1,8 @@
 # DRYKULT — scroll-driven sajt
 
-Premium microfiber peškir za sušenje automobila. 90 × 70 cm, 1000 GSM, twisted-loop
-(1000 je ono što PIŠE na fabričkom renderu; na uzorku se meri — `plan/01`, 1.5).
+Premium microfiber peškir za sušenje automobila. 90 × 70 cm, 1000 GSM, twisted-loop,
+**80 % poliester / 20 % poliamid** (sastav po fabričkoj deklaraciji od 27. 9. 2026;
+1000 je ono što PIŠE na fabričkom renderu; oboje se na uzorku proverava — `plan/01`, 1.4–1.5).
 Tržišta: RS, BA, ME. Cena **3000 RSD**. Krećemo od nule — nema kupaca ni recenzija.
 
 Nije prodavnica nego **kult oko sušenja**: kupci su članovi, i biraju stranu.

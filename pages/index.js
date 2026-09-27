@@ -126,7 +126,7 @@ export default function Home() {
         <title>DRYKULT — premium microfiber peškir za auto</title>
         <meta
           name="description"
-          content="DRYKULT premium microfiber peškir za sušenje automobila. 90×70 cm, 1000 GSM, twisted-loop. MAMBA je tu, PINK uskoro. Srbija, BiH, Crna Gora."
+          content="DRYKULT premium microfiber peškir za sušenje automobila. 90×70 cm, 1000 GSM, 80 % poliester / 20 % poliamid, twisted-loop. MAMBA je tu, PINK uskoro. Srbija, BiH, Crna Gora."
         />
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
         {/* Prati frakciju: na telefonu ovo boji traku browsera, pa bi fiksna

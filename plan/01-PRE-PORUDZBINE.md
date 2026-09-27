@@ -49,7 +49,9 @@ ime na kom nemaš domen je ime koje ćeš morati da menjaš.
 Bez ovoga ne možemo da napravimo etiketu o održavanju, a bez nje se porudžbina
 zaustavlja.
 
-- [ ] **Tačan sastav vlakana** — npr. 80/20 poliester/poliamid
+- [x] **Tačan sastav vlakana** — fabrika kaže **80 % poliester / 20 % poliamid**
+      (27. 9. 2026; na sajtu je od tada). Traži i **pismeno**, uz potvrdu gramaže —
+      to ide na etiketu i mora da se poklopi sa onim što piše na sajtu.
 - [ ] **Pismena potvrda gramaže od 1000 g/m²**
 - [ ] **Zemlja porekla**
 - [ ] Dimenzije posle pranja (skupljanje)

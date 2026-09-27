@@ -53,6 +53,8 @@ export default function FactionView({ strana, onPoruci }) {
             <span className={styles.sep} aria-hidden="true" />
             <span>1000 GSM</span>
             <span className={styles.sep} aria-hidden="true" />
+            <span>80 % poliester / 20 % poliamid</span>
+            <span className={styles.sep} aria-hidden="true" />
             <span>twisted-loop</span>
           </RevealFade>
 

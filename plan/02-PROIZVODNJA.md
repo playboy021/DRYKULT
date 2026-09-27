@@ -13,7 +13,8 @@ tekstilnih vlakana; u Srbiji odgovarajući pravilnik).
 
 Šta ide na nju:
 
-- [ ] Sastav vlakana, tačan procenat — čeka `01.4`
+- [x] Sastav vlakana: **80 % poliester / 20 % poliamid** (fabrika, 27. 9.) — na
+      etiketi ide baš tako, sa pismenom potvrdom iz `01.4`
 - [ ] Simboli za održavanje (pranje / beljenje / sušenje / peglanje / hemijsko)
 - [ ] Zemlja porekla
 - [ ] **Podaci o uvozniku** — naziv firme i adresa u Srbiji

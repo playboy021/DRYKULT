@@ -111,7 +111,10 @@ export default function HeroB({ tier, ready, strana, izabrana, onIzbor, onPoruci
             </span>
             <span className={styles.znackaTekst}>
               <span className={styles.znackaGore}>90 × 70 CM · 1000 GSM</span>
-              <span className={styles.znackaDole}>TWISTED-LOOP · DVE STRANE</span>
+              {/* Sastav po fabričkoj deklaraciji (27. 9.). Za tekstil je obavezan
+                  podatak i na etiketi — plan/02. */}
+              <span className={styles.znackaDole}>80 % POLIESTER · 20 % POLIAMID</span>
+              <span className={styles.znackaGore}>TWISTED-LOOP · DVE STRANE</span>
             </span>
           </RevealFade>
         </div>
