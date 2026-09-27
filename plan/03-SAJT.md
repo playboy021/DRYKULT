@@ -88,6 +88,14 @@ bez cena, datuma i odbrojavanja. Da postane prodaja, treba:
 
 ## 3.7 Pravne stranice — moraju postojati pre prve prodaje
 
+- [ ] **Uslovi garancije od 2 godine** — od 27. 9. piše na hero-u, u traci i u
+      prodaji: „desi li se peškiru bilo šta nepredviđeno u prve dve godine,
+      dobijaš nov". To je pravno obavezujuća izjava čim se objavi, pa treba
+      napisati: šta pokriva (i šta ne — namerno oštećenje?), kako se prijavljuje
+      (poruka + fotka?), ko plaća slanje, i da ne umanjuje zakonska prava. U Srbiji
+      kupac ionako ima **2 godine saobraznosti** po zakonu; naša garancija vredi
+      po tome što obećava ZAMENU bez natezanja. **[TI]** potvrdi uslove, Claude piše
+      stranu. Nije pravni savet — pre lansiranja neka pogleda advokat.
 - [ ] Uslovi korišćenja
 - [ ] Politika privatnosti (obavezno ako se skupljaju podaci kupaca)
 - [ ] Reklamacije i povraćaj — u Srbiji zakon o zaštiti potrošača daje pravo na

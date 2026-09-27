@@ -11,6 +11,7 @@ import styles from './SiteHeader.module.css';
 //
 // Poruke u traci su ISTINITE i proverive iz naših pravila. Bez „100.000 prodatih".
 const PORUKE = [
+  'Garancija 2 godine — desi se bilo šta nepredviđeno, dobijaš nov peškir',
   'Besplatna dostava od 2 komada',
   'Slanje istog radnog dana za porudžbine do 14h',
   'Srbija · Bosna i Hercegovina · Crna Gora',

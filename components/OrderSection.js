@@ -63,7 +63,7 @@ export default function OrderSection({ strana }) {
           <p className={styles.kicker}>Poruči</p>
           <RevealLines lines={['Uzmi', 'svoju stranu']} as="h2" className={styles.title} stagger={110} />
           <RevealWords
-            text="90 × 70 cm, 1000 GSM, 80 % poliester / 20 % poliamid, twisted-loop. Srbija, Bosna i Hercegovina, Crna Gora. Slanje istog radnog dana za porudžbine do 14h."
+            text="90 × 70 cm, 1000 GSM, 80 % poliester / 20 % poliamid, twisted-loop. Garancija 2 godine: desi li se peškiru bilo šta nepredviđeno, dobijaš nov. Srbija, Bosna i Hercegovina, Crna Gora. Slanje istog radnog dana za porudžbine do 14h."
             className={styles.lede}
           />
 

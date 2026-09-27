@@ -239,6 +239,56 @@
   letter-spacing: 0.08em;
 }
 
+/* --- garancija -------------------------------------------------------------- */
+
+/* Pločica sa velikom cifrom: „2 GODINE GARANCIJE" se čita s druge strane sobe,
+   rečenica ispod objašnjava šta to znači. Neon, ne zlato — ovo je obećanje uz
+   proizvod, ne najava. */
+.garancija {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.875rem;
+  max-width: 26rem;
+  padding: 0.75rem 1rem 0.75rem 0.875rem;
+  border-radius: 0.75rem;
+  background: rgba(var(--f-rgb), 0.07);
+  box-shadow:
+    inset 0 0 0 0.0625rem rgba(var(--f-rgb), 0.45),
+    0 0 1.5rem rgba(var(--f-rgb), 0.1);
+  transition:
+    background 900ms ease,
+    box-shadow 900ms ease;
+}
+
+.garBroj {
+  font-size: 3.75rem;
+  line-height: 0.85;
+  color: var(--f-core);
+  text-shadow: 0.05em 0.055em 0 var(--f-deep);
+  transition: color 900ms ease;
+}
+
+.garTekst {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.garNaslov {
+  font-size: 1.3125rem;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  color: var(--ink);
+  text-shadow: 0.05em 0.055em 0 #262b33;
+}
+
+.garOpis {
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
 /* --- meni (GTA pauza: lista opcija, aktivna svetli) ------------------------- */
 
 .opcije {

@@ -7,6 +7,11 @@ Tržišta: RS, BA, ME. Cena **3000 RSD**. Krećemo od nule — nema kupaca ni re
 
 Nije prodavnica nego **kult oko sušenja**: kupci su članovi, i biraju stranu.
 
+**Garancija 2 godine** (Stefanova odluka 27. 9. 2026): desi li se peškiru bilo šta
+nepredviđeno u prve dve godine, kupac dobija nov. Piše na hero-u (pločica sa velikom
+cifrom ispod dugmeta), u gornjoj traci i u prodaji — svuda istim rečima. Pisani uslovi
+garancije su obaveza pre lansiranja (`plan/03`, 3.7).
+
 Saradnja sa prethodnim brendom je raskinuta, mašina je ostala. Sve njegove fotke
 su obrisane. Ako negde naiđeš na plav peškir, to je zaostatak koji ne sme na sajt.
 

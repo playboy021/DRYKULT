@@ -69,6 +69,8 @@ Ponavljam jer je ovo mesto gde se najlakše pogreši, iz `CLAUDE.md`, **Pravilo 
 - Poređenje sa konkurencijom sme samo ako si taj test stvarno uradio i možeš da ga pokažeš
 - Tuđe marke (Audi, BMW, Mercedes u MOST WANTED) samo kao **kompatibilnost** („za …"),
   nikad njihov logo na našem proizvodu ili u našem vizualu bez licence (`03.4a`)
+- **Garancija 2 godine** je obećanje koje se drži: svaki zahtev za zamenu se rešava
+  novim peškirom, i to se računa u cenu (`4.4`). Uslovi u pisanom obliku — `03.7`
 
 Ovo nije opreznost radi opreznosti: prodaja preko granice nosi odgovornost za
 svaku tvrdnju na proizvodu i na sajtu.

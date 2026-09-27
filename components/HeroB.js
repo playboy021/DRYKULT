@@ -117,6 +117,20 @@ export default function HeroB({ tier, ready, strana, izabrana, onIzbor, onPoruci
               <span className={styles.znackaGore}>TWISTED-LOOP · DVE STRANE</span>
             </span>
           </RevealFade>
+
+          {/* GARANCIJA — Stefanova odluka 27. 9.: dve godine, desi se bilo šta
+              nepredviđeno, kupac dobija nov peškir. Mora da se VIDI, zato je
+              pločica sa velikom cifrom, a ne red sitnog teksta. Uslovi garancije
+              u pisanom obliku su na spisku pravnih strana (plan/03, 3.7). */}
+          <RevealFade className={styles.garancija} ready={ready} delay={1240}>
+            <span className={`gta ${styles.garBroj}`}>2</span>
+            <span className={styles.garTekst}>
+              <span className={`gta ${styles.garNaslov}`}>godine garancije</span>
+              <span className={styles.garOpis}>
+                Desi li se peškiru bilo šta nepredviđeno u prve dve godine, dobijaš nov. Od nas, bez natezanja.
+              </span>
+            </span>
+          </RevealFade>
         </div>
 
         {/* --- desno, sredina: meni ---------------------------------------- */}
