@@ -549,6 +549,20 @@
     padding: 5.5rem 1.25rem 4.75rem;
     row-gap: 1.5rem;
   }
+  /* Peškir puni 94 % širine → ~240 px visine; blok od 44svh je oko njega
+     ostavljao 120 px praznog. Ovoliko mu je dosta i za lebdenje. */
+  .grid .scena {
+    height: min(37svh, 20rem);
+  }
+  /* „premium microfiber · 1000 gsm" se na 375 px lomio u dva reda. */
+  .kicker {
+    gap: 0.5rem;
+    font-size: 0.6875rem;
+    letter-spacing: 0.14em;
+  }
+  .kickerCrta {
+    width: 1.5rem;
+  }
   .tile {
     grid-template-columns: 4rem minmax(0, 1fr) auto;
     padding: 0.4rem 0.75rem 0.4rem 0.4rem;
