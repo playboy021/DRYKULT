@@ -4,6 +4,7 @@ import Loader from '../components/Loader';
 import SiteHeader from '../components/SiteHeader';
 import HeroB from '../components/HeroB';
 import ProofSection from '../components/ProofSection';
+import MostWanted from '../components/MostWanted';
 import FactionView from '../components/FactionView';
 import OrderSection from '../components/OrderSection';
 import ShatterTransition from '../components/ShatterTransition';
@@ -154,14 +155,18 @@ export default function Home() {
               onPoruci={potvrdi}
             />
             <ProofSection tier={tier} strana={prikaz} />
+            <MostWanted />
           </>
         )}
 
+        {/* U prodaji najava opreme ide POSLE forme: između dokaza i forme bi
+            odvlačila od jedinog poteza koji nam je tu bitan. */}
         {tier && faza === PRODAJA && (
           <>
             <FactionView strana={strana} onPoruci={setPrelaz} />
             <ProofSection tier={tier} strana={strana} />
             <OrderSection strana={strana} />
+            <MostWanted />
           </>
         )}
       </main>

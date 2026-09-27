@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { STRANE, DOSTUPNE } from '../lib/faction';
+import { Wordmark } from './Logo';
 import styles from './SiteHeader.module.css';
 
 // Gornja traka + navigacija.
@@ -48,23 +49,38 @@ export default function SiteHeader({ strana, prozirna, onPocetna, onPromeni }) {
 
   return (
     <header className={`${styles.host} ${prozirna && naVrhu ? styles.prozirna : ''}`}>
+      {/* Traka je bila puna ploča u neonu — jedina velika zelena površina na
+          sajtu, i vikala je. Sada je HUD red: crno, uzan verzal, neon samo u
+          slovima. Isti ton kao GTA-ov gornji red sa vremenom i parama. */}
       <div className={styles.traka}>
+        <span className={styles.trakaTag} aria-hidden="true">
+          ★ Info
+        </span>
         <span key={i} className={styles.poruka} aria-live="polite">
           {PORUKE[i]}
         </span>
       </div>
 
       <nav className={styles.nav} aria-label="Glavna navigacija">
-        {/* Logo je DUGME, ne sidro. Ranije je vodio na #vrh, što samo skroluje
-            na vrh iste strane — a u fazi prodaje „početna" znači povratak na
-            izbor strane, dakle reset stanja. Sidro to nikad nije moglo. */}
-        <button type="button" className={styles.logo} onClick={onPocetna}>
-          DRYKULT<span className={styles.reg}>®</span>
+        {/* Logo je DUGME, ne sidro: u fazi prodaje „početna" znači povratak na
+            izbor strane, dakle reset stanja — sidro to nikad nije moglo.
+            Od 27. 9. je pravi logotip (isti SVG kao kod fabrike), ne tekst. */}
+        <button type="button" className={styles.logo} onClick={onPocetna} aria-label="DRYKULT — početna">
+          <Wordmark className={styles.logoSvg} />
+          <span className={styles.reg} aria-hidden="true">
+            ®
+          </span>
         </button>
 
         <div className={styles.linkovi}>
           <a href="#dokaz" onClick={(e) => naSekciju(e, 'dokaz')}>
             Dokaz
+          </a>
+          <a href="#most-wanted" onClick={(e) => naSekciju(e, 'most-wanted')} className={styles.mw}>
+            Most Wanted
+            <span className={styles.mwZvezda} aria-hidden="true">
+              ★
+            </span>
           </a>
           {/* "Poruči" postoji tek kad postoji i sekcija. U fazi izbora bi to
               bio link u prazno — a mrtav link je gori od nepostojećeg. */}

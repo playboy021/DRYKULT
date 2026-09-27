@@ -67,6 +67,8 @@ Ponavljam jer je ovo mesto gde se najlakše pogreši, iz `CLAUDE.md`, **Pravilo 
 - Nema „najbolji na tržištu" bez testa koji to pokazuje
 - `1000 GSM` se piše **tek kad je izmereno** (`01.5`)
 - Poređenje sa konkurencijom sme samo ako si taj test stvarno uradio i možeš da ga pokažeš
+- Tuđe marke (Audi, BMW, Mercedes u MOST WANTED) samo kao **kompatibilnost** („za …"),
+  nikad njihov logo na našem proizvodu ili u našem vizualu bez licence (`03.4a`)
 
 Ovo nije opreznost radi opreznosti: prodaja preko granice nosi odgovornost za
 svaku tvrdnju na proizvodu i na sajtu.

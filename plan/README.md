@@ -1,7 +1,9 @@
 # DRYKULT — šta je ostalo
 
-Stanje na dan **21. 8. 2026.** Logo je gotov i predat fabrici. Sajt je izgrađen ali
-**nijedan čovek ga još nije video na ekranu** — to je najveći otvoreni rizik.
+Stanje na dan **27. 9. 2026.** Logo je gotov i predat fabrici. Sajt je prerađen u
+GTA × Razer registar i **prvi put snimljen u browseru** (hero, dokaz, Most Wanted na
+1440 i 375) — ali Stefan ga još nije gledao svojim očima, i izbor strane, lom i
+mokri prelaz nisu viđeni uživo. To ostaje najveći otvoreni rizik (`03.1`).
 
 Redosled u ovom folderu nije proizvoljan. Ide po tome **šta blokira šta**, a ne po
 tome šta je lakše.
@@ -40,8 +42,14 @@ Ako se ništa drugo iz ovog foldera ne uradi, ovo tri moraju.
 - Tri tiera uređaja, pravila u `CLAUDE.md`
 - Sve fotke prethodnog brenda obrisane
 - **9. 9. 2026:** fabrički render pravog peškira (zeleno telo, crna štampa) je na
-  sajtu; paleta MAMBA premerena sa njega (`#45E33B`, 116°); 3D kapi u sceni; let na
-  skrol; PINK zaključan sa nagoveštajem ženske verzije; 1000 GSM svuda
+  sajtu; paleta MAMBA izmerena sa fabričkog MOCKUPA (`#59F312`, 101°); 3D kapi u
+  sceni; let na skrol; PINK zaključan sa nagoveštajem ženske verzije; 1000 GSM svuda
+- **27. 9. 2026:** GTA × Razer prerada — Passion One naslovi sa tvrdom senkom, HUD
+  traka umesto neon ploče, hero kao poster (naslovi u uglovima, peškir slobodan u
+  svojoj ćeliji), meni sa zaključanim PINK-om + info-čip, sekcija **MOST WANTED**
+  (patosnice, amblemi za tablu, gedžeti — samo najava, bez proizvoda i datuma),
+  pravi logotip u traci i loaderu. Usput nađen i popravljen bag star mesecima: ceo
+  sajt se crtao u Times New Roman-u (font promenljive na pogrešnom elementu).
 
 ## Pravilo koje se ne pregovara
 

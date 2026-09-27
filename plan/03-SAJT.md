@@ -6,24 +6,26 @@ Ovo radi Claude. Tvoje je samo ono označeno sa **[TI]**.
 
 ## 3.1 [TI] Pogledaj sajt — ovo je najveći rizik u celom projektu
 
-Sedamnaest commit-ova, a panel pregleda se u Claude-ovom okruženju **nijednom nije
-pokrenuo** (razlog: skriven panel → nema `requestAnimationFrame` → nema hidracije;
-detaljno u `CLAUDE.md`, „Zamke okruženja"). Provereno je samo ono što ne traži
-kompoziciju: build prolazi čist, veličine asseta izmerene, konzola bez grešaka.
-
-**Niko živ još nije video taj sajt.**
+**27. 9. 2026:** panel pregleda je prvi put proradio i Claude je snimio hero, dokaz i
+Most Wanted na 1440 × 900 i 375 × 812 — raspored je po planu, fontovi pravi. Ali
+snimak nije isto što i tvoje oči, a pola sajta i dalje nije viđeno u pokretu.
 
 Otvori `drykult.vercel.app` na kompu i na telefonu, 20 minuta, i piši šta bode oči.
 
 Šta obavezno proveri:
 
-- [ ] Loader ide 000 → 100 i nestane
-- [ ] Peškir se talasa i prati kursor
+- [ ] Loader ide 000 → 100 i nestane (sad sa pravim logotipom i GTA brojačem)
+- [x] ~~Peškir se talasa i prati kursor~~ — talasanje i let na skrol viđeni 27. 9.;
+      praćenje kursora još nije
 - [ ] Izbor strane radi, ekran pukne, boja se promeni svuda
 - [ ] Sekcija DOKAZ — kapi se brišu prstom na telefonu
 - [ ] Dugme „nazad" u browseru vraća na izbor, ne izbacuje sa sajta
 - [ ] Klik na logo vraća na početno stanje
-- [ ] 1440 px i 375 px
+- [x] ~~1440 px i 375 px~~ — snimljeno 27. 9.; ostaje **1280 × 720** (mali laptop)
+      i **1920 × 1080**
+- [ ] GTA prerada: da li dijagonalna traka u hero-u smeta ili nosi; da li je peškir
+      dovoljno velik sad kad ima svoju ćeliju; da li zlato + neon rade zajedno
+- [ ] MOST WANTED tile u meniju hero-a vodi na sekciju
 
 ## 3.2 Brojka 850 → 1000
 
@@ -55,6 +57,19 @@ Iz `CLAUDE.md`, otvoreno pitanje 5:
 - [ ] **Okretanje peškira** — crna strana ↔ plišano naličje. Blokira: fotka
       plišanog naličja razvučenog (`05`).
 - [ ] **Numerisani komadi** — ako se odluči u `02.5`
+
+## 3.4a MOST WANTED — od najave do proizvoda
+
+Sekcija postoji od 27. 9. kao **najava** (patosnice, amblemi za tablu, gedžeti),
+bez cena, datuma i odbrojavanja. Da postane prodaja, treba:
+
+- [ ] **[TI]** odluka šta se stvarno pravi prvo i sa kojim dobavljačem
+- [ ] **[TI]** amblemi „za Audi · BMW · Mercedes": imena marki smeju kao
+      **kompatibilnost**, ali njihovi **znakovi/logotipi su tuđi žigovi** — proizvod
+      sa tuđim logom bez licence je rizik zaplene i tužbe (nije pravni savet; pitaj
+      advokata za žigove pre porudžbine takve robe). Sajt zato piše samo imena.
+- [ ] prave fotke (ne renderi) — isti princip kao za peškir
+- [ ] tek onda kartice dobijaju cenu i dugme; do tada ostaje „u izradi"
 
 ## 3.5 Čišćenje pre lansiranja
 

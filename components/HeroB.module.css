@@ -1,6 +1,8 @@
-/* Radijalni gradijent u boji frakcije — direktno iz reference, gde pozadina
-   nosi ukus pića. Kod nas nosi stranu. Prelaz je spor namerno: strana se ne
-   prebacuje nego se PRELIVA, isto koliko traje i obrt peškira. */
+/* HERO — GTA × Razer.
+   Poster kompozicija: ogroman naslov gore-levo, ogroman naslov dole-desno,
+   proizvod slobodan u sredini, meni desno. Stefan je 27. 9. zaokružio oba
+   bloka teksta i pokazao ka uglovima — do tada su ležali PREKO peškira i
+   zelena reč se topila u zelenu tkaninu. Sada ništa ne dodiruje peškir. */
 .hero {
   position: relative;
   width: 100%;
@@ -8,45 +10,35 @@
   overflow: hidden;
   isolation: isolate;
   background: radial-gradient(
-    circle at 50% 46%,
-    rgba(var(--f-rgb), 0.16) 0%,
-    rgba(var(--f-rgb), 0.05) 38%,
-    var(--bg) 72%
+    circle at 50% 54%,
+    rgba(var(--f-rgb), 0.14) 0%,
+    rgba(var(--f-rgb), 0.04) 36%,
+    var(--bg) 70%
   );
   transition: background 1200ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Kapi vode su od 9. 9. 2026. u 3D sceni (TowelStage) — kao tačke sa dubinom
-   koje peškir zaklanja. CSS sloj koji je ovde stajao bio je ravan i preko
-   svega, pa je uklonjen. */
-
-/* --- kicker (thewatch: sitan numerisan red iznad naslova) ------------------ */
-
-.kicker {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  font-size: 0.6875rem;
-  font-weight: 600;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--muted);
+/* GTA loading-screen traka: jedna široka dijagonala kroz kadar, ispod svega.
+   Namerno toliko tamna da se ne "vidi" — samo peškir dobija na čemu da stoji. */
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: -30% -15%;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(112deg, transparent 0 40%, rgba(var(--f-rgb), 0.075) 40% 60%, transparent 60%);
 }
 
-.kickerBroj {
-  font-family: var(--font-display);
-  font-variation-settings: 'wdth' 125;
-  font-weight: 700;
-  color: var(--f-core);
-  transition: color 900ms ease;
-}
-
-.kickerCrta {
-  width: 2.25rem;
-  height: 0.0625rem;
-  background: var(--f-core);
-  opacity: 0.6;
-  transition: background 900ms ease;
+/* Zrno — filmska tekstura, statična (bez animiranog šuma; jeftino na GPU). */
+.hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.07;
+  mix-blend-mode: soft-light;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 /* --- raspored --------------------------------------------------------------- */
@@ -55,54 +47,145 @@
   position: relative;
   z-index: 2;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 22rem);
-  align-items: stretch;
-  gap: 2rem;
+  /* Bočne kolone dele prostor sa srednjom u odnosu 1 : 1,5 : 1 — na 1440 px
+     srednja ćelija dobije ~550 px i peškir stane u nju sa vazduhom. Fiksne
+     bočne kolone od 27rem su na 1100 px ostavljale sredini 236 px. */
+  grid-template-columns: minmax(13rem, 1fr) minmax(0, 1.5fr) minmax(13rem, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  /* Naslovi zauzimaju CEO red: nowrap tekst preliva UDESNO i kad je poravnat
+     desno, pa bi h2 u samo trećoj koloni izleteo van ekrana. */
+  grid-template-areas:
+    'naslov naslov naslov'
+    'levo   scena  desno'
+    'kraj   kraj   kraj';
+  column-gap: 2rem;
+  row-gap: 1.5rem;
   min-height: 100svh;
-  max-width: 88rem;
-  margin: 0 auto;
-  padding: 8rem 3rem 3rem;
-  /* Sredina mora da propusti kursor do 3D scene ispod, koja naginje peškir.
+  padding: 7.75rem 3rem 4.5rem;
+  /* Sredina mora da propusti kursor do 3D scene koja naginje peškir.
      Sve interaktivno unutra vraća pointer-events na auto. */
   pointer-events: none;
 }
 
+/* Scena (3D peškir + kapi) je na desktopu PUN kadar iza teksta — kapi lete i
+   kroz naslove — a na uskom ekranu postaje običan blok u redosledu.
+   Dve klase u selektoru: TowelStage nosi svoj .host i ovde ga pobeđujemo
+   specifičnošću, ne redosledom učitavanja. */
+.grid .scena {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: auto;
+}
+
+/* Prazna ćelija u koju peškir mora da stane. TowelStage joj meri pravougaonik
+   i po njemu skalira i pomera peškir — raspored tako ostaje ovde, u CSS-u. */
+.okvir {
+  grid-area: scena;
+  min-height: 0;
+}
+
+.naslovBlok,
 .levo,
-.desno {
+.desno,
+.kraj {
+  position: relative;
+  z-index: 1;
+}
+
+.naslovBlok {
+  grid-area: naslov;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  gap: 1rem;
+}
+
+.levo {
+  grid-area: levo;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   gap: 1.5rem;
 }
 
 .desno {
+  grid-area: desno;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   align-items: flex-end;
+  gap: 1rem;
+}
+
+.kraj {
+  grid-area: kraj;
+  justify-self: end;
   text-align: right;
 }
 
-.naslov {
+/* --- kicker (GTA lokacijski natpis: broj, crta, uzan verzal) ---------------- */
+
+.kicker {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
   font-family: var(--font-display);
-  font-variation-settings: 'wdth' 125;
-  font-weight: 700;
-  /* Krupnije i zbijenije nego pre (6.4vw → 7.6vw): u thewatch registru naslov
-     nije tekst pored proizvoda nego ravnopravan objekat u kadru. */
-  font-size: clamp(3rem, 7.6vw, 8.25rem);
-  line-height: 0.86;
-  letter-spacing: -0.035em;
+  font-variation-settings: 'wdth' 75;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
-  margin: 0;
-  color: var(--ink);
-  text-shadow: 0 0.25rem 2.5rem rgba(0, 0, 0, 0.85);
+  color: var(--muted);
 }
 
-.naslov :global(.rvLine):last-child > span {
+.kickerBroj {
+  font-size: 1.25rem;
   color: var(--f-core);
   transition: color 900ms ease;
 }
 
-.naslovDesno {
-  text-align: right;
+.kickerCrta {
+  width: 2.5rem;
+  height: 0.0625rem;
+  background: var(--f-core);
+  opacity: 0.6;
+  transition: background 900ms ease;
 }
+
+/* --- naslovi ---------------------------------------------------------------- */
+
+/* Jedan red, bez preloma: dužinu ograničava svh (kratki laptop ekrani), a ne
+   samo širina — inače bi na 1920×900 naslov gurnuo peškir u donji naslov. */
+.naslov {
+  margin: 0;
+  color: var(--ink);
+  /* svh čuva niske laptop ekrane, vw uske desktop prozore (1100–1300 px) */
+  font-size: min(7.4rem, 10.5svh, 8.2vw);
+  line-height: 0.95;
+  text-shadow: 0.05em 0.055em 0 #262b33; /* tvrda GTA senka za bele reči */
+}
+
+.naslov :global(.rvLine) > span {
+  white-space: nowrap;
+  padding-bottom: 0.06em; /* maska (overflow:hidden) ne sme da odseče tačku */
+}
+
+.naslov em {
+  font-style: normal;
+}
+
+.zeleno {
+  color: var(--f-core);
+  text-shadow: 0.05em 0.055em 0 var(--f-deep);
+  transition: color 900ms ease;
+}
+
+.zlato {
+  color: var(--gold);
+  text-shadow: 0.05em 0.055em 0 var(--gold-deep);
+}
+
+/* --- opis, dugme, značka ---------------------------------------------------- */
 
 .opis {
   font-size: 1rem;
@@ -115,15 +198,13 @@
 
 .cta {
   display: flex;
+  pointer-events: auto; /* grid propušta kursor do scene; dugme ga vraća */
 }
-
-/* --- značka (kao award badge iz reference) ---------------------------------- */
 
 .znacka {
   display: flex;
   align-items: center;
   gap: 0.875rem;
-  margin-top: auto;
 }
 
 .znackaIkona {
@@ -158,126 +239,185 @@
   letter-spacing: 0.08em;
 }
 
-/* --- kartice strana --------------------------------------------------------- */
+/* --- meni (GTA pauza: lista opcija, aktivna svetli) ------------------------- */
 
-.kartice {
+.opcije {
   display: flex;
-  gap: 0.875rem;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 26rem; /* na 1920 px kolona naraste do 500 px; meni ne treba toliko */
   pointer-events: auto;
 }
 
-.kartica {
+.opcijeNaslov {
+  font-family: var(--font-display);
+  font-variation-settings: 'wdth' 75;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.25rem;
+}
+
+.tile {
   --k: var(--f-core);
-  position: relative;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 4.25rem minmax(0, 1fr) auto;
   align-items: center;
-  gap: 0.375rem;
-  width: 8.5rem;
-  padding: 4.5rem 0.875rem 1rem;
-  border-radius: 1.5rem;
-  text-align: center;
-  background: rgba(244, 246, 248, 0.05);
+  gap: 0.875rem;
+  width: 100%;
+  padding: 0.5rem 0.875rem 0.5rem 0.5rem;
+  border-radius: 0.75rem;
+  text-align: left;
+  background: rgba(244, 246, 248, 0.045);
   box-shadow: inset 0 0 0 0.0625rem var(--line);
   backdrop-filter: blur(0.625rem);
   -webkit-backdrop-filter: blur(0.625rem);
   transition:
-    background 320ms ease,
-    box-shadow 320ms ease;
+    background 240ms ease,
+    box-shadow 240ms ease,
+    transform 240ms ease;
 }
 
-.kartica:hover {
-  background: rgba(244, 246, 248, 0.1);
+.tile:hover {
+  background: rgba(244, 246, 248, 0.09);
+  transform: translateX(0.2rem);
 }
 
-.karticaOn {
-  box-shadow: inset 0 0 0 0.0938rem var(--k);
+.tileOn {
+  box-shadow:
+    inset 0 0 0 0.0938rem var(--k),
+    0 0 1.5rem rgba(var(--f-rgb), 0.18);
 }
 
-.kartica:focus-visible {
+.tile:focus-visible {
   outline: 0.125rem solid var(--k);
   outline-offset: 0.25rem;
 }
 
-/* Peškir viri iznad kartice i podiže se na hover — isti potez kao sa
-   limenkom u referenci, gde proizvod izlazi iz okvira kartice. */
-.kartica img {
-  position: absolute;
-  top: -2.75rem;
-  width: 6.5rem;
-  height: auto;
-  filter: drop-shadow(0 1rem 1.75rem rgba(0, 0, 0, 0.6));
-  transition: transform 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
-  pointer-events: none;
+.thumb {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 3rem;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background: rgba(7, 8, 10, 0.6);
 }
 
-.kartica:hover img {
-  transform: translateY(-0.75rem) rotate(-7deg) scale(1.08);
+.thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 0.2rem;
+  filter: drop-shadow(0 0.5rem 1rem rgba(0, 0, 0, 0.6));
+  transition: transform 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.karticaIme {
-  font-family: var(--font-display);
-  font-variation-settings: 'wdth' 125;
-  font-weight: 700;
-  font-size: 0.9375rem;
-  letter-spacing: 0.1em;
+.tile:hover .thumb img {
+  transform: scale(1.06) rotate(-2deg);
+}
+
+.tileText {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  min-width: 0;
+}
+
+.tileIme {
+  font-size: 1.125rem;
+  letter-spacing: 0.02em;
   color: var(--k);
 }
 
-.karticaBoja {
+.tileSub {
   font-size: 0.625rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--muted);
 }
 
-/* --- zaključana strana ------------------------------------------------------
-   Vidi se da postoji, ne može da se uzme. Isti peškir, prebojen u koralno
-   (hue 116° → 353° je +237°) i utišan — nagoveštaj, ne lažan proizvod. */
-
-.karticaZakljucana {
-  cursor: not-allowed;
-  background: rgba(244, 246, 248, 0.03);
-}
-
-.karticaZakljucana:hover {
-  background: rgba(244, 246, 248, 0.05);
-}
-
-.karticaZakljucana img {
-  filter: hue-rotate(237deg) saturate(0.55) brightness(0.42) drop-shadow(0 1rem 1.75rem rgba(0, 0, 0, 0.6));
-}
-
-/* Zaključana se ne diže na hover — ne obećava ono što se ne može uzeti. */
-.karticaZakljucana:hover img {
-  transform: none;
-}
-
-.karticaZakljucana .karticaIme {
-  color: var(--muted);
-}
-
-.kljuc {
-  position: absolute;
-  top: 0.75rem;
-  right: 0.75rem;
+.tileKraj {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 1.625rem;
-  height: 1.625rem;
-  border-radius: 50%;
+  width: 1.5rem;
   color: var(--k);
-  background: rgba(7, 8, 10, 0.85);
-  box-shadow: inset 0 0 0 0.0625rem rgba(var(--f-rgb), 0.25);
+  font-size: 0.875rem;
 }
 
-.hint {
-  max-width: 19rem;
+.tacka {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--k);
+  box-shadow: 0 0 0.75rem var(--k);
+}
+
+/* Zaključana: isti peškir, prebojen u koralno (hue 101° → 353° je +252°) i
+   utišan — nagoveštaj, ne lažan proizvod. Ne diže se na hover: ne obećava
+   ono što se ne može uzeti. */
+.tileLocked {
+  cursor: not-allowed;
+}
+.tileLocked:hover {
+  transform: none;
+  background: rgba(244, 246, 248, 0.06);
+}
+.tileLocked .thumb img {
+  filter: hue-rotate(252deg) saturate(0.6) brightness(0.5) drop-shadow(0 0.5rem 1rem rgba(0, 0, 0, 0.6));
+}
+.tileLocked:hover .thumb img {
+  transform: none;
+}
+.tileLocked .tileIme {
+  color: var(--muted);
+}
+
+/* Most Wanted: pet zvezdica traženosti, zlato. */
+.zvezde {
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  line-height: 1;
+  color: var(--gold);
+  text-shadow: 0 0 0.6rem rgba(var(--gold-rgb), 0.5);
+}
+.tileGold .tileIme {
+  color: var(--gold);
+}
+
+/* --- info o zaključanoj strani ---------------------------------------------- */
+
+.info {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 26rem;
+  padding: 0.75rem 0.875rem;
+  border-radius: 0.5rem;
+  background: rgba(7, 8, 10, 0.55);
+  box-shadow: inset 0 0 0 0.0625rem var(--line);
+  border-left: 0.1875rem solid var(--gold);
   font-size: 0.75rem;
   line-height: 1.5;
   color: var(--muted);
-  text-shadow: 0 0.125rem 1rem rgba(0, 0, 0, 0.9);
+  pointer-events: auto;
+}
+
+.infoTag {
+  flex: none;
+  font-family: var(--font-display);
+  font-variation-settings: 'wdth' 75;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gold);
+  padding-top: 0.15em;
 }
 
 /* --- podnožje --------------------------------------------------------------- */
@@ -286,14 +426,16 @@
   position: absolute;
   left: 0;
   right: 0;
-  bottom: 1.5rem;
+  bottom: 1.25rem;
   z-index: 2;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 1.25rem;
+  gap: 1.5rem;
+  font-family: var(--font-display);
+  font-variation-settings: 'wdth' 75;
   font-size: 0.75rem;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--muted);
   pointer-events: none;
@@ -302,7 +444,7 @@
 .trziste {
   color: var(--ink);
   font-weight: 600;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.22em;
 }
 
 .tvoja b {
@@ -310,8 +452,8 @@
   transition: color 900ms ease;
 }
 
-/* Skrol znak (thewatch): tanka linija koja "curi" nadole. Kaže da hero nije
-   kraj — da peškir poleti tek kad se skroluje. Nema ga na LOW (nema leta). */
+/* Skrol znak: tanka linija koja "curi" nadole — kaže da hero nije kraj, da
+   peškir poleti tek kad se skroluje. Nema ga na LOW (nema leta). */
 .skrol {
   display: flex;
   align-items: center;
@@ -357,45 +499,62 @@
 
 /* --- responzivno ------------------------------------------------------------ */
 
-@media (max-width: 1024px) {
+/* Uzak ekran: poster se slaže odozgo nadole. Scena postaje blok od 44svh u
+   redosledu — tekst više nije pored peškira nego ispod, pa nema šta da se sudari. */
+@media (max-width: 1100px) {
   .grid {
-    padding: 7rem 1.75rem 3rem;
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto 1fr auto;
+    grid-template-rows: none;
+    grid-template-areas:
+      'naslov'
+      'scena'
+      'desno'
+      'levo'
+      'kraj';
+    row-gap: 1.75rem;
+    padding: 6.5rem 1.5rem 5rem;
   }
-  .desno {
-    align-items: center;
-    text-align: center;
+  /* Scena i okvir dele istu ćeliju: okvir se razvuče na 44svh scene, pa
+     peškir puni ceo svoj blok — tu pored njega više nema teksta. */
+  .grid .scena {
+    position: relative;
+    inset: auto;
+    grid-area: scena;
+    height: 44svh;
   }
-  .naslovDesno {
-    text-align: center;
+  .naslov {
+    font-size: clamp(2.6rem, 11vw, 5.5rem);
+  }
+  .naslov :global(.rvLine) > span {
+    white-space: normal;
+  }
+  .kraj {
+    justify-self: stretch;
   }
   .levo {
-    align-items: center;
-    text-align: center;
+    align-items: flex-start;
   }
-  .opis {
-    margin-left: auto;
-    margin-right: auto;
+  .desno {
+    justify-content: flex-start;
+    align-items: stretch;
   }
-  .znacka {
-    margin-top: 0;
-    justify-content: center;
+  .opcije,
+  .info {
+    max-width: none;
   }
 }
 
 @media (max-width: 640px) {
   .grid {
-    padding: 6rem 1.25rem 4rem;
-    gap: 1.25rem;
+    padding: 5.5rem 1.25rem 4.75rem;
+    row-gap: 1.5rem;
   }
-  .kartica {
-    width: 7rem;
-    padding: 3.5rem 0.625rem 0.875rem;
+  .tile {
+    grid-template-columns: 4rem minmax(0, 1fr) auto;
+    padding: 0.4rem 0.75rem 0.4rem 0.4rem;
   }
-  .kartica img {
-    width: 5rem;
-    top: -2rem;
+  .thumb {
+    height: 3rem;
   }
   .cta {
     width: 100%;
@@ -406,5 +565,8 @@
     gap: 0.375rem;
     bottom: 1rem;
     font-size: 0.6875rem;
+  }
+  .skrol {
+    display: none;
   }
 }

@@ -24,6 +24,13 @@ import styles from './TowelStage.module.css';
 // LET NA SKROL (samo sa pokazivačem, ZAKON 4.2 — telefon nema scrub): dok se
 // hero skroluje, peškir se izvija, podiže i tone u providnost, a kapi ubrzaju
 // nagore. Kao kod thewatch — proizvod ne stoji dok stranica prolazi pored njega.
+//
+// KADAR (27. 9.): scena je na desktopu PUN kadar hero-a — kapi lete i kroz
+// naslove — ali peškir sme da stoji samo u ćeliji koju mu raspored ostavi bez
+// teksta. Do tada je peškir punio 84 % širine i naslovi su ležali preko njega,
+// zelena reč preko zelene tkanine. Ćeliju zadaje `okvir`: prazan element u
+// gridu hero-a čiji se pravougaonik izmeri i pretvori u kutiju u svetu.
+// Raspored tako ostaje u CSS-u; ovde se ne zna ni za kolone ni za prelome.
 
 const KAPI = { [LOW]: 0, [MID]: 150, high: 280 };
 
@@ -93,7 +100,7 @@ const KAP_FRAG = /* glsl */ `
   }
 `;
 
-export default function TowelStage({ tier, strana, izabrana, onTilt }) {
+export default function TowelStage({ tier, strana, izabrana, onTilt, className, okvir }) {
   const hostRef = useRef(null);
   const apiRef = useRef(null);
 
@@ -112,16 +119,64 @@ export default function TowelStage({ tier, strana, izabrana, onTilt }) {
     render.setPixelRatio(Math.min(window.devicePixelRatio, tier === LOW ? 1.5 : 2));
     host.appendChild(render.domElement);
 
+    // --- kapi -----------------------------------------------------------------
+    // Materijal kapi se pravi PRE peškira: uklopi() mu podešava veličinu tačke,
+    // a uklopi() se prvi put zove čim peškir dobije geometriju.
+    const brojKapi = KAPI[tier] ?? KAPI.high;
+    const boja = new THREE.Color(STRANE[MAMBA].core);
+    const poz = new Float32Array(brojKapi * 3);
+    const vel = new Float32Array(brojKapi);
+    const kapi = [];
+    for (let i = 0; i < brojKapi; i++) {
+      // Dubina ide od -2.6 (iza peškira) do +2.4 (ispred). Peškir je na 0 sa
+      // depthWrite, pa kapi iza njega stvarno nestaju iza tkanine. x se
+      // dodeljuje kad se sazna širina kadra (rasporediKapi).
+      const k = {
+        x: 0,
+        y: (Math.random() - 0.5) * 7,
+        z: (Math.random() - 0.5) * 5 - 0.1,
+        brz: 0.12 + Math.random() * 0.3,
+        faza: Math.random() * Math.PI * 2,
+        ox: 0,
+        oy: 0,
+      };
+      kapi.push(k);
+      vel[i] = 0.05 + Math.pow(Math.random(), 1.6) * 0.19; // mnogo sitnih, malo krupnih
+    }
+    const kapGeo = new THREE.BufferGeometry();
+    kapGeo.setAttribute('position', new THREE.BufferAttribute(poz, 3));
+    kapGeo.setAttribute('aVel', new THREE.BufferAttribute(vel, 1));
+    const kapMat = new THREE.ShaderMaterial({
+      vertexShader: KAP_VERT,
+      fragmentShader: KAP_FRAG,
+      transparent: true,
+      depthWrite: false, // kapi ne zaklanjaju jedna drugu
+      depthTest: true, // ali ih peškir zaklanja
+      uniforms: {
+        uPix: { value: 400 },
+        uBoja: { value: boja },
+      },
+    });
+    const tacke = new THREE.Points(kapGeo, kapMat);
+    tacke.frustumCulled = false;
+    if (brojKapi) scena.add(tacke);
+
     // --- peškir ---------------------------------------------------------------
     const VIS = 3.1;
     let odnos = 1.356; // rezerva do dolaska teksture; prava vrednost se čita iz slike
-    let osnovna = 1; // skala da peškir stane u kadar
+    let osnovna = 1; // skala da peškir stane u kutiju
+    let pxPoJed = 1; // CSS piksela po jedinici sveta na z = 0
     const vidno = { w: 1, h: 1 }; // vidljivi prostor na z = 0
+    // Kutija u koju peškir mora da stane i njen pomak od centra kadra, u svetu.
+    const kutija = { w: 1, h: 1, x: 0, y: 0 };
 
     const uklopi = () => {
-      // 84% vidljive širine i 90% visine — koliko god da je ekran uzak,
-      // peškir ostaje ceo u kadru umesto da ga kamera seče.
-      osnovna = Math.min(1, (0.84 * vidno.w) / (VIS * odnos), (0.9 * vidno.h) / VIS);
+      // 94 % širine ćelije i 78 % visine: ostatak je vazduh za naginjanje ka
+      // kursoru (bliža ivica u perspektivi naraste ~8 %) i za lebdenje.
+      osnovna = Math.min(1, (0.94 * kutija.w) / (VIS * odnos), (0.78 * kutija.h) / VIS);
+      // Kapi su srazmerne PEŠKIRU, ne ekranu — kad ćelija smanji peškir, smanje
+      // se i one. gl_PointSize je u pikselima BAFERA, pa množi i pixel ratio.
+      kapMat.uniforms.uPix.value = osnovna * VIS * pxPoJed * 0.76 * render.getPixelRatio();
     };
 
     const ucitaj = new THREE.TextureLoader();
@@ -156,66 +211,59 @@ export default function TowelStage({ tier, strana, izabrana, onTilt }) {
     grupa.add(peskir);
     scena.add(grupa);
 
-    // --- kapi -----------------------------------------------------------------
-    const brojKapi = KAPI[tier] ?? KAPI.high;
-    const boja = new THREE.Color(STRANE[MAMBA].core);
-    const poz = new Float32Array(brojKapi * 3);
-    const vel = new Float32Array(brojKapi);
-    const kapi = [];
-    for (let i = 0; i < brojKapi; i++) {
-      // Dubina ide od -2.6 (iza peškira) do +2.4 (ispred). Peškir je na 0 sa
-      // depthWrite, pa kapi iza njega stvarno nestaju iza tkanine.
-      const k = {
-        x: (Math.random() - 0.5) * 9,
-        y: (Math.random() - 0.5) * 7,
-        z: (Math.random() - 0.5) * 5 - 0.1,
-        brz: 0.12 + Math.random() * 0.3,
-        faza: Math.random() * Math.PI * 2,
-        ox: 0,
-        oy: 0,
-      };
-      kapi.push(k);
-      vel[i] = 0.05 + Math.pow(Math.random(), 1.6) * 0.19; // mnogo sitnih, malo krupnih
-    }
-    const kapGeo = new THREE.BufferGeometry();
-    kapGeo.setAttribute('position', new THREE.BufferAttribute(poz, 3));
-    kapGeo.setAttribute('aVel', new THREE.BufferAttribute(vel, 1));
-    const kapMat = new THREE.ShaderMaterial({
-      vertexShader: KAP_VERT,
-      fragmentShader: KAP_FRAG,
-      transparent: true,
-      depthWrite: false, // kapi ne zaklanjaju jedna drugu
-      depthTest: true, // ali ih peškir zaklanja
-      uniforms: {
-        uPix: { value: 400 },
-        uBoja: { value: boja },
-      },
-    });
-    const tacke = new THREE.Points(kapGeo, kapMat);
-    tacke.frustumCulled = false;
-    if (brojKapi) scena.add(tacke);
-
     // --- veličina -------------------------------------------------------------
-    let hostH = 1;
+    // Širina polja kapi na datoj dubini: dalje od kamere se vidi šire, pa
+    // daleke kapi moraju da se rasporede šire da kadar ne ostane prazan po
+    // ivicama; bliske uže, da se ne troše van kadra.
+    const sirinaNa = (z) => vidno.w * ((kamera.position.z - z) / kamera.position.z) + 0.6;
+    const rasporediKapi = () => {
+      for (const k of kapi) k.x = (Math.random() - 0.5) * sirinaNa(k.z);
+    };
+    let zadnjaW = 0;
+
     const razmeri = () => {
       const r = host.getBoundingClientRect();
       const w = Math.max(1, r.width);
       const h = Math.max(1, r.height);
-      hostH = h;
       render.setSize(w, h, false);
       kamera.aspect = w / h;
-      // Na uskom ekranu se kamera odmiče da peškir ne izađe iz kadra.
+      // Na uskom kadru se kamera odmiče da perspektiva ne izobliči ivice.
       kamera.position.z = w / h < 0.9 ? 8.4 : 6;
       kamera.updateProjectionMatrix();
       vidno.h = 2 * Math.tan((kamera.fov * Math.PI) / 360) * kamera.position.z;
       vidno.w = vidno.h * kamera.aspect;
+      pxPoJed = h / vidno.h;
+
+      // Kutija = pravougaonik okvira, izmeren u odnosu na kadar. Bez okvira
+      // (ili dok nema veličinu) peškir puni ceo kadar.
+      const o = okvir?.current?.getBoundingClientRect();
+      if (o && o.width > 1 && o.height > 1) {
+        kutija.w = o.width / pxPoJed;
+        kutija.h = o.height / pxPoJed;
+        kutija.x = (o.left + o.width / 2 - (r.left + w / 2)) / pxPoJed;
+        kutija.y = -(o.top + o.height / 2 - (r.top + h / 2)) / pxPoJed;
+      } else {
+        kutija.w = vidno.w;
+        kutija.h = vidno.h;
+        kutija.x = 0;
+        kutija.y = 0;
+      }
       uklopi();
-      // gl_PointSize je u pikselima BAFERA, pa množi i pixel ratio
-      kapMat.uniforms.uPix.value = h * 0.62 * render.getPixelRatio();
+
+      // Kapi pokrivaju vidljivu širinu. Na veliku promenu širine se preslože —
+      // inače bi posle promene rasporeda pola kadra bilo prazno minut vremena,
+      // koliko najsporijoj kapi treba da pređe kadar.
+      if (Math.abs(vidno.w - zadnjaW) > zadnjaW * 0.2) {
+        rasporediKapi();
+        zadnjaW = vidno.w;
+      }
     };
     razmeri();
     const ro = new ResizeObserver(razmeri);
     ro.observe(host);
+    // I okvir se posmatra: red grida može da promeni visinu (tekst se prelomi)
+    // a da se kadar hero-a ne promeni.
+    if (okvir?.current) ro.observe(okvir.current);
 
     // --- kursor ---------------------------------------------------------------
     const mis = { x: 0, y: 0 };
@@ -262,7 +310,9 @@ export default function TowelStage({ tier, strana, izabrana, onTilt }) {
       glatko.y += (mis.y - glatko.y) * (1 - Math.pow(0.0001, dt));
 
       // Napredak skrola kroz hero, ublažen. 0 na vrhu, 1 kad hero izađe.
-      const p = letenje ? Math.min(1, Math.max(0, window.scrollY / (hostH * 0.85))) : 0;
+      // Meri se prema visini prozora, ne kadra: kadar je hero, ali hero na
+      // niskom ekranu naraste preko 100svh i let bi se otegao.
+      const p = letenje ? Math.min(1, Math.max(0, window.scrollY / (window.innerHeight * 0.85))) : 0;
       const pe = p * p * (3 - 2 * p);
 
       if (zamena) {
@@ -285,7 +335,9 @@ export default function TowelStage({ tier, strana, izabrana, onTilt }) {
       grupa.rotation.y = glatko.x * 0.9 + obrt + pe * Math.PI * 0.7;
       grupa.rotation.x = glatko.y * 0.5 - pe * 0.42;
       grupa.rotation.z = pe * 0.22;
-      grupa.position.y = Math.sin(t * 0.8) * 0.12 + pe * 2.4;
+      // Stoji u sredini svoje kutije; lebdenje je srazmerno veličini peškira.
+      grupa.position.x = kutija.x;
+      grupa.position.y = kutija.y + Math.sin(t * 0.8) * 0.12 * osnovna + pe * 2.4;
       grupa.position.z = pe * 1.2;
 
       // Izabrana strana: peškir se primakne i smiri.
@@ -323,7 +375,7 @@ export default function TowelStage({ tier, strana, izabrana, onTilt }) {
 
           if (k.y > 3.8) {
             k.y = -3.8;
-            k.x = (Math.random() - 0.5) * 9;
+            k.x = (Math.random() - 0.5) * sirinaNa(k.z);
           }
           poz[i * 3] = k.x + k.ox;
           poz[i * 3 + 1] = k.y + k.oy;
@@ -362,6 +414,7 @@ export default function TowelStage({ tier, strana, izabrana, onTilt }) {
     };
     // `strana` namerno NIJE u zavisnostima — promena strane ide kroz
     // apiRef.prebaci() da bi se odigrala animacija umesto ponovnog montiranja.
+    // `okvir` je ref: ne menja se između rendera.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tier, izabrana]);
 
@@ -369,5 +422,5 @@ export default function TowelStage({ tier, strana, izabrana, onTilt }) {
     apiRef.current?.prebaci(strana || MAMBA);
   }, [strana]);
 
-  return <div ref={hostRef} className={styles.host} aria-hidden="true" />;
+  return <div ref={hostRef} className={`${styles.host} ${className || ''}`} aria-hidden="true" />;
 }

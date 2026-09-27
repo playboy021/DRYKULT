@@ -9,8 +9,10 @@ Nije prodavnica nego **kult oko sušenja**: kupci su članovi, i biraju stranu.
 Saradnja sa prethodnim brendom je raskinuta, mašina je ostala. Sve njegove fotke
 su obrisane. Ako negde naiđeš na plav peškir, to je zaostatak koji ne sme na sajt.
 
-Stanje: **hero i sekcija za poručivanje izgrađeni, vizuelno NIJE provereno u browseru**
-(razlog dole u „Zamke okruženja").
+Stanje (27. 9. 2026): **hero prerađen u GTA × Razer registar** (poster raspored, peškir
+slobodan u sredini, meni sa zaključanim PINK-om, sekcija MOST WANTED). **Prvi put
+vizuelno provereno u browseru** — 1440 × 900 i 375 × 812, hero, dokaz i Most Wanted;
+izbor strane, lom i mokri prelaz još nisu gledani uživo (vidi „Otvorena pitanja").
 
 ---
 
@@ -111,29 +113,73 @@ fizički mnogo svetlija od koralne. Ravnoteža se drži kompozicijom, ne bojom.
 **Pre izbora strane tokeni su neutralno beli.** Nijedna frakcija ne sme da bude
 podrazumevana jer bi tiho gurala posetioca ka sebi.
 
-### Tipografija
+### GTA × Razer registar (od 27. 9. 2026.)
 
-Logo je ugaoni italik, motorsport ton. Naslovi sajta zato idu u **Archivo**
-(širok i uspravan) — kontrast, ne takmičenje. Nikad naslov u sličnom kosom fontu.
+Stefanova referenca: Razer (neon na crnom) ukršten sa GTA (naslovi iz igre, HUD,
+„wanted" zvezdice). Šta to konkretno znači na sajtu:
+
+- **Naslovi u Passion One 900** (`--font-gta`, klasa `.gta`) — duh Pricedown-a
+  (fonta GTA logotipa), a ima `latin-ext`. Bowlby One je bio prvi izbor i otpao:
+  Google ga servira **samo u latin** podskupu, pa bi š đ č ć ž skakali u fallback.
+- **Tvrda pomerena senka** `.05em .055em 0` u tamnijem tonu ISTE boje: bele reči
+  `#262b33`, neon `--f-deep`, zlato `--gold-deep`. Crna senka na crnoj podlozi ne
+  postoji — zato ton, ne crno.
+- **Zlato `#F5C21B` je drugi i POSLEDNJI akcenat.** Nosi ga samo MOST WANTED
+  (zvezdice, tag, info-čip) i završna reč hero-a „greška." Neon = proizvod,
+  zlato = wanted. Treća boja bi bila buka.
+- **HUD red umesto neon trake.** Gornja traka je bila puna neon ploča preko cele
+  širine — jedina velika zelena površina na sajtu, i vikala je. Sada je crna, uzan
+  Archivo (`'wdth' 75`), neon samo u slovima; cena je čip kao brojač para.
+- **Hero je POSTER, ne kolone:** naslov gore-levo, završni red dole-desno, proizvod
+  slobodan u sredini, meni desno kao pauza u igri. Do 27. 9. su oba bloka teksta
+  ležala PREKO peškira (zelena reč preko zelene tkanine); Stefan ih je zaokružio
+  i pokazao ka uglovima. Grid `HeroB.module.css`: kolone `1fr 1.5fr 1fr`, redovi
+  `naslov / levo scena desno / kraj`. **Naslovi zauzimaju ceo red** — `nowrap` tekst
+  preliva UDESNO i kad je poravnat desno, pa bi h2 u samo trećoj koloni izleteo van
+  ekrana.
+- **Peškir dobija svoju ćeliju preko `okvir`-a.** Scena (`TowelStage`) je na desktopu
+  pun kadar hero-a (kapi lete i kroz naslove), ali peškir se uklapa u prazan element
+  `.okvir` koji stoji u srednjoj ćeliji grida: scena mu izmeri pravougaonik i skalira
+  peškir na 94 % širine / 78 % visine te ćelije (ostatak je vazduh za naginjanje —
+  bliža ivica u perspektivi naraste ~8 %). Raspored tako ostaje u CSS-u, JS ne zna
+  za kolone ni prelome; na uskom ekranu scena i okvir dele istu ćeliju od 44svh.
+- **Meni sa tri stavke:** MAMBA (aktivna), PINK (`tileLocked`: isti peškir prebojen
+  CSS filterom `hue-rotate(252deg)` i utišan, katanac, `cursor: not-allowed`) i MOST
+  WANTED (zvezdice, vodi na sekciju). Napomena o PINK-u je **info-čip** sa zlatnom
+  levom ivicom, ne tekst koji lebdi — ranije se čitala kao greška u prelomu.
+- Pozadina hero-a: radijalni gradijent u boji strane + **jedna dijagonalna traka**
+  (`112deg`, 7,5 % neona) kao na GTA loading ekranu + statično SVG zrno (soft-light,
+  7 %). Bez animiranog šuma.
+- Fontovi Archivo `'wdth' 75` ostaju za sve „HUD" natpise (kicker, meni, traka,
+  podnožje, tagovi) i za **brojeve** (`.broj`, `.vrednost`, cena) — Passion One nema
+  tabularne cifre i brojač bi poskakivao.
 
 ### Naslov hero-a
 
 ```
-Suvo je pravilo.
-Trag je greška.
-Izaberi stranu.     ← posle izbora postaje „Ti si MAMBA." u boji frakcije
+01 — premium microfiber · 1000 gsm      ← kicker, HUD stil
+Suvo je PRAVILO.                        ← gore-levo, PRAVILO u neonu
+Trag je GREŠKA.                         ← dole-desno, GREŠKA u zlatu
 ```
 
-Treći red radi i bez kursora (tap bira stranu), pa za razliku od ranijeg naslova
-ne mora da bude tier-svestan.
+Meni desno (`Izaberi stranu`) nosi izbor; tap radi i bez kursora.
 
 ### Tipografija
 
-- **Archivo** (varijabilan, osa `wdth`) za naslove. „Expanded" se dobija sa
-  `font-variation-settings: 'wdth' 125` — bez te linije dobija se obična uska Archivo.
+- **Passion One 900** (`--font-gta`) za naslove — vidi „GTA × Razer registar".
+- **Archivo** (varijabilan, osa `wdth`) za HUD natpise i brojeve: `'wdth' 75` uzan
+  verzal. Stari `'wdth' 125` naslovni stil ostaje samo u arhivi na `/a`.
 - **Inter** za telo.
-- Oba sa `subsets: ['latin','latin-ext']` — **latin-ext nosi š đ č ć ž**. Bez njega
-  se dijakritika renderuje iz fallback fonta i naslovi vidno „skaču".
+- Sva tri sa `subsets: ['latin','latin-ext']` — **latin-ext nosi š đ č ć ž**. Bez
+  njega se dijakritika renderuje iz fallback fonta i naslovi vidno „skaču".
+
+**ZAMKA koja je držala ceo sajt u Times New Roman-u mesecima:** `next/font` stavlja
+svoje promenljive (`--f-display`, `--f-body`, `--f-gta`) na **omotač** u `_app.js`,
+ne na `:root`. Dok je `--font-display: var(--f-display)` stajao na `:root`, ta
+promenljiva tamo ne postoji → cela deklaracija nevažeća → `font-family` pada na
+browserov podrazumevani serif. Konzola ništa ne javlja. Zato se pravi fontovi vezuju
+u **`.app`** (div omotač, `globals.css`), a `:root` drži samo rezerve. Provera u
+jednoj liniji: `getComputedStyle(document.querySelector('h1')).fontFamily`.
 
 ### Naslov hero-a
 
@@ -605,6 +651,16 @@ new Promise(r => { let n=0; requestAnimationFrame(()=>n++); setTimeout(()=>r({ra
 Ako je `raf: 0` i `vis: "hidden"` — problem je panel, ne kod. Isto pogađa Lenis,
 loader i liquid reveal, jer su svi rAF-vođeni.
 
+**27. 9. 2026. panel je prvi put radio** (`raf: 1`, `vis: visible`) — hero je snimljen
+na 1440 i 375. Ali stanje se menja usred sesije: čim se panel sakrije, sledeće
+učitavanje opet ne hidrira. Uvek prvo ta provera, tek onda tumačenje screenshot-a.
+
+### `next build` kvari `next dev` keš (Turbopack)
+Posle `npm run build` dev server na istom `.next` folderu pada sa
+`Could not parse module '[project]/node_modules/next/document.js', file not found`
+(HTTP 500 na svakoj strani), iako fajl postoji. Lek: ugasiti dev server, obrisati
+**`.next/dev`**, pokrenuti ponovo. Ne dirati `node_modules`.
+
 ### `devIndicators: false` mora da ostane
 Next-ov dev indikator ima trku: server pošalje `ISR_MANIFEST` preko HMR socket-a pre nego
 što hidracija popuni `window.next.router.components`, pa `handleStaticIndicator` baci
@@ -720,12 +776,13 @@ napravi na ekranu je jači od tuđih 3.532 recenzije, jer ga proverava sam, u to
 
 ## Otvorena pitanja
 
-1. **Vizuelna provera nije urađena.** Panel pregleda je bio skriven celu sesiju, pa
-   ni screenshot ni interakcija nisu mogli da se izvedu (vidi „Zamke okruženja").
-   Provereno je samo ono što ne traži kompoziciju: `npm run build` prolazi čist,
-   veličine asseta izmerene sa diska, konzola bez grešaka iz našeg koda.
-   **Ostaje da se potvrdi:** liquid reveal u pokretu, loader 000→100, otkrivanje
-   naslova, opružni hover, 1440px i 375px.
+1. **Vizuelna provera je delimična.** 27. 9. 2026. prvi put snimljeno u browseru:
+   hero (1440 × 900 i 375 × 812), let peškira na skrol, DOKAZ i MOST WANTED — sve
+   po planu, fontovi pravi. Izmereno u DOM-u: kolone 361 / 542 / 361, srednja ćelija
+   542 × 431, h1 i h2 ne dodiruju peškir. **Nije gledano uživo:** izbor strane sa
+   lomom, mokri prelaz, loader 000→100 (sesija ga preskače), 1280 × 720 i 1920 × 1080
+   (panel se sakrio pre tih merenja; raspored je rem-proporcionalan pa se ne očekuje
+   razlika), hover peškira i dugmeta.
 
 2. **Sav materijal sa autom je iz starog brenda — peškir je PLAV.** Zato su
    `Hero.js` i liquid reveal sekcija skinuti sa stranice, a `order-hook.mp4`
@@ -760,7 +817,12 @@ lib/spring.js        rAF integrator, konfiguracije enter/hover/panel/follow
 lib/scrollLock.js    stopScroll/startScroll sa brojanjem brava
 lib/remScale.js      skaliranje rem-mreže iznad 1920px
 
-components/SideChooser.js    HERO — izaberi stranu
+components/HeroB.js          HERO — poster raspored, meni strana, info-čip
+components/TowelStage.js     3D peškir + kapi; uklapa se u `.okvir` ćeliju
+components/MostWanted.js     najava opreme (patosnice, amblemi, gedžeti) — zlato
+components/SiteHeader.js     HUD traka + navigacija + logotip
+components/Logo.js           Wordmark / Mark kao inline SVG (ista geometrija kao logo/)
+components/SideChooser.js    stari hero (arhiva /a) — izaberi stranu nabojem
 components/SideSwitch.js     diskretan prekidač strane
 components/WetTransition.js  mokri prelaz na klik, u boji frakcije
 components/LiquidButton.js   3D dugme na oprugama

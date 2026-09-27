@@ -25,10 +25,21 @@
   --f-deep: #3a3f45;
   --f-rgb: 244, 246, 248;
 
-  /* --f-display / --f-body postavlja next/font u _app.js (self-hosted).
-     Sistemski fallback stoji za slučaj da font ne stigne. */
-  --font-display: var(--f-display), 'Archivo', system-ui, sans-serif;
-  --font-body: var(--f-body), system-ui, -apple-system, sans-serif;
+  /* FONTOVI — prave vrednosti se vezuju u `.app` niže, NE ovde.
+     next/font stavlja --f-display/--f-body/--f-gta na omotač u _app.js, pa na
+     :root te promenljive NE POSTOJE. Dok je ovde stajalo `var(--f-display)`,
+     cela deklaracija je bila nevažeća, font-family je padao na podrazumevani
+     browserov — i ceo sajt se crtao u Times New Roman-u. Mesecima. Ovo dole su
+     samo rezerve za slučaj da omotač izostane. */
+  --font-display: 'Archivo', system-ui, sans-serif;
+  --font-body: system-ui, -apple-system, sans-serif;
+  --font-gta: Impact, 'Arial Black', sans-serif;
+
+  /* GTA sloj: zlato "wanted" zvezdica. Nosi SAMO Most Wanted i završnu reč
+     hero-a. Dva akcenta (neon + zlato) su sistem; treći bi bio buka. */
+  --gold: #f5c21b;
+  --gold-rgb: 245, 194, 27;
+  --gold-deep: #6e5304;
 
   /* Krive iz reference — po redovima sporije i mekše, po rečima brže */
   --ease-lines: cubic-bezier(0.215, 0.61, 0.355, 1);
@@ -71,6 +82,27 @@
    registracije, pa se prelivanje u boju frakcije radi na samim elementima
    (color/background/box-shadow), ne ovde. Pokušaj `transition: --f-core`
    je tiho mrtav kod — izgleda kao da radi, a ne radi ništa. */
+
+/* Vezivanje PRAVIH fontova. Mora na omotač koji nosi next/font promenljive
+   (div.app u _app.js) — na :root ne rade, vidi napomenu gore. */
+.app {
+  --font-display: var(--f-display), 'Archivo', system-ui, sans-serif;
+  --font-body: var(--f-body), system-ui, -apple-system, sans-serif;
+  --font-gta: var(--f-gta), Impact, 'Arial Black', sans-serif;
+  font-family: var(--font-body);
+  min-height: 100%;
+}
+
+/* GTA naslovni registar — duh Pricedown-a: težak, uspravan, verzal, sa TVRDOM
+   pomerenom senkom kao naslov u igri. Na crnoj podlozi crna senka ne postoji,
+   pa senku nosi tamniji ton iste boje (vidi .zeleno / .zlato u hero-u). */
+.gta {
+  font-family: var(--font-gta);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.004em;
+  line-height: 0.92;
+}
 
 /* rem-mreža: html font-size je procenat širine ekrana.
    Iznad 1920px JS skalira naviše (vidi lib/remScale.js) —

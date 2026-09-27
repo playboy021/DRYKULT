@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { stopScroll, startScroll } from '../lib/scrollLock';
+import { Wordmark } from './Logo';
 import styles from './Loader.module.css';
 
 const DURATION = 1300; // koliko brojač putuje 000 → 100 kad je sve već tu
@@ -109,7 +110,9 @@ export default function Loader({ assets = [], onDone }) {
   return (
     <div className={`${styles.wrap} ${leaving ? styles.leaving : ''}`} aria-hidden={leaving}>
       <div className={styles.inner}>
-        <div className={styles.brand}>DRYKULT</div>
+        <div className={styles.brand}>
+          <Wordmark className={styles.brandSvg} />
+        </div>
         <div className={styles.count}>{pad3(pct)}</div>
       </div>
       <div className={styles.track}>

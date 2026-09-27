@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import TowelStage from './TowelStage';
 import LiquidButton from './LiquidButton';
 import { RevealLines, RevealWords, RevealFade } from './Reveal';
@@ -5,42 +6,87 @@ import { STRANE, PINK, MAMBA, peskirSlika } from '../lib/faction';
 import { LOW } from '../lib/device';
 import styles from './HeroB.module.css';
 
-// HERO.
+// HERO — GTA × Razer.
 //
-// Obrazac je iz reference (thewatch): proizvod je u 3D u sredini, prati kursor
-// i LETI na skrol; sa strane su kartice varijanti. Potvrđuje se dugmetom.
+// Kompozicija je POSTER, ne kolone: ogroman naslov gore-levo, ogroman naslov
+// dole-desno, proizvod slobodan u sredini, opcije desno kao meni u igri.
+// Stefan je 27. 9. zaokružio baš ta dva bloka teksta i pokazao ka uglovima:
+// do tada su ležali PREKO peškira, zelena reč preko zelene tkanine, i ništa
+// se nije čitalo. Sada ništa ne dodiruje peškir.
 //
-// Od 9. 9. 2026. proizvod je fabrički render: ZELENO telo, CRNA štampa,
-// vodoravan. Kapi vode su u 3D sceni (TowelStage), ne više kao CSS sloj —
-// žive u istom prostoru kao peškir i on ih zaklanja.
+// Registar: naslovi u GTA fontu (Passion One, duh Pricedown-a) sa tvrdom
+// pomerenom senkom; zavrsna reč gore je NEON (proizvod), dole ZLATO (wanted).
+// Kapi vode su u 3D sceni (TowelStage) — žive u istom prostoru kao peškir.
 //
-// PINK je ZAKLJUČAN: kartica se vidi da se zna da ženska verzija dolazi, ali
-// ne može da se izabere. Bez datuma, bez odbrojavanja — pravilo poštenja.
+// PINK je ZAKLJUČAN: vidi se da dolazi, ne može da se uzme. MOST WANTED vodi
+// na najavu opreme. Bez datuma, bez odbrojavanja — pravilo poštenja.
+
+const MOST_WANTED = 'most-wanted';
+
+function Katanac() {
+  return (
+    <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+      <path
+        fill="currentColor"
+        d="M7 10V8a5 5 0 0 1 10 0v2h1a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h1Zm2 0h6V8a3 3 0 0 0-6 0v2Z"
+      />
+    </svg>
+  );
+}
 
 export default function HeroB({ tier, ready, strana, izabrana, onIzbor, onPoruci }) {
   const f = STRANE[strana] || STRANE[MAMBA];
+  // Prazna ćelija grida u koju peškir mora da stane (vidi TowelStage).
+  const okvirRef = useRef(null);
+
+  const naSekciju = (e, id) => {
+    e.preventDefault();
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (window.__lenis) window.__lenis.scrollTo(el, { offset: -80 });
+    else el.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  // Tri opcije, jedan meni. Zaključana nosi ISTI peškir, prebojen i utišan
+  // kroz CSS — nagoveštaj, ne lažan proizvod.
+  const opcije = [
+    { id: MAMBA, ime: 'Mamba', sub: STRANE[MAMBA].boja, k: STRANE[MAMBA].core, slika: peskirSlika(MAMBA, tier, 'sm') },
+    { id: PINK, ime: 'Pink', sub: 'ženska verzija · uskoro', k: STRANE[PINK].core, slika: peskirSlika(MAMBA, tier, 'sm'), zakljucana: true },
+    { id: MOST_WANTED, ime: 'Most Wanted', sub: 'oprema · uskoro', k: 'var(--gold)', zvezde: true, sekcija: true },
+  ];
 
   return (
     <section className={styles.hero} data-strana={strana || 'mamba'}>
-      <TowelStage tier={tier} strana={strana} izabrana={izabrana} />
-
       <div className={styles.grid}>
-        {/* --- levo --------------------------------------------------------- */}
-        <div className={styles.levo}>
+        {/* Scena je na desktopu pun kadar iza svega (kapi lete kroz tekst),
+            a na uskom ekranu običan blok u redosledu. Razliku pravi CSS. */}
+        <TowelStage className={styles.scena} okvir={okvirRef} tier={tier} strana={strana} izabrana={izabrana} />
+        {/* Ćelija bez teksta. Scena joj meri pravougaonik i u njega uklapa
+            peškir — raspored (kolone, prelomi) ostaje u CSS-u. */}
+        <div ref={okvirRef} className={styles.okvir} aria-hidden="true" />
+
+        {/* --- gore-levo ------------------------------------------------- */}
+        <div className={styles.naslovBlok}>
           <RevealFade className={styles.kicker} ready={ready} delay={120}>
-            <span className={styles.kickerBroj}>01</span>
+            <span className={`gta ${styles.kickerBroj}`}>01</span>
             <span className={styles.kickerCrta} aria-hidden="true" />
             <span>premium microfiber · 1000 gsm</span>
           </RevealFade>
-
           <RevealLines
-            lines={['Suvo je', 'pravilo.']}
             as="h1"
-            className={styles.naslov}
+            className={`gta ${styles.naslov}`}
             ready={ready}
-            stagger={120}
             delay={220}
+            lines={[
+              <>
+                Suvo je <em className={styles.zeleno}>pravilo.</em>
+              </>,
+            ]}
           />
+        </div>
+
+        {/* --- levo, sredina --------------------------------------------- */}
+        <div className={styles.levo}>
           <RevealWords
             className={styles.opis}
             text="Twisted-loop strana kupi vodu iz prve. Plišana polira ono što ostane. Jedan prelaz preko panela i nema ni kapi ni traga."
@@ -59,7 +105,6 @@ export default function HeroB({ tier, ready, strana, izabrana, onIzbor, onPoruci
               Poruči — 3.000 RSD
             </LiquidButton>
           </RevealFade>
-
           <RevealFade className={styles.znacka} ready={ready} delay={1120}>
             <span className={styles.znackaIkona} aria-hidden="true">
               ◇
@@ -71,65 +116,75 @@ export default function HeroB({ tier, ready, strana, izabrana, onIzbor, onPoruci
           </RevealFade>
         </div>
 
-        {/* --- desno -------------------------------------------------------- */}
+        {/* --- desno, sredina: meni ---------------------------------------- */}
         <div className={styles.desno}>
-          <RevealFade className={styles.kartice} ready={ready} delay={1000}>
-            {[MAMBA, PINK].map((id) => {
-              const s = STRANE[id];
-              const aktivna = (strana || MAMBA) === id;
-              const zakljucana = !!s.zakljucano;
+          <RevealFade className={styles.opcije} ready={ready} delay={900}>
+            <span className={styles.opcijeNaslov}>Izaberi stranu</span>
+            {opcije.map((o) => {
+              const aktivna = !o.sekcija && (strana || MAMBA) === o.id;
               return (
                 <button
-                  key={id}
+                  key={o.id}
                   type="button"
                   className={[
-                    styles.kartica,
-                    aktivna ? styles.karticaOn : '',
-                    zakljucana ? styles.karticaZakljucana : '',
+                    styles.tile,
+                    aktivna ? styles.tileOn : '',
+                    o.zakljucana ? styles.tileLocked : '',
+                    o.zvezde ? styles.tileGold : '',
                   ].join(' ')}
-                  style={{ '--k': s.core }}
-                  onClick={() => !zakljucana && onIzbor(id)}
-                  aria-pressed={aktivna}
-                  aria-disabled={zakljucana || undefined}
-                  title={zakljucana ? `${s.ime} — ${s.uskoro}, uskoro` : undefined}
+                  style={{ '--k': o.k }}
+                  onClick={(e) => {
+                    if (o.sekcija) naSekciju(e, MOST_WANTED);
+                    else if (!o.zakljucana) onIzbor(o.id);
+                  }}
+                  aria-pressed={o.sekcija ? undefined : aktivna}
+                  aria-disabled={o.zakljucana || undefined}
+                  title={o.zakljucana ? 'PINK — ženska verzija, uskoro' : undefined}
                 >
-                  {/* Zaključana kartica nosi ISTI peškir, samo prebojen i utišan
-                      kroz CSS filter — nagoveštaj, ne lažan proizvod. */}
-                  <img
-                    src={peskirSlika(zakljucana ? MAMBA : id, tier, 'sm')}
-                    alt={zakljucana ? `${s.ime} — uskoro` : `DRYKULT peškir — strana ${s.ime}`}
-                    draggable={false}
-                  />
-                  {zakljucana && (
-                    <span className={styles.kljuc} aria-hidden="true">
-                      <svg viewBox="0 0 24 24" width="14" height="14">
-                        <path
-                          fill="currentColor"
-                          d="M7 10V8a5 5 0 0 1 10 0v2h1a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h1Zm2 0h6V8a3 3 0 0 0-6 0v2Z"
-                        />
-                      </svg>
-                    </span>
-                  )}
-                  <span className={styles.karticaIme}>{s.ime}</span>
-                  <span className={styles.karticaBoja}>{zakljucana ? 'uskoro' : s.boja}</span>
+                  <span className={styles.thumb}>
+                    {o.zvezde ? (
+                      <span className={`gta ${styles.zvezde}`} aria-hidden="true">
+                        ★★★★★
+                      </span>
+                    ) : (
+                      <img src={o.slika} alt="" draggable={false} />
+                    )}
+                  </span>
+                  <span className={styles.tileText}>
+                    <span className={`gta ${styles.tileIme}`}>{o.ime}</span>
+                    <span className={styles.tileSub}>{o.sub}</span>
+                  </span>
+                  <span className={styles.tileKraj} aria-hidden="true">
+                    {o.zakljucana ? <Katanac /> : o.sekcija ? '→' : <span className={styles.tacka} />}
+                  </span>
                 </button>
               );
             })}
           </RevealFade>
 
-          <RevealFade className={styles.hint} ready={ready} delay={1240}>
-            PINK je zaključan — ženska verzija se pravi. Otključavamo čim bude spremna.
+          {/* Napomena o zaključanoj strani kao ISTAKNUTA informacija, ne kao
+              tekst koji lebdi — ranije je stajala siva pored peškira i čitala
+              se kao greška u prelomu. */}
+          <RevealFade className={styles.info} ready={ready} delay={1150}>
+            <span className={styles.infoTag}>Info</span>
+            <span>
+              PINK je ženska verzija i u izradi je. Otključava se čim bude spremna — bez datuma dok je nema.
+            </span>
           </RevealFade>
-
-          <RevealLines
-            lines={['Trag je', 'greška.']}
-            as="h2"
-            className={`${styles.naslov} ${styles.naslovDesno}`}
-            ready={ready}
-            stagger={120}
-            delay={420}
-          />
         </div>
+
+        {/* --- dole-desno ---------------------------------------------------- */}
+        <RevealLines
+          as="h2"
+          className={`gta ${styles.naslov} ${styles.kraj}`}
+          ready={ready}
+          delay={420}
+          lines={[
+            <>
+              Trag je <em className={styles.zlato}>greška.</em>
+            </>,
+          ]}
+        />
       </div>
 
       <div className={styles.podnozje}>

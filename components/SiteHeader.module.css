@@ -20,22 +20,37 @@
   border-bottom-color: transparent;
 }
 
+/* HUD red (GTA gornja linija): crno, uzan verzal, neon samo u slovima.
+   Ranije je ovo bila puna neon ploča preko cele širine — jedina velika zelena
+   površina na sajtu, i zato je vikala. */
 .traka {
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 0.875rem;
   height: 2.25rem;
   padding: 0 1rem;
-  background: var(--f-core);
-  color: var(--bg);
+  background: #050608;
+  border-bottom: 0.0625rem solid rgba(var(--f-rgb), 0.3);
+  color: var(--f-core);
+  font-family: var(--font-display);
+  font-variation-settings: 'wdth' 75; /* uzan Archivo = HUD registar */
   font-size: 0.75rem;
   font-weight: 600;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   overflow: hidden;
-  /* Traka je jedino mesto gde boja frakcije pokriva veliku površinu —
-     zato tamni tekst na njoj, isti odnos kao na punom dugmetu. */
-  transition: background 700ms ease;
+  transition:
+    color 700ms ease,
+    border-color 700ms ease;
+}
+
+.trakaTag {
+  color: var(--gold);
+  font-size: 0.6875rem;
+  letter-spacing: 0.22em;
+  padding-right: 0.875rem;
+  border-right: 0.0625rem solid rgba(244, 246, 248, 0.14);
 }
 
 .poruka {
@@ -64,14 +79,12 @@
   margin: 0 auto;
 }
 
+/* Pravi logotip (inline SVG, ista geometrija kao kod fabrike). */
 .logo {
-  font-family: var(--font-display);
-  font-variation-settings: 'wdth' 125;
-  font-weight: 700;
-  font-size: 1.125rem;
-  letter-spacing: 0.14em;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.15rem;
   color: var(--ink);
-  white-space: nowrap;
   padding: 0.25rem 0;
   transition: opacity 180ms ease;
 }
@@ -84,10 +97,15 @@
   border-radius: 0.125rem;
 }
 
+.logoSvg {
+  display: block;
+  height: 0.9375rem;
+  width: auto;
+}
+
 .reg {
-  font-size: 0.5em;
-  vertical-align: super;
-  margin-left: 0.15em;
+  font-size: 0.5625rem;
+  line-height: 1;
   color: var(--f-core);
   transition: color 700ms ease;
 }
@@ -126,6 +144,15 @@
 .linkovi a:hover::after {
   left: 0;
   right: 0;
+}
+
+.mwZvezda {
+  color: var(--gold);
+  margin-left: 0.4em;
+  font-size: 0.9em;
+}
+.mw:hover::after {
+  background: var(--gold);
 }
 
 .desno {
@@ -178,9 +205,19 @@
   box-shadow: 0 0 0.5rem var(--f-core);
 }
 
+/* Cena kao GTA brojač para: uzan verzal, neon, tanak okvir. */
 .cena {
-  color: var(--muted);
+  font-family: var(--font-display);
+  font-variation-settings: 'wdth' 75;
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
+  color: var(--f-core);
+  padding: 0.3rem 0.6rem;
+  border-radius: 0.25rem;
+  box-shadow: inset 0 0 0 0.0625rem rgba(var(--f-rgb), 0.32);
+  transition:
+    color 700ms ease,
+    box-shadow 700ms ease;
 }
 
 @media (max-width: 720px) {
@@ -189,9 +226,8 @@
     gap: 1rem;
     padding: 0 1rem;
   }
-  .logo {
-    font-size: 0.9375rem;
-    letter-spacing: 0.1em;
+  .logoSvg {
+    height: 0.8125rem;
   }
   .linkovi {
     gap: 1rem;
@@ -208,6 +244,9 @@
   .traka {
     height: 2rem;
     font-size: 0.625rem;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.08em;
+  }
+  .trakaTag {
+    display: none;
   }
 }

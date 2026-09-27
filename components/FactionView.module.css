@@ -47,19 +47,25 @@
   color: var(--f-core);
 }
 
+/* GTA registar (27. 9.): isti font i ista tvrda senka kao naslovi hero-a. */
 .ime {
-  font-family: var(--font-display);
-  font-variation-settings: 'wdth' 125;
-  font-weight: 700;
+  font-family: var(--font-gta);
+  font-weight: 900;
   font-size: 5rem;
-  line-height: 0.94;
-  letter-spacing: -0.025em;
+  line-height: 0.92;
+  letter-spacing: 0.004em;
   text-transform: uppercase;
+  text-shadow: 0.05em 0.055em 0 #262b33;
   margin: 0 0 1.5rem;
+}
+
+.ime :global(.rvLine) > span {
+  padding-bottom: 0.06em;
 }
 
 .ime :global(.rvLine):last-child > span {
   color: var(--f-core);
+  text-shadow: 0.05em 0.055em 0 var(--f-deep);
 }
 
 .opis {
