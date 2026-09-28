@@ -344,9 +344,9 @@ function podloga(g, { band = true, bg = B.bg } = {}) {
 
 const POSTOVI = {
   // 01 — manifest, prva polovina
-  manifest1(g) {
+  manifest1(g, br) {
     podloga(g);
-    broj(g, 1, S);
+    if (br) broj(g, br, S);
     gta(g, 'Suvo je', S * 0.075, S * 0.47, S * 0.17);
     gta(g, 'pravilo.', S * 0.075, S * 0.63, S * 0.17, { boja: B.core, senka: B.deep });
     hud(g, 'premium microfiber · 1000 gsm', S * 0.075, S * 0.72, S * 0.024);
@@ -354,9 +354,9 @@ const POSTOVI = {
   },
 
   // 02 — gramaža
-  gsm(g) {
+  gsm(g, br) {
     podloga(g);
-    broj(g, 2, S);
+    if (br) broj(g, br, S);
     gta(g, '1000', S / 2, S * 0.52, S * 0.3, { boja: B.core, senka: B.deep, align: 'center' });
     gta(g, 'GSM', S / 2, S * 0.63, S * 0.09, { align: 'center' });
     telo(g, 'Gramaža koja se meri na uzorku, ne prepisuje sa tuđe etikete.', S / 2, S * 0.73, S * 0.028, S * 0.7, {
@@ -366,9 +366,9 @@ const POSTOVI = {
   },
 
   // 03 — manifest, druga polovina (zlato = ono što ne sme da se desi)
-  manifest2(g) {
+  manifest2(g, br) {
     podloga(g);
-    broj(g, 3, S);
+    if (br) broj(g, br, S);
     gta(g, 'Trag je', S * 0.075, S * 0.47, S * 0.17);
     gta(g, 'greška.', S * 0.075, S * 0.63, S * 0.17, { boja: B.gold, senka: B.goldDeep });
     hud(g, 'twisted-loop · dve strane', S * 0.075, S * 0.72, S * 0.024);
@@ -376,9 +376,9 @@ const POSTOVI = {
   },
 
   // 04 — sastav
-  sastav(g) {
+  sastav(g, br) {
     podloga(g);
-    broj(g, 4, S);
+    if (br) broj(g, br, S);
     gta(g, '80/20', S / 2, S * 0.5, S * 0.22, { boja: B.core, senka: B.deep, align: 'center' });
     hud(g, 'poliester / poliamid', S / 2, S * 0.6, S * 0.032, { boja: B.ink, align: 'center' });
     telo(g, 'Poliamid je ono što vodu vuče u sebe. Ispod 20 % peškir samo razmazuje.', S / 2, S * 0.69, S * 0.028, S * 0.72, {
@@ -388,8 +388,9 @@ const POSTOVI = {
   },
 
   // 05 — proizvod (centar zida)
-  async proizvod(g) {
+  async proizvod(g, br) {
     podloga(g, { band: false });
+    if (br) broj(g, br, S);
     const im = await loadImage(path.join(KOREN, 'public', 'drykult', 'mamba-hi.webp'));
     g.save();
     g.shadowColor = `rgba(${B.rgb},0.45)`;
@@ -401,9 +402,9 @@ const POSTOVI = {
   },
 
   // 06 — garancija
-  garancija(g) {
+  garancija(g, br) {
     podloga(g);
-    broj(g, 6, S);
+    if (br) broj(g, br, S);
     gta(g, '2', S / 2, S * 0.5, S * 0.34, { boja: B.core, senka: B.deep, align: 'center' });
     gta(g, 'godine garancije', S / 2, S * 0.6, S * 0.072, { align: 'center' });
     telo(g, 'Desi li se peškiru bilo šta nepredviđeno u prve dve godine — dobijaš nov. Od nas, bez natezanja.', S / 2, S * 0.69, S * 0.028, S * 0.74, { align: 'center' });
@@ -411,10 +412,10 @@ const POSTOVI = {
   },
 
   // 07 — Most Wanted (jedini zlatni post)
-  wanted(g) {
+  wanted(g, br) {
     podloga(g, { bg: B.crna });
     traka(g, S, S, `rgba(245,194,27,0.06)`);
-    broj(g, 7, S);
+    if (br) broj(g, br, S);
     zvezde(g, S / 2, S * 0.37, S * 0.042, B.gold);
     gta(g, 'Most', S / 2, S * 0.55, S * 0.13, { align: 'center' });
     gta(g, 'Wanted.', S / 2, S * 0.68, S * 0.13, { boja: B.gold, senka: B.goldDeep, align: 'center' });
@@ -423,8 +424,9 @@ const POSTOVI = {
   },
 
   // 08 — sajt (zato Instagram i postoji)
-  async sajt(g) {
+  async sajt(g, br) {
     podloga(g, { band: false, bg: B.crna });
+    if (br) broj(g, br, S);
     const im = await loadImage(path.join(KOREN, 'assets-src', 'drykult', 'sajt-hero.png'));
     const ram = { x: S * 0.06, y: S * 0.26, w: S * 0.88 };
     const h = (ram.w * im.height) / im.width;
@@ -454,9 +456,9 @@ const POSTOVI = {
   },
 
   // 09 — izaberi stranu (PINK je zaključan, i to se vidi)
-  strane(g) {
+  strane(g, br) {
     podloga(g);
-    broj(g, 9, S);
+    if (br) broj(g, br, S);
     gta(g, 'Izaberi', S / 2, S * 0.3, S * 0.11, { align: 'center' });
     gta(g, 'stranu.', S / 2, S * 0.395, S * 0.11, { boja: B.core, senka: B.deep, align: 'center' });
 
@@ -559,21 +561,65 @@ const TIHO = {
 // ============================================================================
 //  PRAVAC C — TRAKA (gornji red je JEDNA slika presečena na tri)
 // ============================================================================
+// Dva pravila koja ovu traku drže u životu, oba naučena na prvoj verziji:
+//
+// 1. RAZMACI SEKU SLOVA. Instagram između pločica ostavlja procep, a mreža seče
+//    tačno na trećinama. Prva verzija je razvukla logotip preko cele širine i
+//    procep je pao usred „1000" i usred „MICROFIBER". Zato nijedan tekst više ne
+//    prelazi granicu: svaki natpis stoji ceo unutar svoje pločice, a utisak
+//    jedne slike nose POZADINA (gradijent, dijagonala, zrno) i tanka neon linija
+//    koja teče kroz sve tri na istoj visini.
+//
+// 2. SVAKA PLOČICA JE I SAMOSTALNA OBJAVA. U tuđem feedu se ne vidi zid nego
+//    jedna slika — trećina logotipa tamo ne znači ništa. Zato je leva pločica
+//    znak, srednja logotip, desna manifest: svaka stoji sama, a zajedno prave
+//    baner.
+let _trakaKes = null;
 async function trakaRed(indeks) {
-  // Jedna široka slika 3240 × 1080, pa isečak — pločice se u profilu spajaju.
-  const W = S * 3;
-  const { c, g } = platno(W, S, B.bg);
-  const grad = g.createLinearGradient(0, 0, W, S);
-  grad.addColorStop(0, `rgba(${B.rgb},0.14)`);
-  grad.addColorStop(1, 'rgba(0,0,0,0)');
-  g.fillStyle = grad;
-  g.fillRect(0, 0, W, S);
-  traka(g, W, S);
-  const im = await loadImage(path.join(KOREN, 'logo', 'png', 'drykult-horizontal-spec-white.png'));
-  uklopi(g, kljucBele(im), W / 2, S * 0.45, W * 0.74, S * 0.5);
-  hud(g, 'suvo je pravilo · trag je greška', W / 2, S * 0.78, S * 0.032, { boja: B.core, align: 'center', spacing: S * 0.014 });
+  if (!_trakaKes) {
+    const W = S * 3;
+    const { c, g } = platno(W, S, B.bg);
+    const grad = g.createLinearGradient(0, 0, W, S);
+    grad.addColorStop(0, `rgba(${B.rgb},0.16)`);
+    grad.addColorStop(0.5, `rgba(${B.rgb},0.05)`);
+    grad.addColorStop(1, 'rgba(0,0,0,0)');
+    g.fillStyle = grad;
+    g.fillRect(0, 0, W, S);
+    traka(g, W, S, `rgba(${B.rgb},0.06)`);
+
+    // Neon linija kroz sve tri pločice — jedini element koji NAMERNO prelazi
+    // granicu. Linija se preseca čisto, slova ne.
+    g.save();
+    g.strokeStyle = `rgba(${B.rgb},0.55)`;
+    g.lineWidth = S * 0.005;
+    g.beginPath();
+    g.moveTo(0, S * 0.8);
+    g.lineTo(W, S * 0.8);
+    g.stroke();
+    g.restore();
+
+    const sredina = (i) => S * i + S / 2; // centar i-te pločice
+
+    // LEVA — znak
+    const znak = await loadImage(path.join(KOREN, 'logo', 'png', 'drykult-mark-mamba.png'));
+    uklopi(g, znak, sredina(0), S * 0.42, S * 0.34, S * 0.44);
+    hud(g, 'kap presečena pod 45°', sredina(0), S * 0.9, S * 0.026, { align: 'center' });
+
+    // SREDNJA — logotip sa spec linijom, ceo unutar svoje pločice
+    const logo = await loadImage(path.join(KOREN, 'logo', 'png', 'drykult-horizontal-spec-white.png'));
+    uklopi(g, kljucBele(logo), sredina(1), S * 0.42, S * 0.84, S * 0.42);
+    hud(g, '90 × 70 cm · 80/20 · garancija 2 godine', sredina(1), S * 0.9, S * 0.026, { align: 'center' });
+
+    // DESNA — manifest
+    gta(g, 'Suvo je pravilo.', sredina(2), S * 0.4, S * 0.082, { align: 'center' });
+    gta(g, 'Trag je greška.', sredina(2), S * 0.52, S * 0.082, { boja: B.core, senka: B.deep, align: 'center' });
+    hud(g, 'drykult®', sredina(2), S * 0.9, S * 0.026, { align: 'center' });
+
+    zrno(g, W, S);
+    _trakaKes = c;
+  }
   const isecak = createCanvas(S, S);
-  isecak.getContext('2d').drawImage(c, -indeks * S, 0);
+  isecak.getContext('2d').drawImage(_trakaKes, -indeks * S, 0);
   return isecak;
 }
 
@@ -852,15 +898,20 @@ async function main() {
   };
 
   // --- pravac A: DOSIJE ---
+  // Broj u uglu NE pripada objavi nego njenom mestu u zidu — zato dolazi spolja.
+  // Isti crtež se u pravcu A numeriše 01–09, a u izabranom pravcu C 01–06, jer
+  // tamo prva tri mesta drži traka. Dok je broj bio upisan u sam crtež, zid je
+  // pokazivao 02, 04, 06, 07 i izgledao kao greška.
+  const nacrtaj = async (ime, br) => {
+    const { c, g } = platno(S, S);
+    await POSTOVI[ime](g, br);
+    zrno(g, S, S);
+    return c;
+  };
+
   const redosled = ['manifest1', 'gsm', 'manifest2', 'sastav', 'proizvod', 'garancija', 'wanted', 'sajt', 'strane'];
   const dosije = [];
-  for (let i = 0; i < redosled.length; i++) {
-    const { c, g } = platno(S, S);
-    await POSTOVI[redosled[i]](g);
-    zrno(g, S, S);
-    dosije.push(c);
-    await snimi(c, `zid/dosije-${String(i + 1).padStart(2, '0')}-${redosled[i]}.jpg`, 92);
-  }
+  for (let i = 0; i < redosled.length; i++) dosije.push(await nacrtaj(redosled[i], i + 1));
 
   // --- pravac B: CRNI ZID ---
   const tiho = [];
@@ -870,19 +921,34 @@ async function main() {
     tiho.push(c);
   }
 
-  // --- pravac C: TRAKA (gornji red spojen) ---
+  // --- pravac C: TRAKA — IZABRANO 28. 9., ovo je glavni zid ---
+  //
+  // Gornji red je traka, ispod idu kartice. Manifest ne ponavlja karticu jer je
+  // već u traci; „izaberi stranu" pada na desetu objavu, u sledeću trojku.
   const traka3 = [await trakaRed(0), await trakaRed(1), await trakaRed(2)];
-  const trakaZid = [...traka3, dosije[4], dosije[1], dosije[5], dosije[6], dosije[7], dosije[8]];
+  const IMENA_TRAKE = ['znak', 'logo', 'manifest'];
+  for (let i = 0; i < 3; i++) await snimi(traka3[i], `zid/traka-0${i + 1}-${IMENA_TRAKE[i]}.jpg`, 92);
+
+  // Kartice glavnog zida — iznova nacrtane sa brojevima 01–06.
+  const KARTICE = ['proizvod', 'gsm', 'sastav', 'garancija', 'wanted', 'sajt'];
+  const kartice = [];
+  for (let i = 0; i < KARTICE.length; i++) {
+    const c = await nacrtaj(KARTICE[i], i + 1);
+    kartice.push(c);
+    await snimi(c, `zid/kartica-0${i + 1}-${KARTICE[i]}.jpg`, 92);
+  }
+  const trakaZid = [...traka3, ...kartice];
 
   // --- poređenje pravaca ---
-  const A = zid(dosije, { naslov: 'A · DOSIJE', opis: 'Svaka objava je kartica iz igre: broj, dijagonala, tvrda senka. Isti jezik kao sajt — Instagram se čita kao njegov nastavak.' });
-  const Bz = zid(tiho, { naslov: 'B · CRNI ZID', opis: 'Jedan element po pločici, skoro sve crno. Tiše i skuplje na oko, ali sporije gradi prepoznavanje.' });
-  const Cz = zid(trakaZid, { naslov: 'C · TRAKA', opis: 'Gornji red je JEDNA slika presečena na tri — profil ima baner. Udara na prvi pogled, ali vezuje ruke za kasnije objave.' });
+  const A = zid(dosije, { naslov: 'A · DOSIJE', opis: 'Odbačeno 28. 9. Svaka objava je kartica iz igre. Kartice ostaju — od njih su donja dva reda glavnog zida.' });
+  const Bz = zid(tiho, { naslov: 'B · CRNI ZID', opis: 'Odbačeno. Jedan element po pločici, skoro sve crno — tiše, ali sporije gradi prepoznavanje.' });
+  const Cz = zid(trakaZid, { naslov: 'C · TRAKA ← IZABRANO', opis: 'Gornji red je baner kroz tri pločice: pozadina teče, slova ne prelaze razmake, a svaka pločica stoji i sama kao objava.' });
 
   const pw = A.width;
   const uporedi = platno(pw * 3 + 80, A.height + 40, '#0b0d10');
   [A, Bz, Cz].forEach((z, i) => uporedi.g.drawImage(z, 20 + i * (pw + 20), 20));
   await snimi(uporedi.c, 'pregled/pravci.jpg', 92);
+  await snimi(zid(trakaZid, { w: 1100 }), 'pregled/zid-glavni.jpg', 92);
 
   // --- profilne ---
   const ops = await profilne();
@@ -892,14 +958,14 @@ async function main() {
   // --- istaknute ---
   for (const { ime, c } of await korice()) await snimi(c, `istaknute/${ime}.png`);
 
-  // --- mockup profila (izabrano 28. 9.: profilna D + zid A) ---
+  // --- mockup profila (izabrano 28. 9.: profilna D + zid C) ---
   const bio = [
     'SUVO JE PRAVILO. TRAG JE GREŠKA.',
     '· 1000 GSM · 80/20 · 90 × 70 cm',
     '· garancija 2 godine',
     '· RS · BA · ME — prva serija se pravi',
   ];
-  await snimi(await mockupProfila(ops.d, dosije, bio), 'pregled/profil-mockup.jpg', 92);
+  await snimi(await mockupProfila(ops.d, trakaZid, bio), 'pregled/profil-mockup.jpg', 92);
 
   console.log('\ngotovo →', IZLAZ);
 }

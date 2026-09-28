@@ -7,7 +7,7 @@ objavu pa otvori sajt, mora da oseti da je ušao na isto mesto.
 Sve je nacrtano skriptom: `node scripts/gen-instagram.mjs` → folder `instagram/`.
 Menjaš tekst u skripti, pustiš je ponovo, sve se osveži. Ništa se ne crta rukom.
 
-> **ODLUČENO 28. 9. 2026 (Stefan):** zid ide u pravcu **A — DOSIJE**, profilna je
+> **ODLUČENO 28. 9. 2026 (Stefan):** zid ide u pravcu **C — TRAKA**, profilna je
 > **D — znak u nišanu**, biografija je **A — manifest**. Sve troje je ispod
 > podebljano i izvedeno; ostale opcije ostaju zapisane samo da se zna šta je
 > odbačeno i zašto, da se za pola godine ne prežvakava isto.
@@ -92,42 +92,60 @@ ulogu su tri stvari, i sve tri su napravljene:
 
 Pregled: `instagram/pregled/pravci.jpg`, mockup profila: `instagram/pregled/profil-mockup.jpg`.
 
-**A — DOSIJE** ← **IZABRANO**
-Svaka objava je kartica iz igre: broj u uglu, dijagonala, tvrda senka. Isti jezik
-kao sajt, pa se Instagram čita kao njegov nastavak. Skalira se — svaka nova objava
-je samo sledeća kartica, ništa se ne raspada.
+**A — DOSIJE** *(odbačeno, ali kartice ostaju)*
+Svaka objava je kartica iz igre: broj u uglu, dijagonala, tvrda senka. Kao pravac
+nije izabran, ali su same kartice ostale — od njih su donja dva reda glavnog zida.
 
 **B — CRNI ZID**
 Jedan element po pločici, skoro sve crno. Tiše i skuplje na oko, ali gradi
 prepoznavanje sporije i traži mnogo više objava da se profil „napuni".
 
-**C — TRAKA**
-Gornji red je jedna slika presečena na tri, pa profil dobije baner. Udara na prvi
-pogled. Dve mane, obe stvarne: **razmaci između pločica seku slova** (vidi se na
-pregledu), i svaka sledeća objava pomera traku — kad objaviš deseti post, baner se
-raspao. Koristi se kao jednokratan potez za lansiranje, ne kao sistem.
+**C — TRAKA** ← **IZABRANO**
+Gornji red je baner kroz tri pločice, ispod idu kartice. Udara na prvi pogled.
+Dve mane sa prve verzije su **rešene**, treća je pravilo rada:
+
+1. **Razmaci su sekli slova.** Instagram ostavlja procep između pločica, a mreža
+   seče tačno na trećinama — prva verzija je razvukla logotip preko cele širine i
+   procep je pao usred „1000" i usred „MICROFIBER". Sada **nijedan tekst ne prelazi
+   granicu**: utisak jedne slike nose pozadina (gradijent, dijagonala, zrno) i
+   tanka neon linija koja teče kroz sve tri na istoj visini. Linija se preseca
+   čisto, slova ne.
+2. **Trećina logotipa nije objava.** U tuđem feedu se ne vidi zid nego jedna
+   slika. Zato svaka pločica stoji i sama: leva je **znak**, srednja **logotip sa
+   specifikacijom**, desna **manifest**.
+3. **Objavljuje se po TRI.** Svaka pojedinačna objava pomera mrežu za jedno mesto
+   i razbija traku. Dok se objavljuje u trojkama, traka ostaje cela — samo klizi
+   naniže kroz profil. To je cena ovog pravca i nema je kako zaobići.
 
 ## 6.6 Prvih devet objava
 
-Fajlovi: `instagram/zid/dosije-01…09-*.jpg` (1080 × 1080).
+Pregled celog zida: `instagram/pregled/zid-glavni.jpg`.
 
-> **Objavljuje se UNAZAD.** Instagram stavlja najnoviju objavu gore levo, pa se
-> prvo objavljuje `09`, poslednje `01`. Tek tako se zid složi onako kako je crtan.
-
-| # | objava | tekst uz sliku |
+| mesto | fajl | tekst uz sliku |
 |---|---|---|
-| 01 | SUVO JE PRAVILO | Peškir koji ne ostavlja trag nije luksuz nego alat. 1000 GSM, twisted-loop, 90 × 70 cm. Prva serija se pravi — sajt je gore, link u biografiji. |
-| 02 | 1000 GSM | 1000 g/m² je ono što fabrika štampa na etiketi. Izmerićemo na uzorku čim stigne; ako ne izađe 1000, promenićemo broj — nećemo ćutati. 90 × 70 cm = 0,63 m², puta 1000 g/m² = 630 g tkanine. |
-| 03 | TRAG JE GREŠKA | Twisted-loop strana kupi vodu iz prve. Plišana polira ono što ostane. Jedan prelaz preko panela i nema ni kapi ni traga. |
-| 04 | 80/20 | 80 % poliester, 20 % poliamid. Poliamid je ono što vodu vuče u sebe — ispod 20 % peškir počinje da razmazuje umesto da suši. |
-| 05 | PEŠKIR | Zeleno telo, crna štampa, 90 × 70 cm. **Slika je fabrički render** — prave fotke idu čim stignu uzorci. |
-| 06 | 2 GODINE GARANCIJE | Desi li se peškiru bilo šta nepredviđeno u prve dve godine — dobijaš nov. Od nas, bez natezanja. |
-| 07 | MOST WANTED | Patosnice. Amblemi za tablu. Gedžeti za kabinu. U izradi, bez datuma dok ne budu spremni. |
-| 08 | SAJT | Ceo sajt je jedan potez — skroluješ, peškir leti. Ima i deo gde sam obrišeš kapi i vidiš koliko si pokupio. Link u biografiji. |
-| 09 | IZABERI STRANU | MAMBA je tu. PINK je ženska verzija i još se pravi — otključava se kad bude spremna, bez datuma dok je nema. |
+| 1 | `zid/traka-01-znak.jpg` | Znak je **kap presečena pod 45°** — isti rez koji ide kroz slova u logotipu. Voda koja je presečena i više ne pada. |
+| 2 | `zid/traka-02-logo.jpg` | DRYKULT. 1000 GSM, premium microfiber, 90 × 70 cm, 80/20. Garancija dve godine. Prva serija se pravi. |
+| 3 | `zid/traka-03-manifest.jpg` | Suvo je pravilo. Trag je greška. Peškir koji ostavlja trag nije loš peškir — nije peškir. |
+| 4 | `zid/kartica-01-proizvod.jpg` | Zeleno telo, crna štampa, 90 × 70 cm. **Slika je fabrički render** — prave fotke idu čim stignu uzorci. |
+| 5 | `zid/kartica-02-gsm.jpg` | 1000 g/m² je ono što fabrika štampa na etiketi. Izmerićemo na uzorku čim stigne; ako ne izađe 1000, promenićemo broj — nećemo ćutati. 90 × 70 cm = 0,63 m², puta 1000 g/m² = 630 g tkanine. |
+| 6 | `zid/kartica-03-sastav.jpg` | 80 % poliester, 20 % poliamid. Poliamid je ono što vodu vuče u sebe — ispod 20 % peškir počinje da razmazuje umesto da suši. |
+| 7 | `zid/kartica-04-garancija.jpg` | Desi li se peškiru bilo šta nepredviđeno u prve dve godine — dobijaš nov. Od nas, bez natezanja. |
+| 8 | `zid/kartica-05-wanted.jpg` | Patosnice. Amblemi za tablu. Gedžeti za kabinu. U izradi, bez datuma dok ne budu spremni. |
+| 9 | `zid/kartica-06-sajt.jpg` | Ceo sajt je jedan potez — skroluješ, peškir leti. Ima i deo gde sam obrišeš kapi i vidiš koliko si pokupio. Link u biografiji. |
 
-**Post 05 mora da kaže da je render.** To nije sitnica: slika proizvoda koji još
-nije u rukama, bez te rečenice, je tvrdnja koju ne možemo da podupremo.
+> **Objavljuje se UNAZAD**, jer Instagram stavlja najnoviju objavu gore levo.
+> Tačan redosled kucanja:
+>
+> `kartica-06` → `kartica-05` → `kartica-04` → `kartica-03` → `kartica-02` →
+> `kartica-01` → `traka-03` → `traka-02` → **`traka-01` poslednja**.
+>
+> Tek tako se zid složi onako kako je nacrtan.
+
+**Post na 4. mestu mora da kaže da je render.** To nije sitnica: slika proizvoda
+koji još nije u rukama, bez te rečenice, je tvrdnja koju ne možemo da podupremo.
+
+**Deseta objava razbija traku.** Sledeća serija ide u trojci — prva sledeća kartica
+je „izaberi stranu" (`zid/` se regeneriše skriptom), pa još dve.
 
 ## 6.7 Šta se objavljuje dok se čeka roba
 
@@ -180,7 +198,7 @@ Tekst uz reel:
 
 - [ ] Uzmi ručku `@drykult` (i na TikToku)
 - [x] ~~Izaberi profilnu i biografiju~~ — **D (nišan)** i **A (manifest)**, 28. 9.
-- [x] ~~Reci koji pravac zida~~ — **A (DOSIJE)**, 28. 9.
+- [x] ~~Reci koji pravac zida~~ — **C (TRAKA)**, 28. 9.
 - [ ] Domen, da biografija ne vodi na `vercel.app` (`plan/01` 1.3)
 - [ ] Odluči da li ide i TikTok odmah — isti materijal, samo uspravan format
       (reel je već 9:16, ide bez ijedne izmene)
