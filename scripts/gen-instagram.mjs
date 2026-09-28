@@ -608,22 +608,29 @@ async function profilne() {
       uklopi(g, mark.beo, P / 2, P * 0.38, P * 0.3, P * 0.36);
       gta(g, 'Drykult', P / 2, P * 0.78, P * 0.13, { boja: B.core, senka: B.deep, align: 'center' });
     },
-    // D — znak u HUD prstenu: GTA nišan
+    // D — znak u HUD prstenu: GTA nišan. IZABRANO 28. 9.
+    //
+    // Podešeno za 32 px, ne za 1080: prva verzija je imala prsten debljine
+    // 0.018 × P, što u feedu ispadne pola piksela i prsten prosto nestane —
+    // ostane samo sitan znak na crnom. Sada je prsten 0.042 (≈1,4 px na 32),
+    // znak je krupniji, a četiri proreza su šira da se na maloj veličini vidi
+    // da je nišan, a ne pun krug.
     d(g) {
       g.fillStyle = B.bg;
       g.fillRect(0, 0, P, P);
       g.save();
-      g.strokeStyle = `rgba(${B.rgb},0.9)`;
-      g.lineWidth = P * 0.018;
+      g.strokeStyle = B.core;
+      g.lineWidth = P * 0.042;
+      g.lineCap = 'butt';
       for (const [a0, a1] of [
-        [-0.42, 0.42],
-        [0.58, 1.42],
-        [1.58, 2.42],
-        [2.58, 3.42],
+        [-0.38, 0.38],
+        [0.62, 1.38],
+        [1.62, 2.38],
+        [2.62, 3.38],
       ])
-        g.beginPath(), g.arc(P / 2, P / 2, P * 0.4, a0 * Math.PI * 0.5, a1 * Math.PI * 0.5), g.stroke();
+        g.beginPath(), g.arc(P / 2, P / 2, P * 0.385, a0 * Math.PI * 0.5, a1 * Math.PI * 0.5), g.stroke();
       g.restore();
-      uklopi(g, mark.mamba, P / 2, P / 2, P * 0.34, P * 0.42);
+      uklopi(g, mark.mamba, P / 2, P / 2, P * 0.42, P * 0.5);
     },
   };
 
@@ -885,14 +892,14 @@ async function main() {
   // --- istaknute ---
   for (const { ime, c } of await korice()) await snimi(c, `istaknute/${ime}.png`);
 
-  // --- mockup profila (preporuka: profilna B + zid A) ---
+  // --- mockup profila (izabrano 28. 9.: profilna D + zid A) ---
   const bio = [
     'SUVO JE PRAVILO. TRAG JE GREŠKA.',
     '· 1000 GSM · 80/20 · 90 × 70 cm',
     '· garancija 2 godine',
     '· RS · BA · ME — prva serija se pravi',
   ];
-  await snimi(await mockupProfila(ops.b, dosije, bio), 'pregled/profil-mockup.jpg', 92);
+  await snimi(await mockupProfila(ops.d, dosije, bio), 'pregled/profil-mockup.jpg', 92);
 
   console.log('\ngotovo →', IZLAZ);
 }

@@ -8,8 +8,8 @@ Sve je nacrtano skriptom: `node scripts/gen-instagram.mjs` → folder `instagram
 Menjaš tekst u skripti, pustiš je ponovo, sve se osveži. Ništa se ne crta rukom.
 
 > **ODLUČENO 28. 9. 2026 (Stefan):** zid ide u pravcu **A — DOSIJE**, profilna je
-> **B — crn znak na neon krugu**, biografija je **A — manifest**. Sve troje je
-> ispod podebljano i izvedeno; ostale opcije ostaju zapisane samo da se zna šta je
+> **D — znak u nišanu**, biografija je **A — manifest**. Sve troje je ispod
+> podebljano i izvedeno; ostale opcije ostaju zapisane samo da se zna šta je
 > odbačeno i zašto, da se za pola godine ne prežvakava isto.
 
 ---
@@ -30,15 +30,21 @@ Pregled: `instagram/pregled/profilna.jpg` (prikazano u pravim veličinama — kr
 | | opcija | šta dobijaš | šta gubiš |
 |---|---|---|---|
 | **A** | znak u neonu na crnom | brend tačno kao na sajtu | na 32 px se stapa sa tamnim feedom |
-| **B** | **crn znak na neon krugu** | **najglasnija tačka u tuđem feedu, čita se i na 32 px** | odstupa od „crno je podloga" pravila |
+| **B** | crn znak na neon krugu | najglasnija tačka u tuđem feedu | odstupa od „crno je podloga" pravila |
 | **C** | znak + ime | čita se na profilu | ime je mrlja na 32 px, znak se smanjio |
-| **D** | znak u nišanu | GTA HUD ton | prsten pojede znak na malim veličinama |
+| **D** | **znak u nišanu** | **GTA HUD ton, ostaje na crnom kao i ceo brend** | traži debeo prsten da se vidi u feedu |
 
-> **IZABRANO: B.** Profilna se u feedu vidi kao **32 px krug** — tu ne postoji
-> „suptilno". Pun neon krug je jedina varijanta koju oko uhvati pre nego što
-> pročita ime. A je tačniji brendu, ali na maloj veličini nestaje.
+> **IZABRANO: D.** Jedini akcenat je neon na crnom, isto kao sajt — brend ne mora
+> da menja pravila da bi se video. Prsten je **nišan**, ne ukras: čita se kao GTA
+> HUD, a znak ostaje u sredini netaknut.
+>
+> **Prsten je prepravljen zbog 32 px.** Prva verzija je imala debljinu `0.018 × P`,
+> što u feedu ispadne **pola piksela** — prsten prosto nestane i ostane sitan znak
+> na crnom. Sada je `0.042` (≈ 1,4 px na 32), znak je krupniji, a četiri proreza su
+> šira da se i na maloj veličini vidi da je nišan, a ne pun krug. Provereno na
+> listu `instagram/pregled/profilna.jpg`, u pravim veličinama.
 
-Fajl za postavljanje: **`instagram/profilna/profilna-b.png`** (1080 × 1080).
+Fajl za postavljanje: **`instagram/profilna/profilna-d.png`** (1080 × 1080).
 Ostale tri stoje u istom folderu ako se ikad predomisliš.
 
 ## 6.3 Biografija — tri verzije
@@ -173,7 +179,7 @@ Tekst uz reel:
 ## 6.10 [TI] Pre prve objave
 
 - [ ] Uzmi ručku `@drykult` (i na TikToku)
-- [x] ~~Izaberi profilnu i biografiju~~ — **B** i **A**, 28. 9.
+- [x] ~~Izaberi profilnu i biografiju~~ — **D (nišan)** i **A (manifest)**, 28. 9.
 - [x] ~~Reci koji pravac zida~~ — **A (DOSIJE)**, 28. 9.
 - [ ] Domen, da biografija ne vodi na `vercel.app` (`plan/01` 1.3)
 - [ ] Odluči da li ide i TikTok odmah — isti materijal, samo uspravan format
