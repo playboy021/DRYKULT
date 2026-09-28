@@ -29,6 +29,7 @@ npm run dev          # port 3210
 node scripts/gen-peskir-zeleni.mjs   # CRTA peškir po fabričkom mockupu (do prave fotke)
 node scripts/gen-drykult.mjs         # izrezuje/skalira peškire u webp po tieru
 node scripts/gen-plate.mjs     # hero podloga, obe frakcije iz jedne slike
+node scripts/gen-instagram.mjs # Instagram paket (traži prethodni `npm run build` zbog fontova)
 ```
 
 Preview konfiguracija je u `D:\projekti\.claude\launch.json` pod imenom `drykult-dev`.
@@ -178,6 +179,14 @@ Meni desno (`Izaberi stranu`) nosi izbor; tap radi i bez kursora.
 - **Inter** za telo.
 - Sva tri sa `subsets: ['latin','latin-ext']` — **latin-ext nosi š đ č ć ž**. Bez
   njega se dijakritika renderuje iz fallback fonta i naslovi vidno „skaču".
+
+**Passion One NEMA Č, Ć, Đ (ni mala č ć đ).** Izmereno na samom fajlu: u latin-ext
+podskupu stoje samo Š i Ž. U browseru to ne ruši stranu — pada na sledeći font u
+nizu (Impact) za taj znak — ali se **vidi** kao drugi rez usred naslova. Zato
+naslovi u GTA registru biraju reči bez č/ć/đ: „Suvo je pravilo", „Trag je greška",
+„Izaberi stranu" rade; „Poruči" u naslovu bi se raspalo (u dugmetu je Inter, tu je
+svejedno). Offline generator (`gen-instagram.mjs`) rešava isto tako — bira rez za
+svaki znak posebno.
 
 **ZAMKA koja je držala ceo sajt u Times New Roman-u mesecima:** `next/font` stavlja
 svoje promenljive (`--f-display`, `--f-body`, `--f-gta`) na **omotač** u `_app.js`,
@@ -840,6 +849,7 @@ components/Reveal.js         otkrivanje po redovima / rečima / bloku / fade
 components/LiquidReveal.js   NE KORISTI SE — čeka DRYKULT snimke
 components/HeroVideo.js      NE KORISTI SE — čeka DRYKULT snimke
 
+scripts/gen-instagram.mjs  Instagram paket: profilna, zid, korice, mockup profila
 scripts/gen-drykult.mjs  studijske fotke → izresci peškira po tieru
 scripts/gen-plate.mjs    jedna hauba → podloga obe frakcije
 scripts/gen-assets.mjs   NASLEĐE: mokro/suvo par (stari brend)
