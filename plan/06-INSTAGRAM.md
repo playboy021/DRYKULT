@@ -7,6 +7,11 @@ objavu pa otvori sajt, mora da oseti da je ušao na isto mesto.
 Sve je nacrtano skriptom: `node scripts/gen-instagram.mjs` → folder `instagram/`.
 Menjaš tekst u skripti, pustiš je ponovo, sve se osveži. Ništa se ne crta rukom.
 
+> **ODLUČENO 28. 9. 2026 (Stefan):** zid ide u pravcu **A — DOSIJE**, profilna je
+> **B — crn znak na neon krugu**, biografija je **A — manifest**. Sve troje je
+> ispod podebljano i izvedeno; ostale opcije ostaju zapisane samo da se zna šta je
+> odbačeno i zašto, da se za pola godine ne prežvakava isto.
+
 ---
 
 ## 6.1 [TI] Ručka i nalog — prvo, dok je slobodna
@@ -29,18 +34,19 @@ Pregled: `instagram/pregled/profilna.jpg` (prikazano u pravim veličinama — kr
 | **C** | znak + ime | čita se na profilu | ime je mrlja na 32 px, znak se smanjio |
 | **D** | znak u nišanu | GTA HUD ton | prsten pojede znak na malim veličinama |
 
-> **Predlog: B.** Profilna se u feedu vidi kao **32 px krug** — tu ne postoji
+> **IZABRANO: B.** Profilna se u feedu vidi kao **32 px krug** — tu ne postoji
 > „suptilno". Pun neon krug je jedina varijanta koju oko uhvati pre nego što
 > pročita ime. A je tačniji brendu, ali na maloj veličini nestaje.
 
-Fajlovi: `instagram/profilna/profilna-{a,b,c,d}.png` (1080 × 1080).
+Fajl za postavljanje: **`instagram/profilna/profilna-b.png`** (1080 × 1080).
+Ostale tri stoje u istom folderu ako se ikad predomisliš.
 
 ## 6.3 Biografija — tri verzije
 
 Ograničenje je **150 znakova**. Link je jedan (`drykult.com` kad bude, dotle
 `drykult.vercel.app`).
 
-**A — manifest** *(predlog: ovaj)*
+**A — manifest** ← **IZABRANO, ovo se kuca u profil**
 ```
 SUVO JE PRAVILO. TRAG JE GREŠKA.
 · 1000 GSM · 80/20 · 90 × 70 cm
@@ -80,7 +86,7 @@ ulogu su tri stvari, i sve tri su napravljene:
 
 Pregled: `instagram/pregled/pravci.jpg`, mockup profila: `instagram/pregled/profil-mockup.jpg`.
 
-**A — DOSIJE** *(predlog)*
+**A — DOSIJE** ← **IZABRANO**
 Svaka objava je kartica iz igre: broj u uglu, dijagonala, tvrda senka. Isti jezik
 kao sajt, pa se Instagram čita kao njegov nastavak. Skalira se — svaka nova objava
 je samo sledeća kartica, ništa se ne raspada.
@@ -145,17 +151,39 @@ Iz `CLAUDE.md`, **Pravilo poštenja**:
   kompatibilnost („za Audi"), znakovi ne (`plan/03` 3.4a)
 - ❌ slika rendera bez oznake da je render
 
-## 6.9 [TI] Pre prve objave
+## 6.9 REEL — sajt kao snimak
+
+`node scripts/gen-reel.mjs` → **`instagram/reels/sajt-skrol.mp4`**
+(1080 × 1920, 6,3 s, ~5 MB — tačno format koji Reels traži.)
+
+Traži **pokrenut dev server** (`npm run dev`) i `ffmpeg` u PATH-u. Snima se
+headless Chrome-om preko DevTools protokola: skrol se postavlja po kadru, slika
+se hvata, pa `ffmpeg` sklopi film. Zato je snimak **ponovljiv** — kad se sajt
+promeni, pustiš skriptu ponovo i dobiješ isti kadar sa novim sadržajem.
+
+Šta se vidi: naslov → peškir → meni sa zaključanim PINK-om → garancija → kapi
+koje se brišu → brojke (0,63 m² · 630 g · 2 strane). Počinje mirno 12 % dužine
+(da se pročita naslov) i završava mirno na brojkama — poslednji kadar je onaj
+koji ostane na ekranu kad se reel vrti u krug, pa mora da se čita.
+
+Tekst uz reel:
+> Ceo sajt je jedan potez. Skroluješ — peškir leti, kapi idu za njim. Dole je deo
+> gde sam obrišeš kapi i vidiš koliko si pokupio. Link u biografiji.
+
+## 6.10 [TI] Pre prve objave
 
 - [ ] Uzmi ručku `@drykult` (i na TikToku)
-- [ ] Izaberi profilnu (predlog **B**) i biografiju (predlog **A**)
-- [ ] Reci koji pravac zida — pa da ispišem svih devet u finalnoj verziji
+- [x] ~~Izaberi profilnu i biografiju~~ — **B** i **A**, 28. 9.
+- [x] ~~Reci koji pravac zida~~ — **A (DOSIJE)**, 28. 9.
 - [ ] Domen, da biografija ne vodi na `vercel.app` (`plan/01` 1.3)
 - [ ] Odluči da li ide i TikTok odmah — isti materijal, samo uspravan format
+      (reel je već 9:16, ide bez ijedne izmene)
 
-## 6.10 Šta ostaje meni
+## 6.11 Šta ostaje meni
 
-- [ ] Uspravni format 1080 × 1350 (4:5) — zauzima više ekrana u feedu nego kvadrat
+- [x] ~~Reels iz snimka sajta~~ — urađeno, `scripts/gen-reel.mjs`
+- [ ] Uspravni format 1080 × 1350 (4:5) — zauzima više ekrana u feedu nego kvadrat.
+      Traži da se svaka objava precrta tako da važno stane u **centralni kvadrat**,
+      jer mreža profila i dalje seče na kvadrat; inače se zid raspadne.
 - [ ] Šabloni za priče (1080 × 1920)
-- [ ] Reels iz snimka sajta — ima `ffmpeg`, može da se snimi direktno iz browsera
 - [ ] Kad stignu prave fotke: sve objave sa renderom se menjaju (`plan/05`)

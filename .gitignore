@@ -35,3 +35,7 @@ yarn-error.log*
 /assets-src/video/
 *.MOV
 *.mov
+
+# Instagram — privremeni fajlovi snimanja reela (skripta ih sama briše)
+instagram/reels/_kadrovi/
+instagram/reels/_profil/
