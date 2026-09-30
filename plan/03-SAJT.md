@@ -60,35 +60,56 @@ Iz `CLAUDE.md`, otvoreno pitanje 5:
 
 ## 3.4a MOST WANTED — od najave do proizvoda
 
-Sekcija postoji od 27. 9. kao **najava** (patosnice, amblemi za tablu, gedžeti),
-bez cena, datuma i odbrojavanja. Da postane prodaja, treba:
+Sekcija postoji od 27. 9., preuređena 30. 9. na **dve kategorije**: `Patosnice`
+i `Dodaci`. Sve je „u izradi" — bez cena, datuma i odbrojavanja.
 
-- [ ] **[TI]** odluka šta se stvarno pravi prvo i sa kojim dobavljačem
-- [ ] **[TI]** amblemi „za Audi · BMW · Mercedes": imena marki smeju kao
-      **kompatibilnost**, ali njihovi **znakovi/logotipi su tuđi žigovi** — proizvod
-      sa tuđim logom bez licence je rizik zaplene i tužbe (nije pravni savet; pitaj
-      advokata za žigove pre porudžbine takve robe). Sajt zato piše samo imena.
+### Odluke od 30. 9. (Stefan), da se ne prežvakavaju
+
+- [x] ~~Pojasevi~~ — **izbačeni**. Pojas je deo za spašavanje života i u EU traži
+      **ECE R16 homologaciju kao ceo sklop** (traka, kotur, brava, ankeri, sa
+      E-oznakom). To isključuje jeftinu nabavku; ne isplati se.
+- [x] **LED znak ostaje.** Problem nikad nije bio LED amblem nego **tuđ znak** na
+      njemu. Naš crtež je čist. Ne sme: BMW/Audi/Mercedes rozeta, niti lik iz
+      tuđeg dela — **Šaringan je iz Naruta**, isto tuđe autorsko pravo kao Hulk.
+- [x] **Zatamnjenje tablice ostaje**, kao oprema **za stazu i privatan posed**.
+
+### Zatamnjenje tablice — šta je tačno, a šta nije
+
+Podela koju treba znati napamet, jer je od nje sve ostalo:
+
+| | stanje |
+|---|---|
+| **prodaja same sprave** | nije zabranjena |
+| **upotreba na javnom putu** | **prekršaj** — 10.000 RSD, u predlogu izmena **50.000 uz mogućnost oduzimanja vozila**; izričito se pominju i folije koje zbunjuju kamere |
+
+Iz toga slede tri pravila koja se ne krše ni u jednoj objavi:
+
+1. **Nikad ne pominjati izbegavanje kamera, kazni, parkinga ili policije.** Ta
+   jedna rečenica pretvara legalan proizvod u dokaz namere. Ceo tuđi marketing
+   koji smo gledali radi baš to — mi ne.
+2. **Svaka slika i snimak — van puta.** Staza, privatan posed, plac. Nikad
+   registarska tablica na ulici u kadru.
+3. **Na proizvodu i u opisu stoji za šta je namenjen.** „Za stazu i privatan
+   posed", bez zvezdice i sitnog slova.
+
+- [ ] **[TI]** pre prve isporuke: proveriti sa advokatom da li nam treba i
+      pisana izjava kupca o nameni. Nije pravni savet — ovo je pitanje za njega.
+
+### Ostalo
+
+- [ ] **[TI]** odluka šta se pravi prvo i sa kojim dobavljačem
+- [ ] Patosnice **samo sa našim crtežom**. Hulk / Joker / Rick & Morty su tuđe
+      autorsko pravo — roba se zadržava na carini, vlasnik prava tuži.
 - [ ] prave fotke (ne renderi) — isti princip kao za peškir
 - [ ] tek onda kartice dobijaju cenu i dugme; do tada ostaje „u izradi"
 
-## 3.8 Odbrojavanje do 18. oktobra — obaveza koja ide uz njega
+### Nabavka — nalazi istraživanja (30. 9.)
 
-Od 30. 9. u hero-u ispod garancije stoji odbrojavanje do **18. 10. 2026, 10h**
-(`components/Odbrojavanje.js`, konstanta `POCETAK`).
-
-- [ ] **[TI] Potvrdi datum i sat.** Rekao si „negde 18og" — odbrojavanje ne trpi
-      „negde". Ako nije 18. u 10h, javi pa menjam jednu liniju.
-- [ ] **[TI] Ako se datum pomeri — javi PRE nego što istekne.** Odbrojavanje koje
-      dođe do nule a ništa se ne desi je lažno odbrojavanje, tačno ono što
-      `CLAUDE.md` zabranjuje. Bolje pomeriti datum nego pustiti da procuri.
-- [ ] **Šta tačno kreće 18-og?** Sad se ne poklapaju dve poruke na istoj strani:
-      dugme kaže „Poruči — 3.000 RSD" (dakle odmah), a odbrojavanje kaže da se
-      kult otvara 18-og. Treba izabrati jedno:
-      - **A** — 18-og kreće PORUČIVANJE: do tada dugme menja tekst u „Najavi se"
-        ili vodi na listu čekanja, pa se poruke slažu.
-      - **B** — poručivanje radi odmah, a 18-og kreće SLANJE: onda odbrojavanje
-        treba da kaže „prva serija kreće", ne „kult se otvara".
-      Dok se ne odluči, sajt govori dve stvari odjednom.
+| proizvod | cena na veliko | napomena |
+|---|---|---|
+| Viseća ručka (tsurikawa) | 0,50–0,92 $/kom, MOQ 10–20 | **sa našim logom MOQ 50** — najbrži put do „našeg" proizvoda |
+| Marker za gume, beli | 0,30–0,80 $/kom, MOQ 1000 | drži do godinu dana ako se guma pripremi |
+| Svetlo za noge, LED znak, patosnice, zatamnjenje | — | traži se kad Stefan potvrdi redosled |
 
 ## 3.5 Čišćenje pre lansiranja
 

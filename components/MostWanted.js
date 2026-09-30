@@ -5,15 +5,24 @@ import styles from './MostWanted.module.css';
 //
 // Preuređeno 30. 9. po Stefanovom izboru: dve kategorije umesto tri.
 //
-// Šta NIJE ušlo i zašto (da se ne vraća u opticaj bez odluke):
-//   • Uređaj za zatamnjivanje tablice — u Srbiji je prekriven ili nečitljiv
-//     registarski broj PREKRŠAJ (10.000 RSD, u predlogu izmena 50.000 uz
-//     mogućnost oduzimanja vozila). Brend koji prodaje opremu za auto ne sme
-//     da prodaje spravu čija je jedina svrha kršenje tog propisa.
-//   • Amblemi sa znakom BMW / Audi / Mercedes — tuđ žig. Imena smeju kao
-//     kompatibilnost („za BMW"), znak na proizvodu ne sme bez licence.
-//   • Patosnice sa likovima (Hulk, Joker, Rick & Morty) — tuđe autorsko pravo.
-//     Naš crtež sme, njihov ne.
+// ŠTA JE ODLUČENO I ZAŠTO — da se ne prežvakava svaki put:
+//
+// • POJASEVI IZBAČENI (Stefan, 30. 9.). Pojas je deo za spašavanje života i u
+//   EU traži ECE R16 homologaciju kao ceo sklop; to isključuje jeftinu nabavku.
+//
+// • LED ZNAK OSTAJE. Problem nikad nije bio LED amblem nego TUĐ ZNAK na njemu.
+//   Naš crtež je čist. Ne sme: BMW/Audi/Mercedes rozeta, niti lik iz tuđeg dela
+//   (Šaringan je iz Naruta — isto tuđe autorsko pravo kao Hulk).
+//
+// • ZATAMNJENJE TABLICE OSTAJE, ali se prodaje kao oprema **za stazu i privatan
+//   posed**. Na javnom putu je nečitljiva tablica prekršaj (10.000 RSD, u
+//   predlogu izmena 50.000 uz mogućnost oduzimanja vozila). Prodaja same sprave
+//   nije zabranjena — zabranjena je upotreba na putu. Zato tekst uz proizvod
+//   NIKAD ne sme da pominje izbegavanje kamera, kazni ili policije: ta jedna
+//   rečenica je ono što od legalnog proizvoda pravi dokaz protiv nas.
+//
+// • PATOSNICE SA TUĐIM LIKOVIMA (Hulk, Joker, Rick & Morty) i dalje NE — to je
+//   tuđe autorsko pravo i roba se zadržava na carini. Naš crtež sme.
 //
 // Sve što ovde stoji je u izradi: bez cena, bez datuma, bez odbrojavanja.
 // Odbrojavanje na sajtu važi za PEŠKIR, ne za ovu opremu.
@@ -40,13 +49,13 @@ function IkonaDodaci() {
 // nikome ništa ne znače — a „viseća ručka" i „marker za gume" znače.
 const KATEGORIJE = [
   {
-    id: 'pojasevi-patosnice',
-    ime: 'Pojasevi i patosnice',
+    id: 'patosnice',
+    ime: 'Patosnice',
     Ikona: IkonaPatosnica,
     opis: 'Ono što se vidi čim otvoriš vrata.',
     stavke: [
-      { ime: 'Patosnice', nota: 'naš crtež, ne tuđi lik' },
-      { ime: 'Pojasevi u boji', nota: 'samo sa homologacijom' },
+      { ime: 'Komplet za kabinu', nota: 'naš crtež, ne tuđi lik' },
+      { ime: 'Patosnica za prtljažnik', nota: 'ista tkanina, ista šara' },
     ],
   },
   {
@@ -56,8 +65,10 @@ const KATEGORIJE = [
     opis: 'Sitno, ali se primeti iz prvog pogleda.',
     stavke: [
       { ime: 'Viseća ručka', nota: 'tsurikawa sa našim znakom' },
-      { ime: 'Ambijentalno svetlo za noge', nota: 'bežično, puna boja' },
+      { ime: 'LED znak', nota: 'naš crtež, svetli' },
+      { ime: 'Svetlo za noge', nota: 'bežično, puna boja' },
       { ime: 'Marker za gume', nota: 'bela slova na gumi' },
+      { ime: 'Zatamnjenje tablice', nota: 'za stazu i privatan posed' },
     ],
   },
 ];
