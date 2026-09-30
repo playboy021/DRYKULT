@@ -2,6 +2,7 @@ import { useRef } from 'react';
 import TowelStage from './TowelStage';
 import LiquidButton from './LiquidButton';
 import { RevealLines, RevealWords, RevealFade } from './Reveal';
+import Odbrojavanje from './Odbrojavanje';
 import { STRANE, PINK, MAMBA, peskirSlika } from '../lib/faction';
 import { LOW } from '../lib/device';
 import styles from './HeroB.module.css';
@@ -130,6 +131,13 @@ export default function HeroB({ tier, ready, strana, izabrana, onIzbor, onPoruci
                 Desi li se peškiru bilo šta nepredviđeno u prve dve godine, dobijaš nov. Od nas, bez natezanja.
               </span>
             </span>
+          </RevealFade>
+
+          {/* ODBROJAVANJE do otvaranja — ispod garancije, kako je Stefan
+              tražio. Datum stoji u `Odbrojavanje.js`; ako se pomeri, menja se
+              TAMO, pre nego što istekne (vidi komentar u tom fajlu). */}
+          <RevealFade ready={ready} delay={1380}>
+            <Odbrojavanje />
           </RevealFade>
         </div>
 

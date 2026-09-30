@@ -71,6 +71,25 @@ bez cena, datuma i odbrojavanja. Da postane prodaja, treba:
 - [ ] prave fotke (ne renderi) — isti princip kao za peškir
 - [ ] tek onda kartice dobijaju cenu i dugme; do tada ostaje „u izradi"
 
+## 3.8 Odbrojavanje do 18. oktobra — obaveza koja ide uz njega
+
+Od 30. 9. u hero-u ispod garancije stoji odbrojavanje do **18. 10. 2026, 10h**
+(`components/Odbrojavanje.js`, konstanta `POCETAK`).
+
+- [ ] **[TI] Potvrdi datum i sat.** Rekao si „negde 18og" — odbrojavanje ne trpi
+      „negde". Ako nije 18. u 10h, javi pa menjam jednu liniju.
+- [ ] **[TI] Ako se datum pomeri — javi PRE nego što istekne.** Odbrojavanje koje
+      dođe do nule a ništa se ne desi je lažno odbrojavanje, tačno ono što
+      `CLAUDE.md` zabranjuje. Bolje pomeriti datum nego pustiti da procuri.
+- [ ] **Šta tačno kreće 18-og?** Sad se ne poklapaju dve poruke na istoj strani:
+      dugme kaže „Poruči — 3.000 RSD" (dakle odmah), a odbrojavanje kaže da se
+      kult otvara 18-og. Treba izabrati jedno:
+      - **A** — 18-og kreće PORUČIVANJE: do tada dugme menja tekst u „Najavi se"
+        ili vodi na listu čekanja, pa se poruke slažu.
+      - **B** — poručivanje radi odmah, a 18-og kreće SLANJE: onda odbrojavanje
+        treba da kaže „prva serija kreće", ne „kult se otvara".
+      Dok se ne odluči, sajt govori dve stvari odjednom.
+
 ## 3.5 Čišćenje pre lansiranja
 
 - [x] ~~`®` → `™` ili dole~~ — **odlučeno 27. 8: ostaje `®`** (vidi `01.2`)

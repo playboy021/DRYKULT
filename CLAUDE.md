@@ -782,6 +782,38 @@ od dva komada je stvarno pravilo u `OrderSection`, tržišta su ona na koja stva
 `position: fixed`, ne `sticky` — hero je 100svh i sticky traka bi ga gurnula
 nadole pa bi mu se dno odseklo.
 
+## Odbrojavanje do otvaranja (od 30. 9. 2026)
+
+`components/Odbrojavanje.js` — u hero-u ispod garancije, odbrojava do
+**18. oktobra 2026, 10h po Beogradu** (`POCETAK` u tom fajlu).
+
+Pravilo poštenja zabranjuje odbrojavanja, ali zabranjuje **lažna**: ona koja
+odbrojavaju do datuma koji ne postoji, koja se po isteku resetuju, ili koja prave
+pritisak izmišljenom oskudicom. Ovo odbrojava do stvarnog dana i po isteku se
+gasi u „Kult je otvoren". Iz toga slede dva pravila:
+
+1. **Ako se datum pomeri, promeni ga PRE nego što istekne.** Odbrojavanje koje
+   dođe do nule a ništa se ne desi je tačno ono što pravilo zabranjuje.
+2. **Nikad uz njega ne dodavati „ostalo još X komada"** ni bilo koju brojku koja
+   se ne može proveriti.
+
+Tri tehničke stvari koje se ne diraju:
+
+- **Datum je jedan trenutak sa upisanom zonom** (`+02:00`), ne lokalno vreme —
+  inače bi svako odbrojavao do svojih 10h i sajt bi se razlikovao od objave.
+  Oktobar je još CEST; prelazak na zimsko računanje je POSLE 18.
+- **Server ne računa vreme.** Prvi račun ide tek u `useEffect`-u; da se računa pri
+  renderu, HTML sa servera bi se razlikovao od klijentskog i hidracija bi pukla.
+  Do montiranja stoji prazan okvir iste visine, da raspored ne poskoči.
+- **Cifre su Archivo `wdth 75` sa `tabular-nums`, ne Passion One** — Passion One
+  nema tabularne cifre pa bi se red trzao svake sekunde (isto pravilo kao za cenu).
+
+Mesec se ispisuje iz spiska u **genitivu** („18. oktobra"), jer `Intl` daje samo
+nominativ pa rečenica ispadne „kreće 18. oktobar".
+
+Čitaču ekrana se cifre NE daju (`aria-hidden`) — izgovarao bi ih u nedogled;
+umesto toga dobija jednu mirnu rečenicu sa datumom i brojem dana.
+
 ## Pravilo poštenja
 
 **Ne izmišljaj brojke.** Ne prepisuj konkurentske „100.000 prodatih" ni „3.532 recenzije",

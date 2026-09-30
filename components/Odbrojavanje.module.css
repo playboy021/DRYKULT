@@ -1,0 +1,175 @@
+/* ODBROJAVANJE — HUD tajmer, ne marketinški brojač.
+   Cifre idu u Archivo `wdth 75` sa tabularnim ciframa, NE u Passion One:
+   Passion One nema tabularne cifre, pa bi brojevi poskakivali po širini svake
+   sekunde (isto pravilo kao za cenu i brojeve u DOKAZ sekciji). */
+.host {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 26rem;
+  padding: 0.75rem 1rem 0.875rem;
+  border-radius: 0.75rem;
+  background: rgba(7, 8, 10, 0.55);
+  box-shadow: inset 0 0 0 0.0625rem var(--line);
+  border-left: 0.1875rem solid var(--f-core);
+  pointer-events: auto;
+  transition: border-color 900ms ease;
+}
+
+/* Pre montiranja: isti okvir, prazan. Bez ovoga raspored poskoči kad
+   brojevi stignu. */
+.tih {
+  min-height: 6.25rem;
+  border-left-color: var(--line);
+}
+
+.tag {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-display);
+  font-variation-settings: 'wdth' 75;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.tacka {
+  width: 0.4375rem;
+  height: 0.4375rem;
+  border-radius: 50%;
+  background: var(--f-core);
+  box-shadow: 0 0 0.5rem var(--f-core);
+  animation: puls 2000ms ease-in-out infinite;
+}
+
+@keyframes puls {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+/* --- sat ---------------------------------------------------------------- */
+
+.sat {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.25rem;
+}
+
+.polje {
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+}
+
+.broj {
+  font-family: var(--font-display);
+  font-variation-settings: 'wdth' 75;
+  font-weight: 700;
+  /* Bez ovoga svaka sekunda menja širinu broja i ceo red se trza. */
+  font-variant-numeric: tabular-nums;
+  font-size: 2rem;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  color: var(--ink);
+}
+
+.jedinica {
+  font-family: var(--font-display);
+  font-variation-settings: 'wdth' 75;
+  font-size: 0.5625rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.dvotacka {
+  font-family: var(--font-display);
+  font-variation-settings: 'wdth' 75;
+  font-weight: 700;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: rgba(var(--f-rgb), 0.5);
+  margin-left: 0.125rem;
+  transition: color 900ms ease;
+}
+
+/* --- dno ---------------------------------------------------------------- */
+
+.dno {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+}
+
+.datum {
+  color: var(--muted);
+}
+
+.poziv {
+  font-family: var(--font-gta);
+  font-weight: 900;
+  font-size: 0.9375rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--f-core);
+  text-shadow: 0.05em 0.055em 0 var(--f-deep);
+  transition: color 900ms ease;
+}
+
+/* --- stanje posle isteka ------------------------------------------------- */
+
+.otvoren {
+  gap: 0.375rem;
+}
+
+.otvorenTekst {
+  font-size: 1.5rem;
+  color: var(--f-core);
+  text-shadow: 0.05em 0.055em 0 var(--f-deep);
+}
+
+/* Rečenica samo za čitač ekrana — brojevi koji se menjaju svake sekunde se
+   njemu ne daju, pa mu treba jedan miran opis. */
+.citac {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tacka {
+    animation: none;
+  }
+}
+
+@media (max-width: 1100px) {
+  .host {
+    max-width: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .broj {
+    font-size: 1.75rem;
+  }
+  .host {
+    padding: 0.625rem 0.875rem 0.75rem;
+  }
+}
