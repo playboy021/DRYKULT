@@ -76,7 +76,7 @@
   font-weight: 700;
   /* Bez ovoga svaka sekunda menja širinu broja i ceo red se trza. */
   font-variant-numeric: tabular-nums;
-  font-size: 2rem;
+  font-size: 2.875rem;
   line-height: 1;
   letter-spacing: 0.01em;
   color: var(--ink);
@@ -85,7 +85,7 @@
 .jedinica {
   font-family: var(--font-display);
   font-variation-settings: 'wdth' 75;
-  font-size: 0.5625rem;
+  font-size: 0.625rem;
   font-weight: 600;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -96,35 +96,33 @@
   font-family: var(--font-display);
   font-variation-settings: 'wdth' 75;
   font-weight: 700;
-  font-size: 1.5rem;
+  font-size: 2rem;
   line-height: 1;
   color: rgba(var(--f-rgb), 0.5);
-  margin-left: 0.125rem;
+  margin-left: 0.1875rem;
   transition: color 900ms ease;
 }
 
-/* --- dno ---------------------------------------------------------------- */
+/* --- moto i datum -------------------------------------------------------- */
 
-.dno {
-  display: flex;
-  align-items: baseline;
-  gap: 0.5rem;
-  font-size: 0.75rem;
-}
-
-.datum {
-  color: var(--muted);
-}
-
+/* „UĐI U KULT." je moto, ne fusnota. Ide u svom redu, u naslovnom fontu sa
+   tvrdom senkom — isti registar kao „SUVO JE PRAVILO." iznad. */
 .poziv {
-  font-family: var(--font-gta);
-  font-weight: 900;
-  font-size: 0.9375rem;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
+  font-size: 1.75rem;
+  line-height: 1;
   color: var(--f-core);
   text-shadow: 0.05em 0.055em 0 var(--f-deep);
   transition: color 900ms ease;
+}
+
+.datum {
+  font-family: var(--font-display);
+  font-variation-settings: 'wdth' 75;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
 }
 
 /* --- stanje posle isteka ------------------------------------------------- */
@@ -167,7 +165,10 @@
 
 @media (max-width: 640px) {
   .broj {
-    font-size: 1.75rem;
+    font-size: 2.25rem;
+  }
+  .poziv {
+    font-size: 1.5rem;
   }
   .host {
     padding: 0.625rem 0.875rem 0.75rem;

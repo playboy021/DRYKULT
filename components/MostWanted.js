@@ -3,16 +3,20 @@ import styles from './MostWanted.module.css';
 
 // MOST WANTED — najava opreme.
 //
-// Stefan (27. 9.): „još jedan odeljak, most wanted — patosnice, amblemi za
-// tablu (Audi, BMW, Mercedes), gedžeti; za sada samo odeljak, bez proizvoda."
+// Preuređeno 30. 9. po Stefanovom izboru: dve kategorije umesto tri.
 //
-// GTA registar: zvezdice traženosti, ZLATO kao jedini drugi akcenat na sajtu
-// (zlato = wanted, neon = proizvod). Pravilo poštenja važi i ovde: nema cena,
-// nema datuma, nema odbrojavanja, nema „uskoro u prodaji" sa rokom. Stoji
-// samo ono što je istina — da se ovo pravi i da će ovde da se otključa.
+// Šta NIJE ušlo i zašto (da se ne vraća u opticaj bez odluke):
+//   • Uređaj za zatamnjivanje tablice — u Srbiji je prekriven ili nečitljiv
+//     registarski broj PREKRŠAJ (10.000 RSD, u predlogu izmena 50.000 uz
+//     mogućnost oduzimanja vozila). Brend koji prodaje opremu za auto ne sme
+//     da prodaje spravu čija je jedina svrha kršenje tog propisa.
+//   • Amblemi sa znakom BMW / Audi / Mercedes — tuđ žig. Imena smeju kao
+//     kompatibilnost („za BMW"), znak na proizvodu ne sme bez licence.
+//   • Patosnice sa likovima (Hulk, Joker, Rick & Morty) — tuđe autorsko pravo.
+//     Naš crtež sme, njihov ne.
 //
-// Imena marki su navedena kao KOMPATIBILNOST („za Audi · BMW · Mercedes"),
-// ne kao naši proizvodi — njihovi znakovi su tuđi žigovi (beleška u plan/).
+// Sve što ovde stoji je u izradi: bez cena, bez datuma, bez odbrojavanja.
+// Odbrojavanje na sajtu važi za PEŠKIR, ne za ovu opremu.
 
 function IkonaPatosnica() {
   return (
@@ -23,16 +27,7 @@ function IkonaPatosnica() {
   );
 }
 
-function IkonaAmblem() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M12 3l7 2.6v5.6c0 4.4-2.9 7.6-7 9.3-4.1-1.7-7-4.9-7-9.3V5.6z" />
-      <path d="M12 8.2l1.2 2.5 2.7.4-2 1.9.5 2.7-2.4-1.3-2.4 1.3.5-2.7-2-1.9 2.7-.4z" />
-    </svg>
-  );
-}
-
-function IkonaGedzet() {
+function IkonaDodaci() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <path d="M12 2.8l7.8 4.5v9.4L12 21.2l-7.8-4.5V7.3z" />
@@ -41,24 +36,29 @@ function IkonaGedzet() {
   );
 }
 
-const STAVKE = [
+// Dve kategorije, svaka sa svojim spiskom. Spisak je konkretan jer „gedžeti"
+// nikome ništa ne znače — a „viseća ručka" i „marker za gume" znače.
+const KATEGORIJE = [
   {
-    id: 'patosnice',
-    ime: 'Patosnice',
-    opis: 'Za kabinu koja ostane čista i kad napolju nije.',
+    id: 'pojasevi-patosnice',
+    ime: 'Pojasevi i patosnice',
     Ikona: IkonaPatosnica,
+    opis: 'Ono što se vidi čim otvoriš vrata.',
+    stavke: [
+      { ime: 'Patosnice', nota: 'naš crtež, ne tuđi lik' },
+      { ime: 'Pojasevi u boji', nota: 'samo sa homologacijom' },
+    ],
   },
   {
-    id: 'amblemi',
-    ime: 'Amblemi za tablu',
-    opis: 'Za Audi · BMW · Mercedes. Na instrument tablu, ne na branik.',
-    Ikona: IkonaAmblem,
-  },
-  {
-    id: 'gedzeti',
-    ime: 'Gedžeti',
-    opis: 'Sitnice za kabinu i prtljažnik. Male, ali se primete.',
-    Ikona: IkonaGedzet,
+    id: 'dodaci',
+    ime: 'Dodaci',
+    Ikona: IkonaDodaci,
+    opis: 'Sitno, ali se primeti iz prvog pogleda.',
+    stavke: [
+      { ime: 'Viseća ručka', nota: 'tsurikawa sa našim znakom' },
+      { ime: 'Ambijentalno svetlo za noge', nota: 'bežično, puna boja' },
+      { ime: 'Marker za gume', nota: 'bela slova na gumi' },
+    ],
   },
 ];
 
@@ -103,7 +103,7 @@ export default function MostWanted() {
         </div>
 
         <ul className={styles.stavke}>
-          {STAVKE.map(({ id, ime, opis, Ikona }, i) => (
+          {KATEGORIJE.map(({ id, ime, opis, Ikona, stavke }, i) => (
             <li key={id}>
               <RevealFade className={styles.stavka} delay={i * 110}>
                 <span className={styles.ikona}>
@@ -113,6 +113,17 @@ export default function MostWanted() {
                   <span className={`gta ${styles.stavkaIme}`}>{ime}</span>
                   <span className={styles.stavkaOpis}>{opis}</span>
                 </span>
+
+                <ul className={styles.spisak}>
+                  {stavke.map((s) => (
+                    <li key={s.ime} className={styles.red}>
+                      <span className={styles.crtica} aria-hidden="true" />
+                      <span className={styles.redIme}>{s.ime}</span>
+                      <span className={styles.redNota}>{s.nota}</span>
+                    </li>
+                  ))}
+                </ul>
+
                 <span className={styles.tag}>u izradi</span>
               </RevealFade>
             </li>

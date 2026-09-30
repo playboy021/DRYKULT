@@ -118,10 +118,11 @@ export default function Odbrojavanje({ cilj = POCETAK, className = '' }) {
         ))}
       </div>
 
-      <span className={styles.dno}>
-        <span className={styles.datum}>{datum}</span>
-        <b className={styles.poziv}>Uđi u kult.</b>
-      </span>
+      {/* Moto ide u svoj red i u punoj veličini. Dok je stajao kao sitan
+          dodatak uz datum, gubio se — a to je jedina rečenica koju treba da
+          zapamte. Datum mu je podnaslov, ne obrnuto. */}
+      <span className={`gta ${styles.poziv}`}>Uđi u kult.</span>
+      <span className={styles.datum}>{datum} · prva serija</span>
 
       <span className={styles.citac}>
         Prva serija kreće {datum}. Ostalo je {ostalo.dana} dana.
