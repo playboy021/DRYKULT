@@ -103,13 +103,40 @@ Iz toga slede tri pravila koja se ne krše ni u jednoj objavi:
 - [ ] prave fotke (ne renderi) — isti princip kao za peškir
 - [ ] tek onda kartice dobijaju cenu i dugme; do tada ostaje „u izradi"
 
-### Nabavka — nalazi istraživanja (30. 9.)
+### Nabavka — nalazi istraživanja (30. 9. 2026)
 
-| proizvod | cena na veliko | napomena |
-|---|---|---|
-| Viseća ručka (tsurikawa) | 0,50–0,92 $/kom, MOQ 10–20 | **sa našim logom MOQ 50** — najbrži put do „našeg" proizvoda |
-| Marker za gume, beli | 0,30–0,80 $/kom, MOQ 1000 | drži do godinu dana ako se guma pripremi |
-| Svetlo za noge, LED znak, patosnice, zatamnjenje | — | traži se kad Stefan potvrdi redosled |
+Cene su sa Alibabe, orijentacione i **neproverene kod dobavljača** — služe da se
+zna red veličine, ne da se po njima računa marža. Pre porudžbine se traži ponuda.
+
+| proizvod | cena na veliko | MOQ | napomena |
+|---|---|---|---|
+| **Viseća ručka** (tsurikawa) | 0,50–0,92 $/kom | 10–20 kom; **sa našim logom 50** | najbrži put do „našeg" proizvoda |
+| **Marker za gume**, beli | 0,30–0,80 $/kom | 1000 kom | drži do godinu dana ako se guma pripremi |
+| **Patosnice**, naš crtež | 2,18–5,20 $/kom jeftiniji rez<br>15–25 $/komplet štampani | 100 kom | sublimaciona štampa je jeftin ulaz; TPE/koža skuplje |
+| **LED znak**, naš crtež | 0,45–0,70 $ bez svetla<br>22–85 $ RGB sa aplikacijom | 100 kom / 1 set | ogroman raspon — zavisi da li svetli i da li ima upravljanje |
+| **Svetlo za noge** | — | — | traži se ponuda |
+| **Zatamnjenje tablice** | — | — | traži se ponuda |
+
+**Šta ovo znači za redosled.** Tsurikawa je jedini proizvod koji se prilagođava
+našim logom već od **50 komada** — to je jedini ulaz koji ne traži da se veže
+hiljadu komada pre prve prodaje. Marker je najjeftiniji po komadu ali traži
+MOQ 1000, pa je to odluka o zalihama, ne o proizvodu.
+
+- [ ] **[TI]** tražiti ponude od 3 dobavljača po proizvodu, ne od jednog
+- [ ] **[TI]** tražiti uzorak pre serije — isto pravilo kao za peškir
+- [ ] uzorak se meri i fotografiše; do tada na sajtu stoje CRTEŽI, ne fotke
+
+### Crteži opreme
+
+`node scripts/gen-oprema.mjs` → `public/oprema/` (sedam crteža + `_provera.png`).
+
+Namerno **linijski crtež u beloj**, ne fotografija ni AI render: nijedan od ovih
+proizvoda još ne postoji u našim rukama, pa bi slika koja liči na fotku bila
+tvrdnja koju ne možemo da podupremo — ista zamka koju smo već platili na peškiru.
+Crtež kaže „ovo je zamisao" bez ijedne reči objašnjenja.
+
+Isti fajlovi služe dvema stvarima: ikonice uz stavke na sajtu, i **predložak za
+dobavljača** — kao što je `logo/` otišao fabrici za peškir.
 
 ## 3.5 Čišćenje pre lansiranja
 

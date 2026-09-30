@@ -31,6 +31,7 @@ node scripts/gen-drykult.mjs         # izrezuje/skalira peškire u webp po tieru
 node scripts/gen-plate.mjs     # hero podloga, obe frakcije iz jedne slike
 node scripts/gen-instagram.mjs # Instagram paket (traži prethodni `npm run build` zbog fontova)
 node scripts/gen-ikone.mjs     # favicon + apple-touch + PWA ikonice iz znaka
+node scripts/gen-oprema.mjs    # linijski crtezi opreme za MOST WANTED
 node scripts/gen-reel.mjs      # uspravan reel iz sajta (traži pokrenut dev + ffmpeg)
 ```
 

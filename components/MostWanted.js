@@ -54,8 +54,8 @@ const KATEGORIJE = [
     Ikona: IkonaPatosnica,
     opis: 'Ono što se vidi čim otvoriš vrata.',
     stavke: [
-      { ime: 'Komplet za kabinu', nota: 'naš crtež, ne tuđi lik' },
-      { ime: 'Patosnica za prtljažnik', nota: 'ista tkanina, ista šara' },
+      { ime: 'Komplet za kabinu', nota: 'naš crtež, ne tuđi lik', slika: 'patosnica' },
+      { ime: 'Patosnica za prtljažnik', nota: 'ista tkanina, ista šara', slika: 'patosnicaPrtljaznik' },
     ],
   },
   {
@@ -64,11 +64,11 @@ const KATEGORIJE = [
     Ikona: IkonaDodaci,
     opis: 'Sitno, ali se primeti iz prvog pogleda.',
     stavke: [
-      { ime: 'Viseća ručka', nota: 'tsurikawa sa našim znakom' },
-      { ime: 'LED znak', nota: 'naš crtež, svetli' },
-      { ime: 'Svetlo za noge', nota: 'bežično, puna boja' },
-      { ime: 'Marker za gume', nota: 'bela slova na gumi' },
-      { ime: 'Zatamnjenje tablice', nota: 'za stazu i privatan posed' },
+      { ime: 'Viseća ručka', nota: 'tsurikawa sa našim znakom', slika: 'rucka' },
+      { ime: 'LED znak', nota: 'naš crtež, svetli', slika: 'ledZnak' },
+      { ime: 'Svetlo za noge', nota: 'bežično, puna boja', slika: 'svetlo' },
+      { ime: 'Marker za gume', nota: 'bela slova na gumi', slika: 'marker' },
+      { ime: 'Zatamnjenje tablice', nota: 'za stazu i privatan posed', slika: 'tablica' },
     ],
   },
 ];
@@ -125,10 +125,14 @@ export default function MostWanted() {
                   <span className={styles.stavkaOpis}>{opis}</span>
                 </span>
 
+                {/* Crteži su LINIJSKI, ne fotografije: nijedan od ovih
+                    proizvoda još ne postoji u našim rukama, pa bi slika koja
+                    liči na fotku bila tvrdnja koju ne možemo da podupremo.
+                    Crta ih scripts/gen-oprema.mjs. */}
                 <ul className={styles.spisak}>
                   {stavke.map((s) => (
                     <li key={s.ime} className={styles.red}>
-                      <span className={styles.crtica} aria-hidden="true" />
+                      <img className={styles.crtez} src={`/oprema/${s.slika}.png`} alt="" width="28" height="28" loading="lazy" />
                       <span className={styles.redIme}>{s.ime}</span>
                       <span className={styles.redNota}>{s.nota}</span>
                     </li>
