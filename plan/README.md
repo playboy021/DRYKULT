@@ -16,6 +16,7 @@ tome šta je lakše.
 | 04 | [PRODAJA.md](04-PRODAJA.md) | mora biti gotovo pre nego što roba stigne | Stefan |
 | 05 | [SNIMANJE.md](05-SNIMANJE.md) | **onog dana kad stignu uzorci** | Stefan |
 | 06 | [INSTAGRAM.md](06-INSTAGRAM.md) | odmah — nalog se pravi dok se roba čeka | Stefan + Claude |
+| 07 | [PRETPRODAJA.md](07-PRETPRODAJA.md) | **lista čekanja radi; čeka bazu i firmu** | Stefan + Claude |
 
 ---
 

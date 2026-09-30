@@ -5,6 +5,7 @@ import SiteHeader from '../components/SiteHeader';
 import HeroB from '../components/HeroB';
 import ProofSection from '../components/ProofSection';
 import MostWanted from '../components/MostWanted';
+import Pretprodaja from '../components/Pretprodaja';
 import FactionView from '../components/FactionView';
 import OrderSection from '../components/OrderSection';
 import ShatterTransition from '../components/ShatterTransition';
@@ -155,6 +156,7 @@ export default function Home() {
               onPoruci={potvrdi}
             />
             <ProofSection tier={tier} strana={prikaz} />
+            <Pretprodaja strana={prikaz} />
             <MostWanted />
           </>
         )}
@@ -166,6 +168,7 @@ export default function Home() {
             <FactionView strana={strana} onPoruci={setPrelaz} />
             <ProofSection tier={tier} strana={strana} />
             <OrderSection strana={strana} />
+            <Pretprodaja strana={strana} />
             <MostWanted />
           </>
         )}

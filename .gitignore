@@ -39,3 +39,6 @@ yarn-error.log*
 # Instagram — privremeni fajlovi snimanja reela (skripta ih sama briše)
 instagram/reels/_kadrovi/
 instagram/reels/_profil/
+
+# Podaci liste cekanja u razvoju — NE ide u git
+.podaci/
