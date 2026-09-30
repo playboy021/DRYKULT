@@ -49,8 +49,7 @@ Ostale tri stoje u istom folderu ako se ikad predomisliš.
 
 ## 6.3 Biografija — tri verzije
 
-Ograničenje je **150 znakova**. Link je jedan (`drykult.com` kad bude, dotle
-`drykult.vercel.app`).
+Ograničenje je **150 znakova**. Link je jedan: **`drykult.com`** (kupljen i živ od 30. 9.).
 
 **A — manifest** ← **IZABRANO, ovo se kuca u profil**
 ```
@@ -199,7 +198,7 @@ Tekst uz reel:
 - [ ] Uzmi ručku `@drykult` (i na TikToku)
 - [x] ~~Izaberi profilnu i biografiju~~ — **D (nišan)** i **A (manifest)**, 28. 9.
 - [x] ~~Reci koji pravac zida~~ — **C (TRAKA)**, 28. 9.
-- [ ] Domen, da biografija ne vodi na `vercel.app` (`plan/01` 1.3)
+- [x] ~~Domen, da biografija ne vodi na `vercel.app`~~ — `drykult.com` je živ (30. 9.)
 - [ ] Odluči da li ide i TikTok odmah — isti materijal, samo uspravan format
       (reel je već 9:16, ide bez ijedne izmene)
 

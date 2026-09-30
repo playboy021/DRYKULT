@@ -3,7 +3,7 @@
 Premium microfiber peškir za sušenje automobila. 90 × 70 cm, 1000 GSM, twisted-loop,
 **80 % poliester / 20 % poliamid** (sastav po fabričkoj deklaraciji od 27. 9. 2026;
 1000 je ono što PIŠE na fabričkom renderu; oboje se na uzorku proverava — `plan/01`, 1.4–1.5).
-Tržišta: RS, BA, ME. Cena **3000 RSD**. Krećemo od nule — nema kupaca ni recenzija.
+Tržišta: RS, BA, ME. Cena **3000 RSD**. Sajt je živ na **drykult.com** (domen kupljen i povezan 30. 9. 2026; `drykult.vercel.app` ostaje tehnička adresa). Krećemo od nule — nema kupaca ni recenzija.
 
 Nije prodavnica nego **kult oko sušenja**: kupci su članovi, i biraju stranu.
 
@@ -30,6 +30,8 @@ node scripts/gen-peskir-zeleni.mjs   # CRTA peškir po fabričkom mockupu (do pr
 node scripts/gen-drykult.mjs         # izrezuje/skalira peškire u webp po tieru
 node scripts/gen-plate.mjs     # hero podloga, obe frakcije iz jedne slike
 node scripts/gen-instagram.mjs # Instagram paket (traži prethodni `npm run build` zbog fontova)
+node scripts/gen-ikone.mjs     # favicon + apple-touch + PWA ikonice iz znaka
+node scripts/gen-reel.mjs      # uspravan reel iz sajta (traži pokrenut dev + ffmpeg)
 ```
 
 Preview konfiguracija je u `D:\projekti\.claude\launch.json` pod imenom `drykult-dev`.

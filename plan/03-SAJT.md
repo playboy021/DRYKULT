@@ -10,7 +10,7 @@ Ovo radi Claude. Tvoje je samo ono označeno sa **[TI]**.
 Most Wanted na 1440 × 900 i 375 × 812 — raspored je po planu, fontovi pravi. Ali
 snimak nije isto što i tvoje oči, a pola sajta i dalje nije viđeno u pokretu.
 
-Otvori `drykult.vercel.app` na kompu i na telefonu, 20 minuta, i piši šta bode oči.
+Otvori `drykult.com` na kompu i na telefonu, 20 minuta, i piši šta bode oči.
 
 Šta obavezno proveri:
 

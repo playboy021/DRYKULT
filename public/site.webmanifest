@@ -1,0 +1,27 @@
+{
+  "name": "DRYKULT — premium microfiber peškir za auto",
+  "short_name": "DRYKULT",
+  "description": "90 × 70 cm, 1000 GSM, 80 % poliester / 20 % poliamid. Garancija 2 godine.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#070E03",
+  "theme_color": "#070E03",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

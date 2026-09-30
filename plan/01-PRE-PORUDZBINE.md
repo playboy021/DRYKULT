@@ -38,11 +38,13 @@ utoliko bitnije da se registracija (1.1) stvarno pokrene.
 
 ## 1.3 Domen
 
-- [ ] Proveri i kupi `drykult.com` (i `.rs`)
+- [x] ~~Proveri i kupi `drykult.com`~~ — **kupljen i povezan, sajt je živ na
+      `drykult.com` (30. 9. 2026)**
+- [ ] `drykult.rs` — uzmi i njega dok je slobodan, makar samo da preusmerava
 - [ ] Uzmi iste ručke na Instagramu i TikToku dok su slobodne
 
-`drykult.vercel.app` nije adresa za brend koji ide svetski. Domen je jeftin, a
-ime na kom nemaš domen je ime koje ćeš morati da menjaš.
+Domen je rešen. `drykult.vercel.app` i dalje radi kao tehnička adresa, ali sve
+što ide napolje (biografija, etiketa, kutija, vizitke) nosi `drykult.com`.
 
 ## 1.4 Traži od fabrike, u istoj poruci sa logom
 
